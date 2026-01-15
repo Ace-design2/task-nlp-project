@@ -1,0 +1,97 @@
+/* Refined Style: Equal Widths, Active Label Only, Rounded Radius */
+.bottom-navigation {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  /* Pill container details */
+  width: 75%; /* Tighter width */
+  max-width: 320px; /* More compact max width */
+  height: 64px; 
+  
+  background-color: rgba(255, 255, 255, 0.7); /* Glassmorphism background */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 32px; /* Adjusted radius */
+  
+  outline: 1px solid rgba(255, 255, 255, 0.5); /* Glass border */
+  
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 0 4px; /* Reverted padding */
+  
+  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15); /* Glass shadow */
+  transition: all 0.3s ease;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative; 
+  z-index: 2; 
+  
+  padding: 0 2px;
+  flex: 1; /* Equal width for all items */
+  height: 56px; /* Adjusted height */
+  border-radius: 32px; /* Adjusted radius */
+  color: #888; 
+  transition: color 0.1s ease;
+}
+
+.bottom-nav-item.active {
+  color: #333; 
+  flex: 1; /* Keep equal width */
+}
+
+/* Icons */
+.bottom-nav-item .vuesax-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px; /* Always space for label */
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.bottom-nav-item.active .vuesax-icon {
+  margin-bottom: 4px;
+  transform: translateY(-2px);
+}
+
+/* Labels */
+.bottom-nav-item .nav-label {
+  display: block; /* ALWAYS VISIBLE */
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  z-index: 2;
+  transition: color 0.3s ease;
+  animation: none; /* No fade in needed if always there */
+}
+
+.bottom-nav-item.active .nav-label {
+  display: block; 
+}
+
+/* Dark Mode */
+.app-container.dark-mode .bottom-navigation {
+  background-color: rgba(30, 30, 30, 0.7); /* Dark glass */
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.app-container.dark-mode .bottom-nav-item {
+  color: #aaa; /* Better contrast than #888 */
+}
+
+.app-container.dark-mode .bottom-nav-item.active {
+  color: #fff;
+}

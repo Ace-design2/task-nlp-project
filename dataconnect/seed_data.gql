@@ -1,0 +1,80 @@
+mutation CreateDemoData @transaction @auth(level: PUBLIC, insecureReason: "This mutation is used to seed the database with demo data and is safe to expose to the public.") {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T12:00:00Z",
+      displayName: "demouser1",
+      email: "demouser1@example.com"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      createdAt: "2024-04-27T12:00:00Z",
+      displayName: "demouser2",
+      email: "demouser2@example.com"
+    }
+  ])
+  category_insertMany(data: [
+    {
+      id: "660e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T13:00:00Z",
+      name: "Work"
+    },
+    {
+      id: "660e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      createdAt: "2024-04-27T13:00:00Z",
+      name: "Personal"
+    }
+  ])
+  task_insertMany(data: [
+    {
+      id: "770e8400-e29b-41d4-a716-446655440000",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T14:00:00Z",
+      priority: "High",
+      status: "In Progress",
+      title: "Complete Project Proposal"
+    },
+    {
+      id: "770e8400-e29b-41d4-a716-446655440001",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      createdAt: "2024-04-27T14:00:00Z",
+      priority: "Medium",
+      status: "To Do",
+      title: "Grocery Shopping"
+    }
+  ])
+ subtask_insertMany(data: [
+    {
+      id: "880e8400-e29b-41d4-a716-446655440000",
+      taskId: "770e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T15:00:00Z",
+      status: "To Do",
+      title: "Draft Introduction"
+    },
+    {
+      id: "880e8400-e29b-41d4-a716-446655440001",
+      taskId: "770e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T16:00:00Z",
+      status: "To Do",
+      title: "Gather Research"
+    }
+  ])
+   aISuggestion_insertMany(data: [
+    {
+      id: "990e8400-e29b-41d4-a716-446655440000",
+      taskId: "770e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T17:00:00Z",
+      content: "Consider adding a section on market analysis.",
+      type: "Suggestion"
+    },
+    {
+      id: "990e8400-e29b-41d4-a716-446655440001",
+      taskId: "770e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-04-26T18:00:00Z",
+      content: "Ensure all sources are properly cited.",
+      type: "Review"
+    }
+  ])
+}

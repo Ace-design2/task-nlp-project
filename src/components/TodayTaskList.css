@@ -1,0 +1,243 @@
+.today-task-list-container {
+    width: 100%;
+    height: fit-content; /* Changed from 100% to hug contents */
+    padding: 12px;
+    border-radius: 8px;
+    outline: 1px black solid;
+    outline-offset: -1px;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 12px;
+    box-sizing: border-box;
+    transition: gap 0.3s ease, padding 0.3s ease;
+}
+
+.today-task-list-container.collapsed {
+    gap: 0;
+    padding-bottom: 0; 
+    /* border-bottom: none; Removed to avoid visual jump, simple height reduction is usually enough, or use transparent border */
+}
+
+.animated-tasks-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease-out;
+    width: 100%; /* Ensure it takes full width */
+}
+
+.animated-tasks-wrapper.open {
+    grid-template-rows: 1fr;
+}
+
+/* Inner container for grid animation trick */
+.animated-tasks-wrapper > div {
+    overflow: hidden;
+}
+
+.today-task-list-container.dark-mode {
+    border-color: #444;
+    outline: 1px #444 solid;
+}
+
+.today-header-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%; 
+}
+
+.today-header-row {
+    width: 100%;
+    padding: 0 0 12px 0; /* Move padding here if needed or keep existing */
+    /* Actually keeping the padding on the container is safer, but user wants it to hide the whole div. 
+       If I set gap to 0 on container, I need to make sure header doesn't have extra space below. */
+    justify-content: space-between;
+    align-items: center;
+    display: inline-flex;
+    box-sizing: border-box;
+}
+/* Revert header row padding to match original structure mostly, but clean up spacing */
+.today-header-row {
+    width: 100%;
+    padding: 0 0 12px 0; /* 12px padding bottom as requested */
+    justify-content: space-between;
+    align-items: center;
+    display: inline-flex;
+}
+
+.today-title {
+    color: black;
+    font-size: 24px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+}
+
+.today-title.dark-mode {
+    color: white;
+}
+
+.today-toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.today-divider {
+    align-self: stretch;
+    height: 0;
+    outline: 1px black solid;
+    outline-offset: -0.50px;
+}
+
+.today-divider.dark-mode {
+    outline: 1px #444 solid;
+}
+
+.tasks-container {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column; /* Default mobile: vertical */
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.task-item {
+    align-self: stretch;
+    justify-content: space-between;
+    align-items: center;
+    display: inline-flex;
+    /* transition: background-color 0.2s; Optional hover effect */
+    padding: 4px 8px; /* Added some padding for click targets if needed */
+    border-radius: 4px;
+}
+
+.task-title {
+    width: 100px;
+    color: black;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.task-title.dark-mode {
+    color: #eee;
+}
+
+.task-meta {
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    display: flex;
+}
+
+.task-time {
+    color: black;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.task-time.dark-mode {
+    color: #ccc;
+}
+
+.task-priority-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+}
+
+/* Tablet and Desktop Responsiveness */
+@media (min-width: 768px) {
+    .today-task-list-container {
+         /* Keep column flow for the main container (Header then Tasks) */
+         max-width: 800px;
+         align-self: center; /* Since it's in a flex column in Calendar.js */
+    }
+
+    .tasks-container {
+        flex-direction: row; /* Horizontal layout for tasks on desktop */
+        flex-wrap: wrap; /* Allow wrapping if too many tasks */
+        gap: 16px; /* Increase gap for horizontal layout */
+    }
+    
+    .task-item {
+        /* On desktop, tasks might need to be less "stretched" width-wise if row layout */
+        align-self: auto; 
+        flex: 1 1 200px; /* Grow and shrink, base width 200px */
+        /* Re-add border or background for card-like feel on desktop if desired, 
+           but sticking to minimal design from snippet for now */
+        border: 1px solid #1f1f1f20; /* Subtle border for separation in horizontal view */
+        padding: 8px;
+    }
+    .task-item.dark-mode {
+        border-color: #ffffff20;
+    }
+}
+
+/* Week View Specifics */
+.tasks-container.week-view {
+    flex-direction: column; /* Force vertical stack of days */
+    gap: 16px;
+    width: 100%;
+}
+
+.day-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.day-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+    padding-left: 4px;
+    margin-bottom: 4px;
+}
+
+.day-header.dark-mode {
+    color: #ccc;
+}
+
+.no-tasks {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #999;
+    padding-left: 8px;
+    font-style: italic;
+}
+
+/* If tasks are horizontal on desktop, ensure day sections still wrap them nicely */
+@media (min-width: 768px) {
+    .tasks-container.week-view {
+        flex-direction: column; /* Still stack days vertically */
+    }
+    
+    .day-section {
+         /* Allow tasks within a day to flow horizontally */
+         flex-direction: row; 
+         flex-wrap: wrap;
+         align-items: center; 
+    }
+    
+    .day-header {
+        width: 100%; 
+        margin-bottom: 8px;
+    }
+    
+    /* Ensure week view tasks align */
+    .day-section .task-item {
+        flex: 1 1 200px;
+    }
+}

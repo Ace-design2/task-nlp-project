@@ -1,0 +1,248 @@
+/* CreativeCalendar.css */
+
+/* Reusing variables from CreativeMyDay for consistency */
+.creative-calendar-container {
+  width: 100%;
+  padding: 0px 0px 100px 0px;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.creative-calendar-fixed-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 20px 20px 20px;
+  background: var(--glass-bg, rgba(255,255,255,0.85));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* Optional shadow for separation */
+}
+
+.creative-calendar-container.dark-mode .creative-calendar-fixed-section {
+    background: rgba(30,30,30,0.85);
+}
+
+/* Push details down (approx height ~400px of calendar card + header) */
+.selected-date-section {
+  /* This needs adjustment based on calendar height, but sticky might vary. 
+     A safe bet is margin-top if height is fixed, or padding-top on container. 
+     Actually, better to use padding-top on container if we can, but since this is next sibling, margin-top works.
+     Let's estimate ~380px. */
+  margin-top: 380px; 
+}
+
+.creative-calendar-container.dark-mode {
+  color: #fff;
+}
+
+/* Header */
+.calendar-creative-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.month-display {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  background: var(--accent-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.creative-nav-btn {
+  background: rgba(0,0,0,0.05);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.creative-calendar-container.dark-mode .creative-nav-btn {
+  background: rgba(255,255,255,0.1);
+}
+.creative-nav-btn:hover {
+  transform: scale(1.1);
+  background: rgba(0,0,0,0.1);
+}
+
+/* Calendar Grid Card */
+.creative-calendar-card {
+  background: var(--glass-bg, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.5));
+}
+
+.creative-calendar-container.dark-mode .creative-calendar-card {
+  background: rgba(30, 30, 30, 0.6);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.week-days-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 12px;
+}
+
+.week-day-label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 8px;
+  column-gap: 4px; /* Small gap between days */
+}
+
+.calendar-day-cell {
+  aspect-ratio: 1; /* Square cells */
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.calendar-day-cell:hover {
+  background: rgba(0,0,0,0.05);
+}
+.creative-calendar-container.dark-mode .calendar-day-cell:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.calendar-day-cell.selected {
+  background: var(--accent-color, #667eea);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.calendar-day-cell.today {
+  border: 2px solid var(--accent-color, #667eea);
+  font-weight: 700;
+}
+.calendar-day-cell.selected.today {
+  border: 2px solid rgba(255,255,255,0.8);
+}
+
+.calendar-day-cell.empty {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Dot Indicators */
+.day-dots-container {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  height: 4px; /* Fixed height container */
+}
+
+.day-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+}
+.calendar-day-cell.selected .day-dot {
+  background-color: white; /* White dots on selected background */
+  opacity: 0.8;
+}
+
+/* Selected Date Tasks Section */
+.selected-date-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.selected-date-header {
+  font-size: 18px;
+  font-weight: 600;
+  padding-left: 4px;
+}
+
+/* Reuse task card styles from CreativeMyDay or define simplified ones here if needed, 
+   but ideally we want them to look similar. I'll define a variant here. */
+
+.calendar-task-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-left: 4px solid transparent;
+}
+
+.creative-calendar-container.dark-mode .calendar-task-card {
+  background: #1E1E1E;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Priority Colors */
+.priority-high { border-left-color: #FF4B4B; }
+.priority-medium { border-left-color: #FFB800; }
+.priority-low { border-left-color: #00A231; }
+
+.cal-task-time {
+  font-size: 12px;
+  opacity: 0.6;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cal-task-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.empty-day-state {
+  text-align: center;
+  padding: 20px;
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 14px;
+}

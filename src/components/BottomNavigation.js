@@ -1,0 +1,70 @@
+import React from "react";
+import "./BottomNavigation.css";
+import VuesaxIcon from "./VuesaxIcon";
+import { motion } from "framer-motion";
+
+const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
+  const navItems = [
+    { id: "My Day", icon: "sun", label: "My Day" },
+    { id: "Chat", icon: "message-text", label: "Chat" },
+    { id: "Calendar", icon: "calendar", label: "Calendar" },
+    { id: "Account Settings", icon: "user", label: "Profile" },
+  ];
+
+  return (
+    <div className="bottom-navigation">
+      {navItems.map((item) => {
+        const isActive = activeTab === item.id;
+        return (
+          <button
+            key={item.id}
+            className={`bottom-nav-item ${isActive ? "active" : ""}`}
+            onClick={() => setActiveTab(item.id)}
+          >
+            {/* Sliding Indicator */}
+            {isActive && (
+              <motion.div
+                layoutId="nav-indicator"
+                className="nav-indicator"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: darkMode
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "#f0f0f0",
+                  borderRadius: "32px",
+                  zIndex: 0, // Behind content
+                }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            )}
+
+            <div
+              style={{
+                position: "relative",
+                zIndex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <VuesaxIcon
+                name={item.icon}
+                isActive={isActive}
+                variant={isActive ? "bold" : "linear"}
+                darkMode={darkMode}
+                style={{ width: 24, height: 24, marginBottom: 4 }}
+              />
+              <span className="nav-label">{item.label}</span>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+export default BottomNavigation;

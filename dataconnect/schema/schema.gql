@@ -1,0 +1,42 @@
+type User @table {
+  email: String!
+  displayName: String!
+  createdAt: Timestamp!
+  photoUrl: String
+  lastLogin: Timestamp
+}
+
+type Task @table {
+  user: User!
+  title: String!
+  status: String!
+  priority: String!
+  createdAt: Timestamp!
+  description: String
+  dueDate: Timestamp
+  completedAt: Timestamp
+}
+
+type Category @table {
+  user: User!
+  name: String!
+  createdAt: Timestamp!
+  color: String
+}
+
+type Subtask @table {
+  task: Task!
+  title: String!
+  status: String!
+  createdAt: Timestamp!
+  description: String
+  completedAt: Timestamp
+}
+
+type AISuggestion @table {
+  task: Task!
+  type: String!
+  content: String!
+  createdAt: Timestamp!
+  appliedAt: Timestamp
+}

@@ -1,0 +1,87 @@
+[debug] [2025-12-18T19:13:41.026Z] ----------------------------------------------------------------------
+[debug] [2025-12-18T19:13:41.030Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\USER\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-12-18T19:13:41.030Z] CLI Version:   15.0.0
+[debug] [2025-12-18T19:13:41.031Z] Platform:      win32
+[debug] [2025-12-18T19:13:41.031Z] Node Version:  v22.20.0
+[debug] [2025-12-18T19:13:41.031Z] Time:          Thu Dec 18 2025 20:13:41 GMT+0100 (West Africa Standard Time)
+[debug] [2025-12-18T19:13:41.032Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\USER\Desktop\Code\React\My App\task-nlp-app\public
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2025-12-18T19:13:46.493Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-12-18T19:13:46.494Z] > authorizing via signed-in user (showunmioluwasegun135@gmail.com)
+[debug] [2025-12-18T19:13:46.496Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:46.496Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:46.501Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/task-nlp-project [none]
+[debug] [2025-12-18T19:13:47.783Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/task-nlp-project 200
+[debug] [2025-12-18T19:13:47.783Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/task-nlp-project {"projectId":"task-nlp-project","projectNumber":"814428224322","displayName":"task-nlp-project","name":"projects/task-nlp-project","resources":{"hostingSite":"task-nlp-project"},"state":"ACTIVE","etag":"1_7ca3bb5d-2d67-496b-bccb-4face3e295e0"}
+[info] i  Using project task-nlp-project (task-nlp-project) . 
+[info] 
+=== Dataconnect Setup
+[info] i  dataconnect: ensuring required API firebasedataconnect.googleapis.com is enabled... 
+[debug] [2025-12-18T19:13:47.803Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:47.803Z] Checked if tokens are valid: true, expires at: 1766088699214
+[info] i  dataconnect: ensuring required API sqladmin.googleapis.com is enabled... 
+[debug] [2025-12-18T19:13:47.805Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-12-18T19:13:47.805Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/task-nlp-project
+[debug] [2025-12-18T19:13:49.137Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-12-18T19:13:49.137Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com [omitted]
+[warn] !  dataconnect: missing required API firebasedataconnect.googleapis.com. Enabling now... 
+[debug] [2025-12-18T19:13:49.139Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:49.139Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:49.139Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com:enable [none]
+[debug] [2025-12-18T19:13:49.139Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com:enable x-goog-quota-user=projects/task-nlp-project
+[debug] [2025-12-18T19:13:49.949Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com:enable 200
+[debug] [2025-12-18T19:13:49.950Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/firebasedataconnect.googleapis.com:enable [omitted]
+[debug] [2025-12-18T19:13:59.980Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:59.980Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:13:59.981Z] >>> [apiv2][query] GET https://firebasedataconnect.googleapis.com/v1/projects/task-nlp-project/locations/-/services [none]
+[debug] [2025-12-18T19:14:01.974Z] <<< [apiv2][status] GET https://firebasedataconnect.googleapis.com/v1/projects/task-nlp-project/locations/-/services 200
+[debug] [2025-12-18T19:14:01.975Z] <<< [apiv2][body] GET https://firebasedataconnect.googleapis.com/v1/projects/task-nlp-project/locations/-/services {}
+[info] i  : ensuring required API cloudaicompanion.googleapis.com is enabled... 
+[debug] [2025-12-18T19:14:11.001Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:11.001Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:11.002Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/cloudaicompanion.googleapis.com [none]
+[debug] [2025-12-18T19:14:11.002Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/cloudaicompanion.googleapis.com x-goog-quota-user=projects/task-nlp-project
+[debug] [2025-12-18T19:14:12.192Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/cloudaicompanion.googleapis.com 200
+[debug] [2025-12-18T19:14:12.193Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/task-nlp-project/services/cloudaicompanion.googleapis.com [omitted]
+[info] +  : required API cloudaicompanion.googleapis.com is enabled 
+[debug] [2025-12-18T19:14:28.669Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:28.669Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:28.670Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/task-nlp-project/billingInfo [none]
+[debug] [2025-12-18T19:14:31.047Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/task-nlp-project/billingInfo 200
+[debug] [2025-12-18T19:14:31.048Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/task-nlp-project/billingInfo {"name":"projects/task-nlp-project/billingInfo","projectId":"task-nlp-project","billingAccountName":"","billingEnabled":false}
+[debug] [2025-12-18T19:14:31.049Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:31.050Z] Checked if tokens are valid: true, expires at: 1766088699214
+[debug] [2025-12-18T19:14:31.050Z] >>> [apiv2][query] GET https://monitoring.googleapis.com/v3/projects/task-nlp-project/timeSeries/ filter=metric.type%3D%22serviceruntime.googleapis.com%2Fquota%2Fallocation%2Fusage%22+AND+metric.label.quota_metric+%3D+%22sqladmin.googleapis.com%2Ffdc_lifetime_free_trial_per_project%22&interval.endTime=2025-12-18T19%3A14%3A31.049Z&interval.startTime=2025-12-11T19%3A14%3A31.048Z
+[debug] [2025-12-18T19:14:44.717Z] <<< [apiv2][status] GET https://monitoring.googleapis.com/v3/projects/task-nlp-project/timeSeries/ 200
+[debug] [2025-12-18T19:14:44.717Z] <<< [apiv2][body] GET https://monitoring.googleapis.com/v3/projects/task-nlp-project/timeSeries/ {"unit":"1"}
+[warn] !  dataconnect: Cannot detect an existing app in the current directory. 
+[debug] [2025-12-18T19:14:59.602Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (C:\Users\USER\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:101:37)
+    at Interface.emit (node:events:519:28)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1128:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:271:20)
+    at ReadStream.emit (node:events:531:35)
+    at emitKeys (node:internal/readline/utils:370:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+    at ReadStream.emit (node:events:519:28)
+    at addChunk (node:internal/streams/readable:561:12)
+[error] 
+[error] Error: An unexpected error has occurred.

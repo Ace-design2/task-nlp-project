@@ -1,0 +1,176 @@
+/* TaskHistory.css */
+
+.task-history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 20px;
+}
+
+/* Message Wrapper (Right Aligned for "User Sent" feel) */
+.chat-message-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Default: User (Right) */
+  width: 100%;
+}
+
+.chat-message-wrapper.ai {
+  align-items: flex-start; /* AI (Left) */
+}
+
+/* The Bubble Itself */
+.chat-bubble {
+  background-color: #000000; /* User: Black bubble */
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 18px 18px 4px 18px; /* User curve */
+  max-width: 80%;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.1s;
+  cursor: pointer;
+}
+
+.chat-message-wrapper.ai .chat-bubble {
+  background-color: #E5E5EA; /* AI: Light Grey (Default iOS receiver) */
+  color: #000000;
+  border-radius: 18px 18px 18px 4px; /* AI curve */
+}
+
+
+.chat-bubble:active {
+  transform: scale(0.98);
+}
+
+/* Timestamp & Actions Row */
+.chat-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  margin-right: 4px;
+}
+
+.chat-timestamp {
+  font-size: 11px;
+  color: #888;
+  font-family: 'Inter', sans-serif;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+}
+
+/* Delete All Button container */
+.delete-all-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.delete-all-btn {
+  background-color: transparent;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.delete-all-btn:hover {
+  background-color: #ff4444;
+  color: white;
+}
+
+/* Typing Indicator */
+.typing-indicator-bubble {
+  background-color: #E5E5EA;
+  padding: 12px 16px;
+  border-radius: 18px 18px 18px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-top: 4px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #8E8E93;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Dark Mode Typing */
+.dark-mode-history .typing-indicator-bubble {
+  background-color: #333333;
+}
+
+.dark-mode-history .typing-dot {
+  background-color: #aaa;
+}
+
+/* Dark Mode Overrides */
+.dark-mode-history .chat-bubble {
+  background-color: #ffffff; /* User: White bubble in dark mode */
+  color: #000000; /* Black text */
+  box-shadow: none;
+}
+
+.dark-mode-history .chat-message-wrapper.ai .chat-bubble {
+  background-color: #333333; /* AI: Dark Grey in dark mode */
+  color: #ffffff; /* White text */
+}
+
+.dark-mode-history .chat-timestamp {
+  color: #aaa;
+}
+
+.dark-mode-history .delete-btn {
+  /* Invert icon handled by VuesaxIcon component logic usually, 
+     but if it's an SVG inside, we might need filter manually if not using component props correctly.
+     TaskHistory uses VuesaxIcon component passed 'darkMode' prop, so it handles color. 
+  */
+}

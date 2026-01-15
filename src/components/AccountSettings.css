@@ -1,0 +1,336 @@
+.settings-container {
+  padding: 0px;
+  max-width: 600px;
+  margin: 0 auto;
+  color: #333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-container.dark-mode {
+  color: #e0e0e0;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.edit-btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.edit-btn-icon:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.settings-container.dark-mode .edit-btn-icon:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.settings-section {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%; /* Ensure full width within parent */
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.settings-container.dark-mode .settings-section {
+  background-color: #1e1e1e;
+  box-shadow: none;
+  border: 1px solid #333;
+}
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: flex-start; /* Align top for inputs */
+  gap: 16px;
+  flex-wrap: wrap; /* Allow wrapping on very small screens */
+}
+
+/* Avatar */
+.avatar-wrapper {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0; /* Prevent avatar from squishing */
+}
+
+.avatar-wrapper.editable {
+    cursor: pointer;
+}
+
+.avatar-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.settings-container.dark-mode .avatar-placeholder {
+  background-color: #333;
+  color: #fff;
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.avatar-wrapper.editable:hover .avatar-overlay {
+    opacity: 1;
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically if not editing */
+  gap: 4px;
+  flex-grow: 1;
+  min-width: 0; /* Enable flex item shrinking/truncation */
+  width: 100%; /* Take available space */
+}
+
+.user-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  word-break: break-word; /* Prevent overflow */
+}
+
+.user-email {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  word-break: break-all; /* Prevent overflow */
+}
+
+.settings-container.dark-mode .user-email {
+  color: #aaa;
+}
+
+.user-phone {
+    margin: 0;
+    font-size: 14px;
+    color: #4B8BFF;
+    font-weight: 500;
+}
+
+/* Edit Mode Inputs */
+.edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%; /* Ensure it doesn't overflow parent */
+}
+
+.edit-input {
+    width: 100%;
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+    padding: 10px 12px; /* Slightly easier tap targets */
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box; /* Crucial for padding inclusion */
+}
+
+.settings-container.dark-mode .edit-input {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    color: #ccc;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+    flex-wrap: wrap; 
+}
+
+.save-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.settings-container.dark-mode .save-btn {
+    background-color: #fff;
+    color: #000;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.settings-container.dark-mode .cancel-btn {
+    color: #aaa;
+}
+
+/* Settings Item */
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.item-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Logout Button */
+.logout-button {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 75, 75, 0.1);
+  color: #FF4B4B;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 75, 75, 0.2);
+}
+
+/* Version Info */
+.version-info {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  margin-top: auto;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #000;
+}
+
+.settings-container.dark-mode input:checked + .slider {
+  background-color: #fff;
+}
+
+.settings-container.dark-mode .slider:before {
+    background-color: #000;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #000;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

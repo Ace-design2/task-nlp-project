@@ -1,0 +1,205 @@
+.calendar-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    box-sizing: border-box; /* Ensure padding doesn't affect width calculations */
+  }
+  
+  .calendar-container.dark-mode {
+      background-color: #121212;
+      color: white;
+  }
+  
+  .calendar-header {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+  }
+  
+  .nav-button {
+    padding: 8px;
+    background: #e3e3e3;
+    border-radius: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  
+  .nav-button.dark-mode {
+      background: #333;
+  }
+  
+  .nav-button:hover {
+    background: #d1d1d1;
+  }
+  .nav-button.dark-mode:hover {
+      background: #444;
+  }
+  
+  .month-title {
+    color: black;
+    font-size: 24px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    word-wrap: break-word;
+  }
+  
+  .month-title.dark-mode {
+      color: white;
+  }
+
+  .calendar-week-header {
+      width: 100%;
+      max-width: 800px;  /* Match grid max-width */
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 8px;
+  }
+
+  .week-day-name {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      color: #666;
+      font-size: 14px;
+  }
+  .week-day-name.dark-mode {
+      color: #aaa;
+  }
+  
+  .calendar-grid {
+    width: 100%;
+    max-width: 800px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+  
+  .calendar-day-card {
+    aspect-ratio: 1; /* Keep boxes square */
+    width: 100%;
+    border-radius: 8px;
+    outline: 1px black solid;
+    outline-offset: -1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 8px;
+    background: white;
+    box-sizing: border-box;
+    transition: all 0.2s;
+  }
+  
+  .calendar-day-card.empty {
+      background: transparent;
+      outline: none;
+  }
+
+  .calendar-day-card.dark-mode {
+      background: #1e1e1e;
+      outline: 1px #444 solid;
+  }
+  
+  .day-number {
+    align-self: stretch;
+    color: black;
+    font-size: 18px; /* Adjusted size */
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+  }
+
+  .day-number.dark-mode {
+      color: white;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 600px) {
+      .calendar-grid {
+          gap: 5px;
+      }
+      .calendar-day-card {
+           padding: 4px;
+      }
+      .day-number {
+          font-size: 14px;
+      }
+      .week-day-name {
+          font-size: 12px;
+      }
+  }
+
+.day-tasks-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.calendar-day-card.selected {
+    border: 2px solid #00A231; /* Green border for selected day */
+    background-color: rgba(0, 162, 49, 0.1);
+}
+
+.calendar-day-card.dark-mode.selected {
+    border: 2px solid #00A231;
+    background-color: rgba(0, 162, 49, 0.2);
+}
+
+/* Task List Styles for Calendar Bottom Section */
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.task-item.dark-mode {
+    background: #1E1E1E;
+    color: white;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.task-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.task-title.dark-mode {
+    color: white;
+}
+
+.task-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-time {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #888;
+}
+
+.task-time.dark-mode {
+    color: #aaa;
+}

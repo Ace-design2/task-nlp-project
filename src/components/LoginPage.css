@@ -1,0 +1,206 @@
+.login-page-wrapper {
+  width: 100%;
+  min-height: 100vh; /* Allow growth if content is tall */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f2f5; /* Light mode default */
+  padding: 20px; /* Prevent card touching edges on mobile */
+  box-sizing: border-box;
+  overflow-y: auto; /* Allow scrolling on short screens */
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px; /* Constrain width */
+  margin: auto; /* Keep centered if scrolling */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .login-page-wrapper {
+    padding: 16px;
+    align-items: flex-start; /* Move to top on very small screens if nice, or keep center */
+    padding-top: 40px; /* Ensure top space if keyboard opens/scrolling */
+  }
+}
+
+/* Toggle Row */
+.login-toggle-row {
+  display: flex;
+  align-self: stretch;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.toggle-btn.active {
+  background-color: #000000; /* Black instead of Blue */
+  color: white;
+}
+
+.toggle-btn.inactive {
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* Form Card */
+.form-card {
+  align-self: stretch;
+  padding: 24px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-header {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.highlight-text {
+  color: #000000; /* Black highlight */
+  font-weight: 700;
+}
+
+/* Inputs */
+.input-group {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #E0E0E0; /* Neutral grey border */
+  background-color: #fff;
+  gap: 12px;
+  transition: border-color 0.2s;
+}
+
+.input-group:focus-within {
+  border-color: #000000; /* Black focus border */
+}
+
+.input-icon-placeholder {
+  width: 16px;
+  height: 16px;
+  background-color: #000000; /* Black icon placeholder */
+  flex-shrink: 0;
+}
+
+.input-field {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+}
+
+/* Checkbox */
+.subscribe-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+}
+
+.subscribe-checkbox {
+  accent-color: #000000; /* Black accent */
+  width: 16px;
+  height: 16px;
+}
+
+/* Buttons */
+.action-btn {
+  padding: 14px;
+  border: 1px solid #000000; /* Black border */
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.action-btn.primary {
+  background-color: #000000; /* Black background */
+  color: white;
+}
+
+.action-btn.google {
+  background-color: white;
+  color: #333;
+  margin-top: 8px;
+  border-color: #E0E0E0;
+}
+
+.action-btn:hover {
+  opacity: 0.8;
+}
+
+/* Dark Mode Overrides */
+.login-page-wrapper.dark-mode {
+  background-color: #000000;
+}
+
+.dark-mode .form-card,
+.dark-mode .toggle-btn.inactive,
+.dark-mode .input-group,
+.dark-mode .action-btn.google {
+  background-color: #1e1e1e;
+  border-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode .toggle-btn.active,
+.dark-mode .action-btn.primary {
+  background-color: #ffffff; /* White active in dark mode */
+  color: #000;
+  border-color: #fff;
+}
+
+.dark-mode .highlight-text {
+  color: #ffffff;
+}
+
+.dark-mode .input-group:focus-within {
+  border-color: #ffffff;
+}
+
+.dark-mode .input-icon-placeholder {
+  background-color: #ffffff; /* White icons in dark mode */
+}
+
+/* Force Vuesax Icons to be white in dark mode inputs */
+.dark-mode .input-group img.vuesax-icon {
+  filter: invert(1) !important;
+}
+
+.dark-mode .form-header,
+.dark-mode .input-field {
+  color: #e0e0e0;
+}
+
+.dark-mode .subscribe-group {
+  color: #bbb;
+}
+
+.dark-mode .subscribe-checkbox {
+  accent-color: #ffffff;
+}
