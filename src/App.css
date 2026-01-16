@@ -318,6 +318,13 @@ body.dark-mode {
   display: flex;
 }
 
+.chat-category-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
 .chat-item-wrapper {
   align-self: stretch;
   flex-direction: column;

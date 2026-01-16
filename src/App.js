@@ -1035,23 +1035,21 @@ function App() {
             {!activeChatId ? (
               <div
                 style={{
-                  height: "100%",
+                  flex: 1,
                   display: "flex",
-                  justifyContent: "center",
-                  alignItems: "flex-start",
-                  paddingTop: "0px",
+                  flexDirection: "column",
+                  overflow: "hidden", // Constrain for scroll
                   width: "100%",
+                  marginTop: "10px", // Reduced top margin slightly
                 }}
               >
-                <div style={{ width: "100%", marginTop: "20px" }}>
-                  <ChatList
-                    chats={chats}
-                    darkMode={darkMode}
-                    onSelectChat={(id) => setActiveChatId(id)}
-                    onDeleteChat={handleDeleteChat}
-                    onCreateChat={() => setActiveChatId("new")}
-                  />
-                </div>
+                <ChatList
+                  chats={chats}
+                  darkMode={darkMode}
+                  onSelectChat={(id) => setActiveChatId(id)}
+                  onDeleteChat={handleDeleteChat}
+                  onCreateChat={() => setActiveChatId("new")}
+                />
               </div>
             ) : (
               <>
