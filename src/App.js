@@ -754,61 +754,64 @@ function App() {
     }
   };
 
+  const [notifiedTasks, setNotifiedTasks] = useState(new Set()); // Track notified tasks to prevent spam
+
   // Notification Polling (Every 60s)
   useEffect(() => {
-    if (!("Notification" in window) || Notification.permission !== "granted")
-      return;
-
+    // Always start the interval, so checks happen even if permission is granted "later"
     const intervalId = setInterval(() => {
+      // 1. Check Permissions inside the loop
+      if (
+        !("Notification" in window) ||
+        Notification.permission !== "granted"
+      ) {
+        return;
+      }
+
       const now = new Date();
       const currentDay = now.toISOString().split("T")[0];
-      const currentHm = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }); // "14:30"
 
-      // Also support 12h format match if stored that way "02:30 PM"
-      // But simpler to rely on our parsing storage "HH:MM".
-      // Let's assume tasks store "HH:MM" (24h) or "hh:mm am/pm".
-      // We'll normalize for comparison if needed, but for now let's just log potential matches.
+      // 2. Consistent Time Formatting (HH:MM in 24h format)
+      // This avoids locale issues (e.g. "2:05 PM" vs "14:05" vs "2.05 em")
+      // We assume `task.time` is stored as "HH:MM" (24h) or "HH:MM" logic is consistent.
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const currentHm = `${hours}:${minutes}`;
 
       tasks.forEach((task) => {
-        if (task.date === currentDay && !task.completed && !task.notified) {
-          // Check time match.
-          // Our stored time might be "14:30" or "02:30 PM".
-          // Let's try to normalize task time to compare.
+        // Unique ID for tracking this specific notification instance (task + date + time)
+        const notificationId = `${task.id}_${task.date}_${task.time}`;
 
-          // let taskTimeNormalized = task.time;
-          // Simple string match for MVP if formats align.
-          // If not, we'd need robust parsing here.
-          // Assuming user inputs normalized via our parser to "HH:MM" or similar.
+        if (
+          task.date === currentDay &&
+          !task.completed &&
+          !notifiedTasks.has(notificationId)
+        ) {
+          // Compare times
+          // Normalized check: exact match
+          if (task.time === currentHm) {
+            try {
+              new Notification("Task Due!", {
+                body: `${task.title} is due now.`,
+                icon: "/logo192.png", // Optional: add icon if available
+              });
 
-          // Heuristic: If task.time contains "am" or "pm", convert currentHm to 12h to compare, or vice versa.
-          // For now, let's just fire if strings match directly (e.g. "15:30" == "15:30")
-
-          if (
-            task.time === currentHm ||
-            task.time ===
-              now
-                .toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })
-                .toLowerCase()
-          ) {
-            new Notification("Task Due!", { body: task.title });
-
-            // Mark as notified locally or in DB to avoid double spam in same minute?
-            // Ideally updates DB. For now, rely on 60s interval jumping over the minute.
+              // Add to notified set to prevent repeat in same minute
+              setNotifiedTasks((prev) => {
+                const newSet = new Set(prev);
+                newSet.add(notificationId);
+                return newSet;
+              });
+            } catch (e) {
+              console.error("Notification failed", e);
+            }
           }
         }
       });
-    }, 60000);
+    }, 10000); // Poll every 10s (instead of 60s) to be more responsive, logic prevents spam.
 
     return () => clearInterval(intervalId);
-  }, [tasks]);
+  }, [tasks, notifiedTasks]);
 
   const handleLogout = () => {
     auth.signOut();

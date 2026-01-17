@@ -68,30 +68,21 @@ const CreativeMyDay = ({
         </div>
 
         {/* Progress Card (Glassmorphism) */}
-        <div className="progress-card">
-          <div className="progress-circle-container">
-            <svg className="progress-svg" viewBox="0 0 36 36">
-              <path
-                className="progress-circle-bg"
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className="progress-circle-fg"
-                strokeDasharray={`${percentage}, 100`}
-                d="M18 2.0845
-                  a 15.9155 15.9155 0 0 1 0 31.831
-                  a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
-            <div className="progress-text">{percentage}%</div>
-          </div>
-          <div className="progress-info">
-            <div className="progress-title">Daily Progress</div>
-            <div className="progress-subtitle">
-              {completed} of {total} tasks completed
+        <div className="progress-card horizontal">
+          <div className="progress-header-row">
+            <div>
+              <div className="progress-title">Daily Progress</div>
+              <div className="progress-subtitle">
+                {completed} of {total} tasks completed
+              </div>
             </div>
+            <div className="progress-percentage-large">{percentage}%</div>
+          </div>
+          <div className="progress-bar-container">
+            <div
+              className="progress-bar-fill"
+              style={{ width: `${percentage}%` }}
+            />
           </div>
         </div>
       </div>
