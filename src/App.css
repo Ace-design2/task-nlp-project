@@ -303,6 +303,10 @@ body.dark-mode {
   /* Make form container also slightly glass-like if desired, but sticking to solid for now to ensure readability */
     box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   }
+
+  .header.search-active .title {
+    display: none;
+  }
 }
 
 /* ChatList Styles */

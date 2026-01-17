@@ -6,7 +6,7 @@ import TaskHistory from "./components/TaskHistory";
 import VoiceInput from "./components/VoiceInput";
 import VuesaxIcon from "./components/VuesaxIcon";
 import BottomNavigation from "./components/BottomNavigation";
-import { LayoutGroup, motion } from "framer-motion";
+import { LayoutGroup, motion, AnimatePresence } from "framer-motion";
 import LoginPage from "./components/LoginPage";
 
 import LoadingScreen from "./components/LoadingScreen";
@@ -27,6 +27,7 @@ import {
   doc,
   setDoc,
   orderBy,
+  getDocs,
 } from "firebase/firestore";
 
 function App() {
@@ -61,6 +62,11 @@ function App() {
   const [chats, setChats] = useState([]); // List of chat sessions
   const [activeChatId, setActiveChatId] = useState(null); // Current active chat session
 
+  // Search State
+  const [searchResults, setSearchResults] = useState(null); // null = no search active
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [text, setText] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Chat");
@@ -147,7 +153,7 @@ function App() {
       user.uid,
       "chats",
       activeChatId,
-      "messages"
+      "messages",
     );
     const qHistory = query(historyRef, orderBy("createdAt", "asc"));
     const unsubHistory = onSnapshot(qHistory, (snapshot) => {
@@ -179,7 +185,7 @@ function App() {
             firstPrompt: text,
             createdAt: new Date().toISOString(),
             lastMessageTime: new Date().toISOString(),
-          }
+          },
         );
         currentChatId = newChatRef.id;
         setActiveChatId(currentChatId);
@@ -195,7 +201,7 @@ function App() {
           {
             lastMessageTime: new Date().toISOString(),
           },
-          { merge: true }
+          { merge: true },
         );
       } catch (e) {}
     }
@@ -214,7 +220,7 @@ function App() {
     try {
       await addDoc(
         collection(db, "users", user.uid, "chats", currentChatId, "messages"),
-        userMsg
+        userMsg,
       );
     } catch (e) {
       console.error("Error adding doc", e);
@@ -235,7 +241,7 @@ function App() {
               minute: "2-digit",
             }),
             createdAt: new Date().toISOString(),
-          }
+          },
         );
       } catch (e) {
         console.error("Error adding AI msg", e);
@@ -288,7 +294,7 @@ function App() {
         setIsTyping(true);
         setTimeout(() => {
           addAiMessage(
-            `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`
+            `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`,
           );
           setIsTyping(false);
         }, 1000);
@@ -346,7 +352,7 @@ function App() {
         setIsTyping(true);
         setTimeout(() => {
           addAiMessage(
-            "I didn't catch a time. Please specify a time (e.g. 6pm)."
+            "I didn't catch a time. Please specify a time (e.g. 6pm).",
           );
           setIsTyping(false);
         }, 1000);
@@ -367,7 +373,7 @@ function App() {
       setIsTyping(true);
       setTimeout(() => {
         addAiMessage(
-          `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`
+          `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`,
         );
         setIsTyping(false);
       }, 1000);
@@ -392,7 +398,7 @@ function App() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text }),
-          }
+          },
         );
       } catch (err) {
         throw new Error(`Connection Error: ${err.message}`);
@@ -450,7 +456,7 @@ function App() {
         if (!extractedDate) {
           const now = new Date();
           extractedDate = `${now.getFullYear()}-${String(
-            now.getMonth() + 1
+            now.getMonth() + 1,
           ).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
         }
 
@@ -493,7 +499,7 @@ function App() {
 
           if (extractedTime === "All Day") {
             console.log(
-              "No time detected. Triggering Conversational Fallback."
+              "No time detected. Triggering Conversational Fallback.",
             );
 
             setPendingTask({
@@ -528,7 +534,7 @@ function App() {
           setIsTyping(true);
           setTimeout(() => {
             addAiMessage(
-              `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`
+              `Scheduled: ${newTask.title} for ${newTask.time} on ${newTask.date}`,
             );
             setIsTyping(false);
           }, 1000);
@@ -705,7 +711,7 @@ function App() {
     if (!user || !activeChatId) return;
     try {
       await deleteDoc(
-        doc(db, "users", user.uid, "chats", activeChatId, "messages", id)
+        doc(db, "users", user.uid, "chats", activeChatId, "messages", id),
       );
     } catch (e) {
       console.error("Error deleting msg", e);
@@ -717,7 +723,15 @@ function App() {
     history.forEach(async (item) => {
       try {
         await deleteDoc(
-          doc(db, "users", user.uid, "chats", activeChatId, "messages", item.id)
+          doc(
+            db,
+            "users",
+            user.uid,
+            "chats",
+            activeChatId,
+            "messages",
+            item.id,
+          ),
         );
       } catch (e) {}
     });
@@ -803,15 +817,68 @@ function App() {
                 return newSet;
               });
             } catch (e) {
-              console.error("Notification failed", e);
+              console.error("Notification Error:", e);
             }
           }
         }
       });
-    }, 10000); // Poll every 10s (instead of 60s) to be more responsive, logic prevents spam.
+    }, 60000); // Check every minute
 
     return () => clearInterval(intervalId);
   }, [tasks, notifiedTasks]);
+
+  // --- DEEP SEARCH LOGIC ---
+  const handleDeepSearch = async (queryText) => {
+    if (!queryText || !queryText.trim()) {
+      setSearchResults(null);
+      return;
+    }
+
+    setIsSearching(true);
+    const lowerQuery = queryText.toLowerCase();
+    const matchedChats = [];
+
+    // We need to check all chats.
+    // Optimization: check title first? Plan says check all messages.
+    // To be thorough, we iterate all chats.
+
+    try {
+      for (const chat of chats) {
+        // 1. Fetch Messages - expensive check
+        const messagesRef = collection(
+          db,
+          "users",
+          user.uid,
+          "chats",
+          chat.id,
+          "messages",
+        );
+        // Optimization: Use separate try-catch per chat or parallelize
+        const msgSnap = await getDocs(messagesRef);
+
+        for (const doc of msgSnap.docs) {
+          const data = doc.data();
+          if (data.text && data.text.toLowerCase().includes(lowerQuery)) {
+            matchedChats.push({
+              type: "match",
+              id: chat.id, // For selection
+              chatTitle: chat.firstPrompt || "New Chat",
+              messageId: doc.id,
+              text: data.text,
+              timestamp: data.createdAt,
+              lastMessageTime: chat.lastMessageTime,
+            });
+          }
+        }
+      }
+      setSearchResults(matchedChats);
+    } catch (e) {
+      console.error("Deep search error:", e);
+      // Optional: show error toast
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const handleLogout = () => {
     auth.signOut();
@@ -944,7 +1011,7 @@ function App() {
 
       <div className="main-content">
         {/* Header */}
-        <div className="header">
+        <div className={`header ${isSearchOpen ? "search-active" : ""}`}>
           {activeTab === "Chat" && !activeChatId ? (
             <div
               style={{
@@ -983,18 +1050,89 @@ function App() {
               >
                 Chats
               </h1>
-              <button
-                onClick={() => setActiveChatId("new")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 8,
-                  display: "flex",
-                }}
+
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                <VuesaxIcon name="edit" variant="Linear" darkMode={darkMode} />
-              </button>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <AnimatePresence>
+                    {isSearchOpen && (
+                      <motion.input
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: "200px", opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleDeepSearch(searchQuery);
+                          }
+                        }}
+                        style={{
+                          border: `1px solid ${darkMode ? "#555" : "#ccc"}`,
+                          borderRadius: "8px", // Little border radius
+                          background: darkMode ? "#1a1a1a" : "#fff",
+                          color: darkMode ? "#fff" : "#000",
+                          marginRight: "8px",
+                          outline: "none",
+                          padding: "8px 12px", // Added padding
+                          fontSize: "14px",
+                        }}
+                        autoFocus
+                      />
+                    )}
+                  </AnimatePresence>
+                  <button
+                    onClick={() => {
+                      if (isSearchOpen) {
+                        // If open and has query, maybe clear it? Or just close?
+                        // User request: clicking icon opens input.
+                        // If open, let's close it.
+                        setIsSearchOpen(false);
+                        if (searchQuery) {
+                          setSearchQuery("");
+                          handleDeepSearch(""); // clear results
+                        }
+                      } else {
+                        setIsSearchOpen(true);
+                      }
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 8,
+                      display: "flex",
+                    }}
+                  >
+                    <VuesaxIcon
+                      name={isSearchOpen ? "close-circle" : "search-normal"}
+                      variant="Linear"
+                      darkMode={darkMode}
+                    />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setActiveChatId("new")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 8,
+                    display: "flex",
+                  }}
+                >
+                  <VuesaxIcon
+                    name="edit"
+                    variant="Linear"
+                    darkMode={darkMode}
+                  />
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -1022,10 +1160,10 @@ function App() {
                     ? "Chats"
                     : ""
                   : activeTab === "Account Settings" ||
-                    activeTab === "My Day" ||
-                    activeTab === "Calendar"
-                  ? ""
-                  : activeTab}
+                      activeTab === "My Day" ||
+                      activeTab === "Calendar"
+                    ? ""
+                    : activeTab}
               </h1>
               <div style={{ width: 40 }}></div>
             </>
@@ -1048,6 +1186,9 @@ function App() {
               >
                 <ChatList
                   chats={chats}
+                  searchResults={searchResults}
+                  isSearching={isSearching}
+                  onSearch={handleDeepSearch}
                   darkMode={darkMode}
                   onSelectChat={(id) => setActiveChatId(id)}
                   onDeleteChat={handleDeleteChat}
