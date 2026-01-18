@@ -8,7 +8,9 @@ import {
   signInWithPopup,
   googleProvider,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from "../firebase";
+import { signOut } from "firebase/auth";
 
 function LoginPage({ onLogin, darkMode }) {
   const [isSignUp, setIsSignUp] = useState(true);
@@ -16,17 +18,46 @@ function LoginPage({ onLogin, darkMode }) {
   const [password, setPassword] = useState("");
   const [subscribe, setSubscribe] = useState(false);
   const [error, setError] = useState("");
+  const [infoMessage, setInfoMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setInfoMessage("");
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        await sendEmailVerification(userCredential.user);
+
+        // STRICT MODE: Sign out immediately so they can't access the app
+        await signOut(auth);
+
+        setInfoMessage(
+          "Verification link sent to " +
+            email +
+            ". Please check your inbox and verify before logging in.",
+        );
+        setIsSignUp(false); // Switch to login view
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+
+        if (!userCredential.user.emailVerified) {
+          await signOut(auth); // Kick them out
+          setError(
+            "Email not verified. Please check your inbox for the verification link.",
+          );
+          return;
+        }
       }
-      // onAuthStateChanged in App.js will handle the state update
+      // onAuthStateChanged in App.js will handle the state update ONLY if we remain logged in
     } catch (err) {
       console.error("Auth Error:", err);
       setError(err.message);
@@ -77,6 +108,48 @@ function LoginPage({ onLogin, darkMode }) {
               style={{ color: "red", fontSize: "12px", marginBottom: "10px" }}
             >
               {error}
+              {error.includes("not verified") && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      // To resend, we actually need the user to be signed in temporarily.
+                      // This is tricky if we force signed them out.
+                      // Simplified flow: Just ask them to check inbox.
+                      // Or: Sign in -> Send -> Sign out.
+                      // Let's keep it simple for now: Just message.
+                      alert(
+                        "If you can't find the email, try signing in again, or check Spam.",
+                      );
+                    } catch (e) {
+                      console.error(e);
+                    }
+                  }}
+                  style={{
+                    display: "block",
+                    marginTop: "5px",
+                    background: "none",
+                    border: "none",
+                    color: "inherit",
+                    textDecoration: "underline",
+                    cursor: "pointer",
+                  }}
+                >
+                  Trouble finding it?
+                </button>
+              )}
+            </div>
+          )}
+
+          {infoMessage && (
+            <div
+              style={{
+                color: "#00A231",
+                fontSize: "12px",
+                marginBottom: "10px",
+              }}
+            >
+              {infoMessage}
             </div>
           )}
 
@@ -132,7 +205,7 @@ function LoginPage({ onLogin, darkMode }) {
                       await sendPasswordResetEmail(auth, email);
                       console.log("Reset email sent successfully.");
                       alert(
-                        "Password reset email sent! Check your inbox (and Spam folder)."
+                        "Password reset email sent! Check your inbox (and Spam folder).",
                       );
                     } catch (err) {
                       console.error("Password Reset Error:", err);
