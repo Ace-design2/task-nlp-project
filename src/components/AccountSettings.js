@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./AccountSettings.css";
 import VuesaxIcon from "./VuesaxIcon";
-import { auth, db } from "../firebase"; // Removed storage imports
+import { db } from "../firebase"; // Removed storage imports
 import { updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 
