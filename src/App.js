@@ -16,7 +16,8 @@ import CreativeCalendar from "./components/CreativeCalendar"; // New calendar co
 import ChatList from "./components/ChatList";
 import { getRandomTimePrompt } from "./constants/prompts";
 
-import { auth, db } from "./firebase";
+import { auth, db, messaging } from "./firebase";
+import { getToken, onMessage } from "firebase/messaging";
 import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
@@ -106,6 +107,42 @@ function App() {
       setIsLoading(false); // Stop loading once auth check is done
     });
     return unsubscribe;
+  }, []);
+
+  const [fcmToken, setFcmToken] = useState(null);
+
+  useEffect(() => {
+    // Request Notification Permission & Get Token
+    const setupNotifications = async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          // You need to add your VAPID key in .env as REACT_APP_FIREBASE_VAPID_KEY
+          const token = await getToken(messaging, {
+            vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+          });
+          if (token) {
+            console.log("FCM Token:", token);
+            setFcmToken(token);
+          }
+        }
+      } catch (error) {
+        console.error("Error setting up notifications:", error);
+      }
+    };
+
+    setupNotifications();
+
+    // Handle foreground messages
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("Foreground message received:", payload);
+      const { title, body } = payload.notification || {};
+      if (title) {
+        new Notification(title, { body, icon: "/icon.png" });
+      }
+    });
+
+    return () => unsubscribe && unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -250,7 +287,11 @@ function App() {
 
     // Helper to add Task
     const addTaskToDb = async (taskData) => {
-      await addDoc(collection(db, "users", user.uid, "tasks"), taskData);
+      await addDoc(collection(db, "users", user.uid, "tasks"), {
+        ...taskData,
+        pushToken: fcmToken || null,
+        sent: false,
+      });
     };
 
     // --- CASE 0: HANDLE PENDING AM/PM ANSWER ---
