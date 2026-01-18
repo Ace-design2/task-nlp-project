@@ -78,68 +78,74 @@ module.exports = async function handler(req, res) {
   const promises = [];
   let sentCount = 0;
 
-  snapshot.forEach((doc) => {
-    const task = doc.data();
-    if (!task.date || !task.time || !task.pushToken) return;
+  snapshot.forEach((docSnap) => {
+    const task = docSnap.data();
+    // We need userId. task doc is at users/{userId}/tasks/{taskId}
+    // So parent is tasks, parent.parent is user Doc
+    const userId = docSnap.ref.path.split("/")[1];
 
-    // Construct a Date object from the task's local string
-    // We accept that "2024-01-18T18:00" means "18:00 User Time"
-    // We simply want to fire it if "Server Time" >= "User Time" ?? No.
-    //
-    // If we don't know the user's timezone, we can't know when 18:00 is.
-    //
-    // TEMPORARY SOLUTION (Works for single timezone mostly):
-    // We will parse the task date/time securely.
-    // We will assume the user wants the notification when the server reaches that time (UTC).
-    //
-    // Wait, that's bad. 18:00 UTC is 19:00 Paris.
-    //
-    // RELIABLE FIX:
-    // We will send the offset in the Task? No, we didn't implement that.
-    //
-    // Let's use `new Date().toLocaleString("en-US", {timeZone: "Europe/London"})` (or whatever default)
-    //
-    // For now, I will stick to the previous logic: `new Date()` on server.
-    // And I will add a comment that for global use, Timezone must be stored.
+    if (!task.date || !task.time) return;
 
     const currentDay = now.toISOString().split("T")[0]; // UTC date
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const currentTime = `${hours}:${minutes}`; // UTC time
 
-    // Simplest matched logic
+    // Time Check
     if (task.date === currentDay && task.time <= currentTime) {
-      // Send!
-      const message = {
-        token: task.pushToken,
-        notification: {
-          title: "Reminder: " + (task.title || "Task"),
-          body: `It is time! (${task.time})`,
-        },
-        data: {
-          title: "Reminder: " + (task.title || "Task"),
-          body: `It is now ${task.time}.`,
-          taskId: doc.id,
-        },
-      };
+      // Multi-Device Broadcasting
+      // We fetch ALL tokens for this user
+      const sendPromise = db
+        .collection("users")
+        .doc(userId)
+        .collection("fcm_tokens")
+        .get()
+        .then(async (tokenSnapshot) => {
+          if (tokenSnapshot.empty) {
+            console.log(`No tokens for user ${userId}, marking sent anyway.`);
+            return;
+          }
 
-      promises.push(
-        messaging
-          .send(message)
-          .then(() => {
-            sentCount++;
-            batch.update(doc.ref, {
-              sent: true,
-              sentAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
-          })
-          .catch((err) => {
-            console.error("Failed to send", err);
-            if (err.code === "messaging/registration-token-not-registered") {
-              batch.update(doc.ref, { pushToken: null });
-            }
-          }),
-      );
+          const sendTasks = [];
+          tokenSnapshot.forEach((tokenDoc) => {
+            const tokenData = tokenDoc.data();
+            if (!tokenData.token) return;
+
+            const message = {
+              token: tokenData.token,
+              notification: {
+                title: "Reminder: " + (task.title || "Task"),
+                body: `It is time! (${task.time})`,
+              },
+              data: {
+                taskId: docSnap.id,
+              },
+            };
+
+            sendTasks.push(
+              messaging.send(message).catch((err) => {
+                console.error("Failed to send to device", err);
+                if (
+                  err.code === "messaging/registration-token-not-registered"
+                ) {
+                  // Delete invalid token
+                  tokenDoc.ref.delete();
+                }
+              }),
+            );
+          });
+          await Promise.all(sendTasks);
+        })
+        .then(() => {
+          sentCount++;
+          // Mark task as sent
+          batch.update(docSnap.ref, {
+            sent: true,
+            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        });
+
+      promises.push(sendPromise);
     }
   });
 

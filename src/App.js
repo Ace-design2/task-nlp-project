@@ -111,13 +111,13 @@ function App() {
 
   const [fcmToken, setFcmToken] = useState(null);
 
+  // 1. Get Token
   useEffect(() => {
-    // Request Notification Permission & Get Token
     const setupNotifications = async () => {
       try {
+        if (!("Notification" in window)) return;
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
-          // You need to add your VAPID key in .env as REACT_APP_FIREBASE_VAPID_KEY
           const token = await getToken(messaging, {
             vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
           });
@@ -130,10 +130,8 @@ function App() {
         console.error("Error setting up notifications:", error);
       }
     };
-
     setupNotifications();
 
-    // Handle foreground messages
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log("Foreground message received:", payload);
       const { title, body } = payload.notification || {};
@@ -141,9 +139,32 @@ function App() {
         new Notification(title, { body, icon: "/icon.png" });
       }
     });
-
     return () => unsubscribe && unsubscribe();
   }, []);
+
+  // 2. Save Token to User Profile (Multi-Device Support)
+  useEffect(() => {
+    if (user && fcmToken) {
+      const saveToken = async () => {
+        try {
+          // Use token as doc ID to prevent duplicates
+          const tokenRef = doc(db, "users", user.uid, "fcm_tokens", fcmToken);
+          await setDoc(
+            tokenRef,
+            {
+              token: fcmToken,
+              lastSeen: new Date().toISOString(),
+              platform: navigator.userAgent,
+            },
+            { merge: true },
+          );
+        } catch (e) {
+          console.error("Error saving token:", e);
+        }
+      };
+      saveToken();
+    }
+  }, [user, fcmToken]);
 
   useEffect(() => {
     if (!user) return;
