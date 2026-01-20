@@ -11,9 +11,10 @@ import LoginPage from "./components/LoginPage";
 
 import LoadingScreen from "./components/LoadingScreen";
 import AccountSettings from "./components/AccountSettings";
-import CreativeMyDay from "./components/CreativeMyDay"; // New dashboard component
-import CreativeCalendar from "./components/CreativeCalendar"; // New calendar component
+import CreativeMyDay from "./components/CreativeMyDay";
+import CreativeCalendar from "./components/CreativeCalendar";
 import ChatList from "./components/ChatList";
+import VerificationPending from "./components/VerificationPending";
 import { getRandomTimePrompt } from "./constants/prompts";
 
 import { auth, db, messaging } from "./firebase";
@@ -32,7 +33,7 @@ import {
 } from "firebase/firestore";
 
 function App() {
-  // Dark Mode State - initialize directly to avoid flash
+  // Dark Mode State
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -41,30 +42,29 @@ function App() {
   });
 
   useEffect(() => {
-    // Check system preference
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e) => setDarkMode(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  const [isLoading, setIsLoading] = useState(true); // Loading State
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Auth State
-  const [user, setUser] = useState(null); // Firebase User
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [userProfile, setUserProfile] = useState(() => {
     const cached = localStorage.getItem("cachedUserProfile");
     return cached ? JSON.parse(cached) : null;
-  }); // Firestore User Profile (Phone, etc)
+  });
   const [history, setHistory] = useState([]);
   const [tasks, setTasks] = useState(() => {
     const cached = localStorage.getItem("cachedTasks");
     return cached ? JSON.parse(cached) : [];
   });
-  const [chats, setChats] = useState([]); // List of chat sessions
-  const [activeChatId, setActiveChatId] = useState(null); // Current active chat session
+  const [chats, setChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
 
-  // Search State
-  const [searchResults, setSearchResults] = useState(null); // null = no search active
+  const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -72,42 +72,63 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("Chat");
 
-  // Interactive Fallback State
   const [pendingTask, setPendingTask] = useState(null);
   const [isWaitingForTime, setIsWaitingForTime] = useState(false);
-  const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false); // New state for AM/PM check
-  const [isTyping, setIsTyping] = useState(false); // Typing animation state
+  const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   // --- FIREBASE AUTH & FIRESTORE INTEGRATION ---
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        setIsAuthenticated(true);
+        // User is logged in (could be verified or unverified)
         setUser(currentUser);
-        // Subscribe to User Profile Data
-        onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-            setUserProfile(data);
-            localStorage.setItem("cachedUserProfile", JSON.stringify(data));
+        setIsAuthenticated(true);
+        setIsEmailVerified(currentUser.emailVerified);
+
+        // ONLY Start listeners if verified
+        if (currentUser.emailVerified) {
+          // Subscribe to User Profile Data
+          onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
+            if (doc.exists()) {
+              const data = doc.data();
+              setUserProfile(data);
+              localStorage.setItem("cachedUserProfile", JSON.stringify(data));
+            }
+          });
+
+          // Update Last Login
+          try {
+            const userRef = doc(db, "users", currentUser.uid);
+            await setDoc(
+              userRef,
+              {
+                lastLoginAt: new Date().toISOString(),
+                email: currentUser.email,
+              },
+              { merge: true },
+            );
+          } catch (e) {
+            console.error("Error updating login timestamp", e);
           }
-        });
+        }
       } else {
+        // Logged out
         setIsAuthenticated(false);
         setUser(null);
+        setIsEmailVerified(false);
         setUserProfile(null);
         setTasks([]);
         setHistory([]);
         setChats([]);
         setActiveChatId(null);
-        // Optional: Clear cache on logout?
-        // localStorage.removeItem("cachedTasks");
-        // localStorage.removeItem("cachedUserProfile");
       }
-      setIsLoading(false); // Stop loading once auth check is done
+      setIsLoading(false);
     });
     return unsubscribe;
   }, []);
+
+  // ... [Rest of logic]
 
   const [fcmToken, setFcmToken] = useState(null);
 
@@ -949,6 +970,17 @@ function App() {
   // Show Loading Screen
   if (isLoading) {
     return <LoadingScreen darkMode={darkMode} />;
+  }
+
+  // If logged in but NOT verified -> Show Pending Screen
+  if (user && !isEmailVerified) {
+    return (
+      <VerificationPending
+        user={user}
+        onSignOut={() => auth.signOut()}
+        darkMode={darkMode}
+      />
+    );
   }
 
   // If not authenticated, show Login Page

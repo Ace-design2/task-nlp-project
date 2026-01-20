@@ -10,9 +10,9 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
 } from "../firebase";
-import { signOut } from "firebase/auth";
 
 function LoginPage({ onLogin, darkMode }) {
+  // State for form fields
   const [isSignUp, setIsSignUp] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +20,38 @@ function LoginPage({ onLogin, darkMode }) {
   const [error, setError] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
 
+  const validatePassword = (pwd) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumbers = /\d/.test(pwd);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pwd);
+
+    if (pwd.length < minLength)
+      return "Password must be at least 8 characters long.";
+    if (!hasUpperCase)
+      return "Password must contain at least one uppercase letter.";
+    if (!hasLowerCase)
+      return "Password must contain at least one lowercase letter.";
+    if (!hasNumbers) return "Password must contain at least one number.";
+    if (!hasSpecialChar)
+      return "Password must contain at least one special character.";
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setInfoMessage("");
+
+    if (isSignUp) {
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        setError(passwordError);
+        return;
+      }
+    }
+
     try {
       if (isSignUp) {
         const userCredential = await createUserWithEmailAndPassword(
@@ -31,36 +59,29 @@ function LoginPage({ onLogin, darkMode }) {
           email,
           password,
         );
+        // Send verification email
         await sendEmailVerification(userCredential.user);
-
-        // STRICT MODE: Sign out immediately so they can't access the app
-        await signOut(auth);
-
-        setInfoMessage(
-          "Verification link sent to " +
-            email +
-            ". Please check your inbox and verify before logging in.",
-        );
-        setIsSignUp(false); // Switch to login view
+        // App.js will detect !emailVerified and show VerificationPending.js
       } else {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password,
-        );
-
-        if (!userCredential.user.emailVerified) {
-          await signOut(auth); // Kick them out
-          setError(
-            "Email not verified. Please check your inbox for the verification link.",
-          );
-          return;
-        }
+        await signInWithEmailAndPassword(auth, email, password);
+        // App.js will detect state change and handle routing
       }
-      // onAuthStateChanged in App.js will handle the state update ONLY if we remain logged in
     } catch (err) {
       console.error("Auth Error:", err);
-      setError(err.message);
+      if (err.code === "auth/email-already-in-use") {
+        setError("This email is already in use. Please log in instead.");
+      } else if (err.code === "auth/too-many-requests") {
+        setError(
+          "Too many attempts. Account temporarily locked to prevent brute-force. Try again later.",
+        );
+      } else if (
+        err.code === "auth/wrong-password" ||
+        err.code === "auth/user-not-found"
+      ) {
+        setError("Invalid email or password.");
+      } else {
+        setError(err.message);
+      }
     }
   };
 
@@ -111,20 +132,9 @@ function LoginPage({ onLogin, darkMode }) {
               {error.includes("not verified") && (
                 <button
                   type="button"
-                  onClick={async () => {
-                    try {
-                      // To resend, we actually need the user to be signed in temporarily.
-                      // This is tricky if we force signed them out.
-                      // Simplified flow: Just ask them to check inbox.
-                      // Or: Sign in -> Send -> Sign out.
-                      // Let's keep it simple for now: Just message.
-                      alert(
-                        "If you can't find the email, try signing in again, or check Spam.",
-                      );
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }}
+                  onClick={() =>
+                    alert("Please check your inbox and spam/junk folder.")
+                  }
                   style={{
                     display: "block",
                     marginTop: "5px",
@@ -201,9 +211,7 @@ function LoginPage({ onLogin, darkMode }) {
                       return;
                     }
                     try {
-                      console.log("Attempting to send reset email to:", email);
                       await sendPasswordResetEmail(auth, email);
-                      console.log("Reset email sent successfully.");
                       alert(
                         "Password reset email sent! Check your inbox (and Spam folder).",
                       );
