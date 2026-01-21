@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import VuesaxIcon from "./VuesaxIcon";
+import React, { useEffect, useRef } from "react";
+
 import { SoftGradient } from "../utils/SoftGradient";
 
 const AstraStartPage = ({ onTaskStart, darkMode }) => {
-  const [inputText, setInputText] = useState("");
   const orbRef = useRef(null);
   const gradientRef = useRef(null);
 
@@ -23,18 +22,6 @@ const AstraStartPage = ({ onTaskStart, darkMode }) => {
       }
     };
   }, []);
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      onTaskStart(inputText);
-    }
-  };
-
-  const prompts = [
-    "pixelate a few ideas to round out your dashboard...",
-    "Draft a quick email to the team...",
-    "Schedule a meeting for tomorrow...",
-  ];
 
   return (
     <div className={`astra-start-page ${darkMode ? "dark" : ""}`}>
