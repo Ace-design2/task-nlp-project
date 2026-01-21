@@ -3,7 +3,7 @@ import "./BottomNavigation.css";
 import VuesaxIcon from "./VuesaxIcon";
 import { motion } from "framer-motion";
 
-const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
+const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
   const navItems = [
     { id: "My Day", icon: "sun", label: "My Day" },
     { id: "Chat", icon: "message-text", label: "Chat" },
@@ -19,7 +19,12 @@ const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
           <button
             key={item.id}
             className={`bottom-nav-item ${isActive ? "active" : ""}`}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (item.id === "Chat" && onNewChat) {
+                onNewChat();
+              }
+            }}
           >
             {/* Sliding Indicator */}
             {isActive && (

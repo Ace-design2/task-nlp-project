@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import MicIcon from "./MicIcon";
+import VuesaxIcon from "./VuesaxIcon";
 
 const styles = {
   container: { position: "relative", display: "flex", alignItems: "center" },
@@ -11,29 +11,29 @@ const styles = {
   },
   overlay: {
     position: "absolute",
-    bottom: '80px', // Position above the form
+    bottom: "80px", // Position above the form
     left: 0,
     right: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 10,
   },
   listeningAlert: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#333",
     color: "white",
     padding: "10px 20px",
     borderRadius: "20px",
     fontSize: "14px",
     whiteSpace: "nowrap",
-    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+    boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
   },
 };
 
-export default function VoiceInput({ onTextReady, darkMode }) {
+export default function VoiceInput({ onTextReady, darkMode, className }) {
   const [listening, setListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const recognitionRef = useRef(null);
@@ -46,7 +46,7 @@ export default function VoiceInput({ onTextReady, darkMode }) {
       setIsSupported(false);
       return;
     }
-    
+
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = true;
@@ -73,7 +73,7 @@ export default function VoiceInput({ onTextReady, darkMode }) {
 
       if (event.error === "network") {
         alert(
-          "Network error. Make sure you have internet connection and microphone is allowed."
+          "Network error. Make sure you have internet connection and microphone is allowed.",
         );
       } else if (event.error === "no-speech") {
         // Ignore no-speech error, just stop listening
@@ -83,7 +83,10 @@ export default function VoiceInput({ onTextReady, darkMode }) {
     };
 
     recognition.onend = () => {
-      console.log("Speech recognition ended, transcript:", transcriptRef.current);
+      console.log(
+        "Speech recognition ended, transcript:",
+        transcriptRef.current,
+      );
       setListening(false);
 
       if (transcriptRef.current && transcriptRef.current.trim()) {
@@ -102,7 +105,11 @@ export default function VoiceInput({ onTextReady, darkMode }) {
     };
   }, [onTextReady]);
 
-  const toggleListening = () => {
+  const toggleListening = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (!recognitionRef.current) return;
 
     if (listening) {
@@ -122,19 +129,34 @@ export default function VoiceInput({ onTextReady, darkMode }) {
   return (
     <div style={styles.container}>
       {!isSupported ? (
-        <button style={{...styles.btn, opacity: 0.5, cursor: 'not-allowed'}} disabled title="Speech recognition is not supported in your browser. Try Chrome, Edge, or Safari.">
-          <MicIcon darkMode={darkMode} />
+        <button
+          type="button"
+          style={{ ...styles.btn, opacity: 0.5, cursor: "not-allowed" }}
+          disabled
+          title="Speech recognition is not supported in your browser."
+          className={className}
+        >
+          <VuesaxIcon
+            name="microphone-slash"
+            variant="Linear"
+            darkMode={darkMode}
+          />
         </button>
       ) : (
-        <button onClick={toggleListening} style={styles.btn}>
-          <MicIcon darkMode={darkMode} />
+        <button
+          type="button"
+          onClick={toggleListening}
+          style={styles.btn}
+          className={className}
+        >
+          <VuesaxIcon name="microphone" variant="Linear" darkMode={darkMode} />
         </button>
       )}
       {listening && (
         <div style={styles.overlay}>
           <div style={styles.listeningAlert}>
-            <MicIcon darkMode={true} />
-            <span style={{ marginLeft: '10px' }}>Listening...</span>
+            <VuesaxIcon name="microphone" variant="Bold" darkMode={true} />
+            <span style={{ marginLeft: "10px" }}>Listening...</span>
           </div>
         </div>
       )}

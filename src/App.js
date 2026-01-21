@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 
-import TaskInput from "./components/TaskInput";
 import TaskHistory from "./components/TaskHistory";
 import VoiceInput from "./components/VoiceInput";
 import VuesaxIcon from "./components/VuesaxIcon";
@@ -14,7 +13,9 @@ import AccountSettings from "./components/AccountSettings";
 import CreativeMyDay from "./components/CreativeMyDay";
 import CreativeCalendar from "./components/CreativeCalendar";
 import ChatList from "./components/ChatList";
+
 import VerificationPending from "./components/VerificationPending";
+import AstraStartPage from "./components/AstraStartPage"; // [NEW] relative import
 import { getRandomTimePrompt } from "./constants/prompts";
 
 import { auth, db, messaging } from "./firebase";
@@ -70,7 +71,7 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [text, setText] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("Chat");
+  const [activeTab, setActiveTab] = useState("My Day");
 
   const [pendingTask, setPendingTask] = useState(null);
   const [isWaitingForTime, setIsWaitingForTime] = useState(false);
@@ -314,12 +315,13 @@ function App() {
           collection(db, "users", user.uid, "chats", currentChatId, "messages"),
           {
             text: msgText,
-            sender: "ai",
+            sender: "ai", // Internal ID can remain "ai" or change to "astra" if backend supports it. Keeping "ai" for safety for now.
             timestamp: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             }),
             createdAt: new Date().toISOString(),
+            isAstra: true, // Tag as Astra for potential future use
           },
         );
       } catch (e) {
@@ -373,7 +375,7 @@ function App() {
         setPendingTask(null);
         setIsWaitingForAmPm(false);
 
-        // AI Confirmation
+        // Astra Confirmation
         setIsTyping(true);
         setTimeout(() => {
           addAiMessage(
@@ -626,7 +628,7 @@ function App() {
         } else if (intent === "general_message") {
           setIsTyping(true);
           setTimeout(() => {
-            addAiMessage(`AI: ${data.task || text}`);
+            addAiMessage(`Astra: ${data.task || text}`); // [MODIFIED] Branding
             setIsTyping(false);
           }, 1000);
         }
@@ -1023,6 +1025,7 @@ function App() {
             className={`sidebar-item ${activeTab === "Chat" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("Chat");
+              setActiveChatId("new");
               setIsSidebarOpen(false);
             }}
           >
@@ -1267,28 +1270,75 @@ function App() {
         {/* Content Body */}
         {activeTab === "Chat" ? (
           <>
-            {!activeChatId ? (
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  overflow: "hidden", // Constrain for scroll
-                  width: "100%",
-                  marginTop: "10px", // Reduced top margin slightly
-                }}
-              >
-                <ChatList
-                  chats={chats}
-                  searchResults={searchResults}
-                  isSearching={isSearching}
-                  onSearch={handleDeepSearch}
-                  darkMode={darkMode}
-                  onSelectChat={(id) => setActiveChatId(id)}
-                  onDeleteChat={handleDeleteChat}
-                  onCreateChat={() => setActiveChatId("new")}
-                />
-              </div>
+            {!activeChatId || activeChatId === "new" ? (
+              // NEW EMPTY STATE
+              <>
+                <div
+                  style={{
+                    flex: 1,
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {activeChatId === "new" && (
+                    <div
+                      style={{
+                        padding: "10px 0",
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <button
+                        onClick={() => setActiveChatId(null)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          paddingLeft: 0,
+                        }}
+                      >
+                        <VuesaxIcon
+                          name="arrow-left"
+                          variant="Bold"
+                          darkMode={darkMode}
+                        />
+                      </button>
+                    </div>
+                  )}
+                  {(!chats || chats.length === 0) && activeChatId === "new" ? (
+                    <AstraStartPage
+                      onTaskStart={handleProcessTask}
+                      darkMode={darkMode}
+                    />
+                  ) : !activeChatId ? (
+                    <ChatList
+                      chats={chats}
+                      searchResults={searchResults}
+                      isSearching={isSearching}
+                      onSearch={handleDeepSearch}
+                      darkMode={darkMode}
+                      onSelectChat={(id) => setActiveChatId(id)}
+                      onDeleteChat={handleDeleteChat}
+                      onCreateChat={() => setActiveChatId("new")}
+                    />
+                  ) : (
+                    // Case: activeChatId="new" but we might have history?
+                    // Actually if activeChatId="new", we want Astra Start Page usually.
+                    <AstraStartPage
+                      onTaskStart={handleProcessTask}
+                      darkMode={darkMode}
+                    />
+                  )}
+                </div>
+                {/* Always show input for Astra "New" mode? StartPage handles it visually, but we need the real input too? 
+                    The design shows the input ON the start page. 
+                    If we use the real input, it should overlay or be consistent.
+                    The StartPage has a "fake" visual prompt box. 
+                    Let's Keep the global input at bottom.
+                */}
+              </>
             ) : (
               <>
                 <div className="results-container">
@@ -1332,21 +1382,51 @@ function App() {
                     userProfile={userProfile}
                   />
                 </div>
-
-                <form className="form-container" onSubmit={handleSubmit}>
-                  <div className="imessage-form">
-                    <VoiceInput onTextReady={setText} darkMode={darkMode} />
-                    <TaskInput
-                      text={text}
-                      onTextChange={setText}
-                      onEnter={() => handleProcessTask(text)}
-                    />
-                    <button type="submit" className="send-button">
-                      <VuesaxIcon name="send-2" darkMode={darkMode} />
-                    </button>
-                  </div>
-                </form>
               </>
+            )}
+
+            {/* Global Astra Input (Show always if in Chat tab, or just when activeChatId is set? 
+                Actually, if we are in StartPage (activeChatId='new'), we usually want the input too. 
+                Let's move the input outside the ternary if we want it always. 
+                BUT current structure nests it. 
+                Let's ADD it for the 'new' case too.
+            */}
+            {(activeChatId === "new" || activeChatId) && (
+              <form
+                className="astra-float-input-container"
+                onSubmit={handleSubmit}
+              >
+                <div className="astra-input-pill">
+                  <input
+                    className="astra-input-area"
+                    placeholder="Ask Astra or create a task..."
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                    autoFocus
+                  />
+
+                  {/* Voice Input Integrated */}
+                  <VoiceInput
+                    onTextReady={setText}
+                    darkMode={darkMode}
+                    className="astra-input-icon-btn"
+                  />
+
+                  <button type="submit" className="astra-send-btn">
+                    <VuesaxIcon
+                      name="arrow-up"
+                      variant="Bold"
+                      darkMode={!darkMode}
+                    />
+                  </button>
+                </div>
+              </form>
             )}
           </>
         ) : activeTab === "Calendar" ? (
@@ -1383,6 +1463,7 @@ function App() {
           <BottomNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            onNewChat={() => setActiveChatId("new")}
             darkMode={darkMode}
           />
         )}

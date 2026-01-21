@@ -1,5 +1,6 @@
 import React from "react";
 import VuesaxIcon from "./VuesaxIcon";
+import AstraAvatar from "./AstraAvatar";
 import "./TaskHistory.css";
 
 export default function TaskHistory({
@@ -42,25 +43,7 @@ export default function TaskHistory({
         >
           {/* Icons */}
           {item.sender === "ai" ? (
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: darkMode ? "#333" : "#eee",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <VuesaxIcon
-                name="cpu"
-                variant="Bold"
-                darkMode={darkMode}
-                style={{ width: 20, height: 20 }}
-              />
-            </div>
+            <AstraAvatar size={32} />
           ) : (
             <div
               style={{
@@ -149,7 +132,16 @@ export default function TaskHistory({
       )}
 
       {isTyping && (
-        <div className="chat-message-wrapper ai">
+        <div
+          className="chat-message-wrapper ai"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <AstraAvatar size={32} />
           <div className="typing-indicator-bubble">
             <div className="typing-dot"></div>
             <div className="typing-dot"></div>

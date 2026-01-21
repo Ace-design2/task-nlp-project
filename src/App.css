@@ -426,3 +426,277 @@ body.dark-mode {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* --- ASTRA DESIGN --- */
+
+/* Start Page Container */
+.astra-start-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  padding-bottom: 80px; /* Space for bottom bar */
+}
+
+/* Card */
+.astra-card {
+  width: 320px;
+  min-height: 380px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.05); /* Gentle shadow */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 30px;
+  text-align: center;
+  gap: 20px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.astra-start-page.dark .astra-card {
+  background: #121212;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+/* Orb */
+.astra-orb {
+  width: 120px; /* Smaller centerpiece */
+  height: 120px;
+  border-radius: 50%;
+  background: transparent;
+  overflow: hidden; 
+  box-shadow: 0 0 30px rgba(255, 100, 0, 0.2); 
+  margin-bottom: 0px;
+  position: relative;
+}
+
+.astra-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  margin-right: 10px; /* Spacing from message bubble */
+}
+/* Welcome Text */
+.astra-welcome-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  font-weight: 500;
+  margin: 0;
+  max-width: 100%;
+}
+
+.astra-start-page.dark .astra-welcome-text {
+  color: #ddd;
+}
+
+/* Inner Prompt Box (Visual Only in Card) */
+.astra-prompt-box {
+  width: 100%;
+  background: #F7F9FB; /* Very light subtle blue/grey */
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: left;
+  font-size: 13px;
+  color: #666;
+  margin-top: auto;
+}
+
+.astra-start-page.dark .astra-prompt-box {
+  background: #1E1E1E;
+  color: #aaa;
+}
+
+.astra-prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.astra-action-btn-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #EAEEF1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  transition: transform 0.1s;
+}
+
+.astra-action-btn-small:hover {
+  transform: scale(1.05);
+}
+
+.astra-start-page.dark .astra-action-btn-small {
+  background: #333;
+  color: #fff;
+}
+
+.astra-action-btn-small.filled {
+  background: #000;
+  color: white;
+}
+
+.astra-start-page.dark .astra-action-btn-small.filled {
+  background: #fff;
+  color: black; /* Inverted for dark mode visibility logic inside component */
+}
+
+/* --- NEW FLOATING INPUT (PILL) --- */
+.astra-float-input-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 700px; 
+  padding: 0 16px; /* Default side padding */
+  box-sizing: border-box;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .astra-float-input-container {
+    bottom: 10px;
+    max-width: 100%;
+    padding: 0 12px;
+  }
+  
+  .astra-input-pill {
+    min-height: 50px;
+    border-radius: 25px;
+    padding-left: 15px;
+  }
+}
+
+
+
+
+.astra-input-pill {
+  width: 100%;
+  background: white;
+  min-height: 60px;
+  border-radius: 35px; /* Full pill shape */
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  padding: 5px 10px 5px 20px;
+  gap: 12px;
+  pointer-events: auto;
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: background 0.3s;
+}
+
+.app-container.dark-mode .astra-input-pill {
+  background: #1E1E1E;
+  border: 1px solid #333;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.astra-input-area {
+  flex: 1;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  outline: none;
+  background: transparent;
+  color: #333;
+  resize: none;
+  height: 24px; /* Fixed for single line look, auto-expand logic separate if needed */
+  max-height: 100px;
+  padding: 0;
+  line-height: 24px;
+}
+
+.app-container.dark-mode .astra-input-area {
+  color: white;
+}
+
+/* Icons in Input */
+.astra-input-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #F0F2F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.app-container.dark-mode .astra-input-icon-btn {
+  background: #333;
+  color: #ddd;
+}
+
+.astra-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.astra-send-btn:hover {
+  transform: scale(1.1);
+}
+
+.app-container.dark-mode .astra-send-btn {
+  background: #fff;
+  /* Icon inside should be inverted or black */
+}
+
+/* Mobile Adjustments for Astra */
+@media (max-width: 768px) {
+  .astra-float-input-container {
+    bottom: 10px; 
+    width: 100%;
+    padding: 0 12px;
+  }
+}
+
+/* Very small screens - FORCE Override */
+@media (max-width: 360px) {
+  .astra-input-pill {
+    padding: 4px 6px 4px 12px !important;
+    gap: 6px !important; 
+    min-height: 44px !important;
+  }
+  
+  .astra-input-icon-btn, 
+  .astra-send-btn {
+    width: 32px !important; 
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+}
