@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 
 import { SoftGradient } from "../utils/SoftGradient";
+import ParticleSwarm from "./ParticleSwarm";
 
 const AstraStartPage = ({ onTaskStart, darkMode }) => {
   const orbRef = useRef(null);
@@ -23,17 +24,22 @@ const AstraStartPage = ({ onTaskStart, darkMode }) => {
     };
   }, []);
 
+  const particlesColors = useMemo(() => {
+    return darkMode
+      ? ["#ffffff", "#aaaaaa", "#4facfe"]
+      : ["#FFD700", "#FF6B00", "#FF0055", "#764ba2", "#2E91E5"];
+  }, [darkMode]);
+
   return (
     <div className={`astra-start-page ${darkMode ? "dark" : ""}`}>
-      {/* Central Card */}
-      <div className={`astra-start-page ${darkMode ? "dark" : ""}`}>
-        {/* Animated Gradient Orb - Isolated */}
-        <div
-          className="astra-orb"
-          ref={orbRef}
-          style={{ background: "transparent" }}
-        ></div>
-      </div>
+      <ParticleSwarm count={80} colors={particlesColors} />
+
+      {/* Animated Gradient Orb - Isolated */}
+      <div
+        className="astra-orb"
+        ref={orbRef}
+        style={{ background: "transparent", zIndex: 2 }}
+      ></div>
     </div>
   );
 };

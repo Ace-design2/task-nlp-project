@@ -438,6 +438,8 @@ body.dark-mode {
   flex: 1;
   width: 100%;
   padding-bottom: 80px; /* Space for bottom bar */
+  position: relative;
+  overflow: hidden; /* Ensure particles don't scroll the page */
 }
 
 /* Card */
@@ -595,7 +597,7 @@ body.dark-mode {
 .astra-input-pill {
   width: 100%;
   background: white;
-  min-height: 60px;
+  min-height: 48px;
   border-radius: 35px; /* Full pill shape */
   box-shadow: 0 5px 20px rgba(0,0,0,0.1);
   display: flex;
