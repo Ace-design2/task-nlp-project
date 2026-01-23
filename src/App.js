@@ -625,6 +625,52 @@ function App() {
           }, 1000);
 
           scheduleNotification(taskTitle, extractedDate, extractedTime);
+        } else if (intent === "delete_task") {
+          let searchTerm = taskTitle.toLowerCase();
+          // Remove common "delete" prefixes/suffixes
+          searchTerm = searchTerm
+            .replace(/\bdelete\b/g, "")
+            .replace(/\btask\b/g, "")
+            .replace(/\bremove\b/g, "")
+            .trim();
+
+          // If searchTerm is empty or too short, maybe use raw text or checks
+          if (searchTerm.length < 2) {
+            // Fallback: try to find something that matches the original text minus "delete"
+            searchTerm = text
+              .toLowerCase()
+              .replace(/\bdelete\b/g, "")
+              .trim();
+          }
+
+          console.log("Attempting to delete task matching:", searchTerm);
+
+          // Find match
+          const taskToDelete = tasks.find((t) =>
+            t.title.toLowerCase().includes(searchTerm),
+          );
+
+          if (taskToDelete) {
+            try {
+              await deleteDoc(
+                doc(db, "users", user.uid, "tasks", taskToDelete.id),
+              );
+              setIsTyping(true);
+              setTimeout(() => {
+                addAiMessage(`Deleted task: ${taskToDelete.title}`);
+                setIsTyping(false);
+              }, 1000);
+            } catch (e) {
+              console.error("Error deleting task", e);
+              addAiMessage("Sorry, I encountered an error deleting that task.");
+            }
+          } else {
+            setIsTyping(true);
+            setTimeout(() => {
+              addAiMessage(`I couldn't find a task matching "${searchTerm}".`);
+              setIsTyping(false);
+            }, 1000);
+          }
         } else if (intent === "general_message") {
           setIsTyping(true);
           setTimeout(() => {

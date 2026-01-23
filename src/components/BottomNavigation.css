@@ -47,7 +47,7 @@
 }
 
 .bottom-nav-item.active {
-  color: #333; 
+  color: #fff; 
   flex: 1; /* Keep equal width */
 }
 

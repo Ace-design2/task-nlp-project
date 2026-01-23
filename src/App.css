@@ -125,11 +125,13 @@ body.dark-mode {
 }
 
 .sidebar-item.active {
-  background-color: #ECECEC;
+  background-color: #c1121f;
+  color: #fff;
 }
 
 .app-container.dark-mode .sidebar-item.active {
-  background-color: #333;
+  background-color: #c1121f;
+  color: #fff;
 }
 
 .sidebar-item .nav-text {
@@ -141,7 +143,8 @@ body.dark-mode {
 /* Ensure active text is consistent with snippet (400 weight) unless user wants bold override. 
    Snippet says fontWeight: '400' for everything. I will respect that. */
 .sidebar-item.active .nav-text {
-  font-weight: 400; 
+  font-weight: 500; /* Bump weight slightly for valid contrast on color */
+  color: #fff;
 }
 
 .active-pill {
@@ -465,16 +468,7 @@ body.dark-mode {
 }
 
 /* Orb */
-.astra-orb {
-  width: 120px; /* Smaller centerpiece */
-  height: 120px;
-  border-radius: 50%;
-  background: transparent;
-  overflow: hidden; 
-  box-shadow: 0 0 30px rgba(255, 100, 0, 0.2); 
-  margin-bottom: 0px;
-  position: relative;
-}
+
 
 .astra-avatar {
   width: 40px;

@@ -37,9 +37,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
                   left: 0,
                   width: "100%",
                   height: "100%",
-                  backgroundColor: darkMode
-                    ? "rgba(255, 255, 255, 0.1)"
-                    : "#f0f0f0",
+                  backgroundColor: "#c1121f",
                   borderRadius: "32px",
                   zIndex: 0, // Behind content
                 }}
