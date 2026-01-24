@@ -47,7 +47,7 @@
 }
 
 .bottom-nav-item.active {
-  color: #fff; 
+  color: #c1121f; 
   flex: 1; /* Keep equal width */
 }
 
@@ -79,6 +79,8 @@
 
 .bottom-nav-item.active .nav-label {
   display: block; 
+  color: #c1121f;
+  font-weight: 700;
 }
 
 /* Dark Mode */
@@ -93,5 +95,5 @@
 }
 
 .app-container.dark-mode .bottom-nav-item.active {
-  color: #fff;
+  color: #c1121f;
 }

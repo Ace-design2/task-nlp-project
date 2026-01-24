@@ -149,7 +149,12 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
           style={styles.btn}
           className={className}
         >
-          <VuesaxIcon name="microphone" variant="Linear" darkMode={darkMode} />
+          <VuesaxIcon
+            name="microphone"
+            variant="Linear"
+            darkMode={darkMode}
+            color="#c1121f"
+          />
         </button>
       )}
       {listening && (

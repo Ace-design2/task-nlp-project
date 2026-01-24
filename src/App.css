@@ -653,7 +653,7 @@ body.dark-mode {
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: #000;
+  background: #c1121f;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -668,7 +668,7 @@ body.dark-mode {
 }
 
 .app-container.dark-mode .astra-send-btn {
-  background: #fff;
+  background: #c1121f;
   /* Icon inside should be inverted or black */
 }
 

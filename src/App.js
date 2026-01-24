@@ -1445,7 +1445,7 @@ function App() {
                 <div className="astra-input-pill">
                   <input
                     className="astra-input-area"
-                    placeholder="Ask Astra or create a task..."
+                    placeholder="Create a task..."
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => {
@@ -1468,7 +1468,7 @@ function App() {
                     <VuesaxIcon
                       name="arrow-up"
                       variant="Bold"
-                      darkMode={!darkMode}
+                      color="#ffffff"
                     />
                   </button>
                 </div>

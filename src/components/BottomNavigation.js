@@ -37,7 +37,11 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
                   left: 0,
                   width: "100%",
                   height: "100%",
-                  backgroundColor: "#c1121f",
+                  backgroundColor: darkMode
+                    ? "rgba(255, 255, 255, 0.1)"
+                    : "rgba(0, 0, 0, 0.05)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
                   borderRadius: "32px",
                   zIndex: 0, // Behind content
                 }}
@@ -59,6 +63,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
                 isActive={isActive}
                 variant={isActive ? "bold" : "linear"}
                 darkMode={darkMode}
+                color={isActive ? "#c1121f" : undefined}
                 style={{ width: 24, height: 24, marginBottom: 4 }}
               />
               <span className="nav-label">{item.label}</span>
