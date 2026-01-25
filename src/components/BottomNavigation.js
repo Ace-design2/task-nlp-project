@@ -7,6 +7,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
   const navItems = [
     { id: "My Day", icon: "sun", label: "My Day" },
     { id: "Chat", icon: "message-text", label: "Chat" },
+    { id: "Insights", icon: "chart-2", label: "Insights" },
     { id: "Calendar", icon: "calendar", label: "Calendar" },
     { id: "Account Settings", icon: "user", label: "Profile" },
   ];

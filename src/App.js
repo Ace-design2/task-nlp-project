@@ -12,6 +12,7 @@ import LoadingScreen from "./components/LoadingScreen";
 import AccountSettings from "./components/AccountSettings";
 import CreativeMyDay from "./components/CreativeMyDay";
 import CreativeCalendar from "./components/CreativeCalendar";
+import ProductivityInsights from "./components/ProductivityInsights";
 import ChatList from "./components/ChatList";
 
 import VerificationPending from "./components/VerificationPending";
@@ -70,7 +71,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [text, setText] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  /* Removed isSidebarOpen state */
   const [activeTab, setActiveTab] = useState("My Day");
 
   const [pendingTask, setPendingTask] = useState(null);
@@ -1041,13 +1042,12 @@ function App() {
   return (
     <div className={`app-container ${darkMode ? "dark-mode" : ""}`}>
       {/* Sidebar (Drawer) */}
-      <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
+      <div className="sidebar">
         <LayoutGroup>
           <button
             className={`sidebar-item ${activeTab === "My Day" ? "active" : ""}`}
             onClick={() => {
               setActiveTab("My Day");
-              setIsSidebarOpen(false);
             }}
           >
             {activeTab === "My Day" && (
@@ -1072,7 +1072,6 @@ function App() {
             onClick={() => {
               setActiveTab("Chat");
               setActiveChatId("new");
-              setIsSidebarOpen(false);
             }}
           >
             {activeTab === "Chat" && (
@@ -1098,7 +1097,6 @@ function App() {
             }`}
             onClick={() => {
               setActiveTab("Calendar");
-              setIsSidebarOpen(false);
             }}
           >
             {activeTab === "Calendar" && (
@@ -1118,13 +1116,35 @@ function App() {
               style={{ zIndex: 2 }}
             />
           </button>
+
+          <button
+            className={`sidebar-item ${activeTab === "Insights" ? "active" : ""}`}
+            onClick={() => setActiveTab("Insights")}
+          >
+            {activeTab === "Insights" && (
+              <motion.div
+                layoutId="active-pill"
+                className="active-pill"
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            )}
+            <motion.span layout className="nav-text">
+              Insights
+            </motion.span>
+            <VuesaxIcon
+              name="chart-2"
+              isActive={activeTab === "Insights"}
+              darkMode={darkMode}
+              style={{ zIndex: 2 }}
+            />
+          </button>
+
           <button
             className={`sidebar-item ${
               activeTab === "Account Settings" ? "active" : ""
             }`}
             onClick={() => {
               setActiveTab("Account Settings");
-              setIsSidebarOpen(false);
             }}
           >
             {activeTab === "Account Settings" && (
@@ -1147,10 +1167,7 @@ function App() {
         </LayoutGroup>
       </div>
 
-      <div
-        className={`overlay ${isSidebarOpen ? "visible" : ""}`}
-        onClick={() => setIsSidebarOpen(false)}
-      />
+      {/* Removed Overlay */}
 
       <div className="main-content">
         {/* Header */}
@@ -1172,16 +1189,7 @@ function App() {
                 boxSizing: "border-box",
               }}
             >
-              <button
-                className="menu-button"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                style={{ marginRight: 0 }}
-              >
-                <VuesaxIcon
-                  name="textalign-justifycenter"
-                  darkMode={darkMode}
-                />
-              </button>
+              {/* Menu Button Removed */}
               <h1
                 className="title"
                 style={{
@@ -1280,15 +1288,7 @@ function App() {
           ) : (
             <>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <button
-                  className="menu-button"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                  <VuesaxIcon
-                    name="textalign-justifycenter"
-                    darkMode={darkMode}
-                  />
-                </button>
+                {/* Menu Button Removed */}
               </div>
               <h1
                 className="title"
@@ -1304,7 +1304,8 @@ function App() {
                     : ""
                   : activeTab === "Account Settings" ||
                       activeTab === "My Day" ||
-                      activeTab === "Calendar"
+                      activeTab === "Calendar" ||
+                      activeTab === "Insights"
                     ? ""
                     : activeTab}
               </h1>
@@ -1478,6 +1479,10 @@ function App() {
         ) : activeTab === "Calendar" ? (
           <div className="tasks-view-container" style={{ padding: "0 0" }}>
             <CreativeCalendar tasks={tasks} darkMode={darkMode} />
+          </div>
+        ) : activeTab === "Insights" ? (
+          <div className="tasks-view-container">
+            <ProductivityInsights tasks={tasks} darkMode={darkMode} />
           </div>
         ) : activeTab === "My Day" ? (
           <div className="tasks-view-container" style={{ padding: "0 0" }}>

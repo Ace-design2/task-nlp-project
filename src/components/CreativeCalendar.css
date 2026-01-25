@@ -14,33 +14,27 @@
 }
 
 .creative-calendar-fixed-section {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative; /* Changed from fixed */
   width: 100%;
-  padding: 12px 20px 20px 20px;
-  background: var(--glass-bg, rgba(255,255,255,0.85));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  z-index: 50;
+  padding: 12px 20px 0px 20px; /* Reduced bottom padding */
+  z-index: 10;
   display: flex;
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* Optional shadow for separation */
+  /* Removed sticky/fixed shadows if not needed, or keep for style */
 }
+
+/* Removed Desktop Adjustment media query */
 
 .creative-calendar-container.dark-mode .creative-calendar-fixed-section {
-    background: rgba(30,30,30,0.85);
+    background: transparent; /* Remove background if it's not sticky/fixed */
 }
 
-/* Push details down (approx height ~400px of calendar card + header) */
+/* Removed margin-top spacer */
 .selected-date-section {
-  /* This needs adjustment based on calendar height, but sticky might vary. 
-     A safe bet is margin-top if height is fixed, or padding-top on container. 
-     Actually, better to use padding-top on container if we can, but since this is next sibling, margin-top works.
-     Let's estimate ~380px. */
-  margin-top: 380px; 
+  margin-top: 20px; 
+  padding: 0 20px; /* Add side padding to match header */
 }
 
 .creative-calendar-container.dark-mode {
@@ -61,6 +55,7 @@
   text-align: center;
   background: var(--accent-gradient, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
