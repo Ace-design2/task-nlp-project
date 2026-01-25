@@ -6,7 +6,7 @@
   transform: translateX(-50%);
   
   /* Pill container details */
-  width: 75%; /* Tighter width */
+  width: 85%; /* Tighter width */
   max-width: 320px; /* More compact max width */
   height: 64px; 
   
@@ -38,7 +38,7 @@
   position: relative; 
   z-index: 2; 
   
-  padding: 0 2px;
+  padding: 0 12px;
   flex: 1; /* Equal width for all items */
   height: 56px; /* Adjusted height */
   border-radius: 32px; /* Adjusted radius */

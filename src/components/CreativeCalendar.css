@@ -16,7 +16,7 @@
 .creative-calendar-fixed-section {
   position: relative; /* Changed from fixed */
   width: 100%;
-  padding: 12px 20px 0px 20px; /* Reduced bottom padding */
+  padding: 12px 0px 0px 0px; /* Reduced bottom padding */
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
 /* Removed margin-top spacer */
 .selected-date-section {
   margin-top: 20px; 
-  padding: 0 20px; /* Add side padding to match header */
+  padding: 0 0px; /* Add side padding to match header */
 }
 
 .creative-calendar-container.dark-mode {
