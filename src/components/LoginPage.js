@@ -19,6 +19,7 @@ function LoginPage({ onLogin, darkMode }) {
   const [subscribe, setSubscribe] = useState(false);
   const [error, setError] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const validatePassword = (pwd) => {
     const minLength = 8;
@@ -192,13 +193,34 @@ function LoginPage({ onLogin, darkMode }) {
                 style={{ width: 16, height: 16 }}
               />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 className="input-field"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                style={{ flex: 1 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  color: "inherit",
+                }}
+              >
+                <VuesaxIcon
+                  name={showPassword ? "eye-slash" : "eye"}
+                  variant="bold"
+                  darkMode={darkMode}
+                  style={{ width: 16, height: 16 }}
+                />
+              </button>
             </div>
 
             {!isSignUp && (

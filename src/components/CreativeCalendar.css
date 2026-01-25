@@ -59,7 +59,7 @@
   font-size: 24px;
   font-weight: 700;
   text-align: center;
-  background: var(--accent-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  background: var(--accent-gradient, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -144,15 +144,15 @@
 }
 
 .calendar-day-cell.selected {
-  background: var(--accent-color, #667eea);
+  background: var(--accent-color, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(193, 18, 31, 0.3);
   transform: scale(1.05);
   z-index: 1;
 }
 
 .calendar-day-cell.today {
-  border: 2px solid var(--accent-color, #667eea);
+  border: 2px solid var(--accent-color, #c1121f);
   font-weight: 700;
 }
 .calendar-day-cell.selected.today {
@@ -176,7 +176,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background-color: var(--accent-color);
+  background-color: var(--accent-color, #c1121f);
 }
 .calendar-day-cell.selected .day-dot {
   background-color: white; /* White dots on selected background */

@@ -3,8 +3,8 @@
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --accent-color: #667eea;
+  --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
+  --accent-color: #c1121f;
 }
 
 .creative-container {
@@ -49,7 +49,7 @@
   --glass-bg: rgba(30, 30, 30, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  --accent-gradient: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); /* Softer pastel for dark mode contrast */
+  --accent-gradient: linear-gradient(135deg, #ff4d4d 0%, #ff8080 100%); /* Softer pastel for dark mode contrast */
   color: #fff;
 }
 
