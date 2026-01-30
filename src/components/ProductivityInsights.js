@@ -31,7 +31,8 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
           label: days[d.getDay()],
           dateStr: dateStr,
           isToday: i === 0,
-          count: 0, // Will fill later
+          totalCount: 0,
+          completedCount: 0,
         });
         last7DaysSet.add(dateStr);
       }
@@ -40,10 +41,14 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       filteredTasks = tasks.filter((t) => t.date && last7DaysSet.has(t.date));
 
       // Fill Chart Data
-      chartData = chartData.map((d) => ({
-        ...d,
-        count: tasks.filter((t) => t.completed && t.date === d.dateStr).length,
-      }));
+      chartData = chartData.map((d) => {
+        const tasksForDay = tasks.filter((t) => t.date === d.dateStr);
+        return {
+          ...d,
+          totalCount: tasksForDay.length,
+          completedCount: tasksForDay.filter((t) => t.completed).length,
+        };
+      });
     } else if (timeRange === "monthly") {
       periodLabel = "This Month";
       // Last 30 Days Logic
@@ -65,17 +70,22 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
           label: showLabel ? `${d.getDate()}` : "",
           dateStr: dateStr,
           isToday: i === 0,
-          count: 0,
+          totalCount: 0,
+          completedCount: 0,
         });
         last30DaysSet.add(dateStr);
       }
 
       filteredTasks = tasks.filter((t) => t.date && last30DaysSet.has(t.date));
 
-      chartData = chartData.map((d) => ({
-        ...d,
-        count: tasks.filter((t) => t.completed && t.date === d.dateStr).length,
-      }));
+      chartData = chartData.map((d) => {
+        const tasksForDay = tasks.filter((t) => t.date === d.dateStr);
+        return {
+          ...d,
+          totalCount: tasksForDay.length,
+          completedCount: tasksForDay.filter((t) => t.completed).length,
+        };
+      });
     } else if (timeRange === "yearly") {
       periodLabel = "This Year";
       // Last 12 Months Logic
@@ -106,7 +116,8 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
           label: months[m],
           monthStr: monthStr,
           isToday: i === 0, // Current month
-          count: 0,
+          totalCount: 0,
+          completedCount: 0,
         });
         last12MonthsSet.add(monthStr);
       }
@@ -119,12 +130,16 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       });
 
       // Fill Chart Data
-      chartData = chartData.map((d) => ({
-        ...d,
-        count: tasks.filter(
-          (t) => t.completed && t.date && t.date.startsWith(d.monthStr),
-        ).length,
-      }));
+      chartData = chartData.map((d) => {
+        const tasksForMonth = tasks.filter(
+          (t) => t.date && t.date.startsWith(d.monthStr),
+        );
+        return {
+          ...d,
+          totalCount: tasksForMonth.length,
+          completedCount: tasksForMonth.filter((t) => t.completed).length,
+        };
+      });
     }
 
     // 1. Total Tasks (Filtered)
@@ -246,7 +261,7 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
         {/* Weekly Activity Chart */}
         <div className="chart-card">
           <div className="chart-header">
-            <span className="chart-title">Weekly Activity</span>
+            <span className="chart-title">Activity ({stats.periodLabel})</span>
             <VuesaxIcon
               name="calendar-1"
               size={20}
@@ -256,19 +271,38 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
           </div>
 
           <div className="bar-chart-container">
-            {stats.chartData.map((data, idx) => (
-              <div key={idx} className="bar-column">
-                <div
-                  className={`bar-visual ${data.isToday ? "active" : ""}`}
-                  style={{
-                    height: `${Math.min(100, (data.count / Math.max(1, Math.max(...stats.chartData.map((d) => d.count)))) * 100)}%`,
-                  }}
-                ></div>
-                {/* Fixed height scaling to be relative to Max count instead of arbitrary 12 */}
-                <span className="bar-tooltip">{data.count} Tasks</span>
-                <span className="bar-label">{data.label}</span>
-              </div>
-            ))}
+            {stats.chartData.map((data, idx) => {
+              const maxVal = Math.max(
+                1,
+                Math.max(...stats.chartData.map((d) => d.totalCount)),
+              );
+              const heightPct = Math.min(100, (data.totalCount / maxVal) * 100);
+              const fillPct =
+                data.totalCount > 0
+                  ? (data.completedCount / data.totalCount) * 100
+                  : 0;
+
+              return (
+                <div key={idx} className="bar-column">
+                  <div
+                    className={`bar-visual ${data.isToday ? "active" : ""}`}
+                    style={{
+                      height: `${heightPct}%`,
+                    }}
+                  >
+                    <div
+                      className="bar-fill"
+                      style={{ height: `${fillPct}%` }}
+                    ></div>
+                  </div>
+                  {/* Fixed height scaling to be relative to Max count instead of arbitrary 12 */}
+                  <span className="bar-tooltip">
+                    {data.completedCount} / {data.totalCount} Tasks
+                  </span>
+                  <span className="bar-label">{data.label}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

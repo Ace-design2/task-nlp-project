@@ -214,25 +214,32 @@
 }
 
 .bar-visual {
-  width: 12px;
-  background: #EAEEF1;
+  width: 100%;
+  max-width: 12px;
+  background: rgba(193, 18, 31, 0.15);
   border-radius: 6px;
   position: relative;
   transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
   min-height: 4px;
+  overflow: hidden;
 }
 
-.bar-visual.active {
-  background: var(--accent-color, #c1121f);
-  box-shadow: 0 4px 12px rgba(193, 18, 31, 0.2);
+.bar-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--accent-gradient, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
+  transition: height 0.5s ease-out;
+  border-radius: inherit;
 }
 
 .insights-container.dark-mode .bar-visual {
-  background: #333;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.insights-container.dark-mode .bar-visual.active {
-  background: var(--accent-color, #c1121f);
+.insights-container.dark-mode .bar-fill {
+  background: var(--accent-gradient, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
 }
 
 .bar-label {
