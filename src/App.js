@@ -1280,6 +1280,7 @@ function App() {
                   <VuesaxIcon
                     name="edit"
                     variant="Linear"
+                    color="#c1121f"
                     darkMode={darkMode}
                   />
                 </button>
@@ -1316,109 +1317,147 @@ function App() {
 
         {/* Content Body */}
         {activeTab === "Chat" ? (
-          <>
-            {!activeChatId || activeChatId === "new" ? (
-              // NEW EMPTY STATE
-              <>
+          <div className="chat-desktop-layout">
+            {/* Left Pane: Chat List */}
+            <div
+              className={`chat-list-pane ${activeChatId ? "mobile-hidden" : ""}`}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 10,
+                  padding: "0 10px",
+                }}
+              >
+                <h1 className="title" style={{ margin: 0 }}>
+                  Chats
+                </h1>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button
+                    onClick={() => {
+                      setIsSearchOpen(!isSearchOpen);
+                      if (isSearchOpen) {
+                        setSearchQuery("");
+                        handleDeepSearch("");
+                      }
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 8,
+                    }}
+                  >
+                    <VuesaxIcon
+                      name={isSearchOpen ? "close-circle" : "search-normal"}
+                      variant="Linear"
+                      darkMode={darkMode}
+                    />
+                  </button>
+                  <button
+                    onClick={() => setActiveChatId("new")}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 8,
+                    }}
+                  >
+                    <VuesaxIcon
+                      name="edit"
+                      variant="Linear"
+                      color="#c1121f"
+                      darkMode={darkMode}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {isSearchOpen && (
+                <div style={{ padding: "0 10px 10px 10px" }}>
+                  <input
+                    type="text"
+                    placeholder="Search messages..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleDeepSearch(searchQuery);
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: `1px solid ${darkMode ? "#555" : "#ccc"}`,
+                      background: darkMode ? "#1a1a1a" : "#fff",
+                      color: darkMode ? "#fff" : "#000",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+              )}
+
+              <ChatList
+                chats={chats}
+                searchResults={searchResults}
+                isSearching={isSearching}
+                onSelectChat={(id) => setActiveChatId(id)}
+                onDeleteChat={handleDeleteChat}
+                darkMode={darkMode}
+                activeChatId={activeChatId}
+              />
+            </div>
+
+            {/* Right Pane: Active Chat Content */}
+            <div
+              className={`chat-view-pane ${!activeChatId ? "mobile-hidden" : ""}`}
+            >
+              {/* Mobile Back Button Header */}
+              <div className="chat-mobile-header desktop-hidden">
+                <button
+                  onClick={() => setActiveChatId(null)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <VuesaxIcon
+                    name="arrow-left"
+                    variant="Bold"
+                    darkMode={darkMode}
+                  />
+                  <span style={{ marginLeft: 8, fontWeight: 500 }}>Back</span>
+                </button>
+              </div>
+
+              {!activeChatId ? (
+                // Desktop Empty State (when no chat is selected)
+                <div className="desktop-empty-state mobile-hidden">
+                  <div style={{ opacity: 0.5 }}>
+                    Select a chat to start messaging
+                  </div>
+                </div>
+              ) : activeChatId === "new" ? (
                 <div
                   style={{
                     flex: 1,
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
+                    height: "100%",
                   }}
                 >
-                  {activeChatId === "new" && (
-                    <div
-                      style={{
-                        padding: "10px 0",
-                        display: "flex",
-                        alignItems: "center",
-                        width: "100%",
-                      }}
-                    >
-                      <button
-                        onClick={() => setActiveChatId(null)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          paddingLeft: 0,
-                        }}
-                      >
-                        <VuesaxIcon
-                          name="arrow-left"
-                          variant="Bold"
-                          darkMode={darkMode}
-                        />
-                      </button>
-                    </div>
-                  )}
-                  {(!chats || chats.length === 0) && activeChatId === "new" ? (
-                    <AstraStartPage
-                      onTaskStart={handleProcessTask}
-                      darkMode={darkMode}
-                    />
-                  ) : !activeChatId ? (
-                    <ChatList
-                      chats={chats}
-                      searchResults={searchResults}
-                      isSearching={isSearching}
-                      onSearch={handleDeepSearch}
-                      darkMode={darkMode}
-                      onSelectChat={(id) => setActiveChatId(id)}
-                      onDeleteChat={handleDeleteChat}
-                      onCreateChat={() => setActiveChatId("new")}
-                    />
-                  ) : (
-                    // Case: activeChatId="new" but we might have history?
-                    // Actually if activeChatId="new", we want Astra Start Page usually.
-                    <AstraStartPage
-                      onTaskStart={handleProcessTask}
-                      darkMode={darkMode}
-                    />
-                  )}
+                  <AstraStartPage
+                    onTaskStart={handleProcessTask}
+                    darkMode={darkMode}
+                  />
                 </div>
-                {/* Always show input for Astra "New" mode? StartPage handles it visually, but we need the real input too? 
-                    The design shows the input ON the start page. 
-                    If we use the real input, it should overlay or be consistent.
-                    The StartPage has a "fake" visual prompt box. 
-                    Let's Keep the global input at bottom.
-                */}
-              </>
-            ) : (
-              <>
-                <div className="results-container">
-                  <div
-                    style={{
-                      position: "sticky",
-                      top: 0,
-                      zIndex: 10,
-                      backgroundColor: darkMode ? "#000000" : "#f0f2f5",
-                      padding: "10px 0px 6px 0px",
-                      marginBottom: "16px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      width: "100%",
-                    }}
-                  >
-                    <button
-                      onClick={() => setActiveChatId(null)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <VuesaxIcon
-                        name="arrow-left"
-                        variant="Bold"
-                        darkMode={darkMode}
-                      />
-                    </button>
-                  </div>
-
+              ) : (
+                <div className="results-container" style={{ paddingTop: 0 }}>
                   <TaskHistory
                     history={history}
                     onRestore={handleRestoreHistory}
@@ -1429,53 +1468,45 @@ function App() {
                     userProfile={userProfile}
                   />
                 </div>
-              </>
-            )}
-
-            {/* Global Astra Input (Show always if in Chat tab, or just when activeChatId is set? 
-                Actually, if we are in StartPage (activeChatId='new'), we usually want the input too. 
-                Let's move the input outside the ternary if we want it always. 
-                BUT current structure nests it. 
-                Let's ADD it for the 'new' case too.
-            */}
-            {(activeChatId === "new" || activeChatId) && (
-              <form
-                className="astra-float-input-container"
-                onSubmit={handleSubmit}
-              >
-                <div className="astra-input-pill">
-                  <input
-                    className="astra-input-area"
-                    placeholder="Create a task..."
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleSubmit(e);
-                      }
-                    }}
-                    autoFocus
-                  />
-
-                  {/* Voice Input Integrated */}
-                  <VoiceInput
-                    onTextReady={setText}
-                    darkMode={darkMode}
-                    className="astra-input-icon-btn"
-                  />
-
-                  <button type="submit" className="astra-send-btn">
-                    <VuesaxIcon
-                      name="arrow-up"
-                      variant="Bold"
-                      color="#ffffff"
+              )}
+              {(activeChatId === "new" || activeChatId) && (
+                <form
+                  className="astra-float-input-container"
+                  onSubmit={handleSubmit}
+                >
+                  <div className="astra-input-pill">
+                    <input
+                      className="astra-input-area"
+                      placeholder="Create a task..."
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
+                      autoFocus
                     />
-                  </button>
-                </div>
-              </form>
-            )}
-          </>
+
+                    <VoiceInput
+                      onTextReady={setText}
+                      darkMode={darkMode}
+                      className="astra-input-icon-btn"
+                    />
+
+                    <button type="submit" className="astra-send-btn">
+                      <VuesaxIcon
+                        name="arrow-up"
+                        variant="Bold"
+                        color="#ffffff"
+                      />
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
         ) : activeTab === "Calendar" ? (
           <div className="tasks-view-container" style={{ padding: "0 0" }}>
             <CreativeCalendar tasks={tasks} darkMode={darkMode} />

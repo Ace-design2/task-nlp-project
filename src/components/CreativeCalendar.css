@@ -3,38 +3,76 @@
 /* Reusing variables from CreativeMyDay for consistency */
 .creative-calendar-container {
   width: 100%;
-  padding: 0px 0px 100px 0px;
+  padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden; /* Changed from overflow-y: auto to handle pane scrolling individually if needed */
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Desktop default: Side by side */
   gap: 24px;
 }
 
 .creative-calendar-fixed-section {
-  position: relative; /* Changed from fixed */
-  width: 100%;
-  padding: 12px 0px 0px 0px; /* Reduced bottom padding */
+  position: relative;
+  flex: 1; /* Take remaining space (Center) */
+  padding: 12px 20px 0px 20px;
   z-index: 10;
   display: flex;
   flex-direction: column;
   gap: 16px;
   box-sizing: border-box;
-  /* Removed sticky/fixed shadows if not needed, or keep for style */
+  overflow-y: auto; /* Allow independent scrolling */
+  height: 100%;
 }
 
 /* Removed Desktop Adjustment media query */
 
 .creative-calendar-container.dark-mode .creative-calendar-fixed-section {
-    background: transparent; /* Remove background if it's not sticky/fixed */
+    background: transparent; 
 }
 
-/* Removed margin-top spacer */
+/* Right Pane: Tasks */
 .selected-date-section {
-  margin-top: 20px; 
-  padding: 0 0px; /* Add side padding to match header */
+  width: 360px; /* Fixed width on right */
+  padding: 20px;
+  border-left: 1px solid rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideUp 0.3s ease-out;
+  overflow-y: auto; /* Independent scroll */
+  height: 100%;
+  flex-shrink: 0;
+  margin-top: 0; /* Remove margin-top */
+}
+
+.creative-calendar-container.dark-mode .selected-date-section {
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .creative-calendar-container {
+    flex-direction: column; /* Stack on mobile/tablet */
+    overflow-y: auto; /* Back to global scroll */
+  }
+
+  .creative-calendar-fixed-section {
+    height: auto;
+    overflow-y: visible;
+    padding: 12px 0; /* Reduced padding on mobile */
+    flex: none;
+  }
+
+  .selected-date-section {
+    width: 100%;
+    border-left: none;
+    height: auto;
+    overflow-y: visible;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding: 20px 0;
+  }
 }
 
 .creative-calendar-container.dark-mode {

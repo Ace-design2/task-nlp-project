@@ -8,6 +8,7 @@ const ChatList = ({
   onSelectChat,
   onDeleteChat,
   darkMode,
+  activeChatId,
 }) => {
   // Determine if we are in "Search Mode"
   const isFiltered = searchResults !== null;
@@ -38,16 +39,7 @@ const ChatList = ({
             >
               <div className="chat-item-content">
                 <div
-                  className="chat-item-card"
-                  style={{
-                    outline: `1px ${darkMode ? "#333" : "black"} solid`,
-                    background: darkMode ? "#1E1E1E" : "transparent",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "4px",
-                    textAlign: "left",
-                    alignItems: "flex-start",
-                  }}
+                  className={`chat-item-card ${darkMode ? "dark" : ""} ${match.id === activeChatId ? "active" : ""}`}
                 >
                   {/* Chat Origin Title */}
                   <div
@@ -184,15 +176,15 @@ const ChatList = ({
             style={{ width: "100%" }}
           >
             <div
-              className="chat-category-header"
+              className={`chat-category-header ${darkMode ? "dark" : ""}`}
               style={{
                 padding: "10px 20px 5px 20px",
                 fontSize: "13px",
                 fontWeight: 600,
-                opacity: 0.6,
+                opacity: 1 /* Increased opacity for visibility */,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
-                color: darkMode ? "#aaa" : "#666",
+                color: "#c1121f" /* Red Accent */,
               }}
             >
               {category}
@@ -206,11 +198,7 @@ const ChatList = ({
               >
                 <div className="chat-item-content">
                   <div
-                    className="chat-item-card"
-                    style={{
-                      outline: `1px ${darkMode ? "#333" : "black"} solid`,
-                      background: darkMode ? "#1E1E1E" : "transparent",
-                    }}
+                    className={`chat-item-card ${darkMode ? "dark" : ""} ${chat.id === activeChatId ? "active" : ""}`}
                   >
                     <div
                       className="chat-item-title"
