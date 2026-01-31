@@ -1171,7 +1171,10 @@ function App() {
 
       <div className="main-content">
         {/* Header */}
-        <div className={`header ${isSearchOpen ? "search-active" : ""}`}>
+        <div
+          className={`header ${isSearchOpen ? "search-active" : ""}`}
+          style={{ display: activeTab === "Chat" ? "none" : undefined }}
+        >
           {activeTab === "Chat" && !activeChatId ? (
             <div
               style={{
@@ -1375,28 +1378,34 @@ function App() {
                 </div>
               </div>
 
-              {isSearchOpen && (
-                <div style={{ padding: "0 10px 10px 10px" }}>
-                  <input
-                    type="text"
-                    placeholder="Search messages..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleDeepSearch(searchQuery);
-                    }}
-                    style={{
-                      width: "100%",
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      border: `1px solid ${darkMode ? "#555" : "#ccc"}`,
-                      background: darkMode ? "#1a1a1a" : "#fff",
-                      color: darkMode ? "#fff" : "#000",
-                      outline: "none",
-                    }}
-                  />
-                </div>
-              )}
+              <AnimatePresence>
+                {isSearchOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ overflow: "hidden", padding: "0 10px" }}
+                  >
+                    <div
+                      className="chat-search-wrapper"
+                      style={{ paddingBottom: 10 }}
+                    >
+                      <input
+                        type="text"
+                        placeholder="Search messages..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleDeepSearch(searchQuery);
+                        }}
+                        className="chat-search-input"
+                        autoFocus
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <ChatList
                 chats={chats}
