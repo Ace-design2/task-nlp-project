@@ -72,7 +72,7 @@ const VerificationPending = ({ user, onSignOut, darkMode }) => {
               style={{
                 background: "none",
                 border: "none",
-                color: "#4B8BFF",
+                color: "#c1121f",
                 cursor: "pointer",
                 textDecoration: "underline",
               }}

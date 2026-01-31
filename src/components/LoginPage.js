@@ -245,7 +245,7 @@ function LoginPage({ onLogin, darkMode }) {
                   style={{
                     background: "none",
                     border: "none",
-                    color: "#4B8BFF",
+                    color: "#c1121f",
                     fontSize: "12px",
                     cursor: "pointer",
                     padding: 0,
