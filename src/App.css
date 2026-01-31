@@ -74,7 +74,7 @@ body.dark-mode {
   /* FIXED: Always visible on desktop */
   left: 0; /* aligned with margin-left */
   top: 10px;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
   z-index: 1000;
   
@@ -118,6 +118,7 @@ body.dark-mode {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 400;
+  overflow: hidden; /* Ensure content doesn't spill during transition */
 }
 
 .app-container.dark-mode .sidebar-item {
@@ -138,6 +139,10 @@ body.dark-mode {
   font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 12px;
+  white-space: nowrap;
+  opacity: 1;
+  max-width: 150px; /* Arbitrary large enough width */
+  transition: opacity 0.2s ease, max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Ensure active text is consistent with snippet (400 weight) unless user wants bold override. 
@@ -152,11 +157,30 @@ body.dark-mode {
   display: none; 
 }
 
+
+/* Sidebar Collapsed State */
+.sidebar.collapsed {
+  width: 70px;
+  align-items: center;
+}
+
+.sidebar.collapsed .sidebar-item {
+  justify-content: center;
+  padding: 8px;
+}
+
+.sidebar.collapsed .nav-text {
+  opacity: 0;
+  max-width: 0;
+  margin: 0;
+}
+
+/* Main Content Adjustment */
 .main-content {
   flex-grow: 1;
   /* Adjusted margin to account for fixed sidebar (250px width + 12px margin + ~20px gap) */
   margin-left: 282px;
-  transition: margin-left 0.3s ease-in-out;
+  transition: margin-left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -164,6 +188,10 @@ body.dark-mode {
   max-width: 100%;
   box-sizing: border-box;
   background-color: #ffffff;
+}
+
+.main-content.collapsed-sidebar {
+  margin-left: 92px; /* 70px width + 12px margin + 10px spacng */
 }
 
 .app-container.dark-mode .main-content {
@@ -859,4 +887,69 @@ body.dark-mode {
     height: 32px !important;
     min-width: 32px !important;
   }
+}
+
+/* Resizer Handle */
+.resizer-handle {
+  width: 5px;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.resizer-handle:hover,
+.resizer-handle.resizing {
+  background-color: rgba(193, 18, 31, 0.3); /* Visual feedback on hover/drag */
+}
+
+/* Optional: Add a grabber line in the center purely for visual affordance */
+.resizer-handle::after {
+  content: "";
+  width: 1px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: none; /* Hidden by default, maybe show on hover? */
+}
+
+.resizer-handle:hover::after {
+  display: block;
+}
+
+.app-container.dark-mode .resizer-handle:hover::after {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Desktop Chat Close Button */
+.desktop-chat-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  z-index: 50; /* Above message list */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.desktop-chat-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.app-container.dark-mode .desktop-chat-close-btn {
+  color: #ddd;
+}
+
+.app-container.dark-mode .desktop-chat-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }

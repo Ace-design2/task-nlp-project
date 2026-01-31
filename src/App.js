@@ -79,6 +79,56 @@ function App() {
   const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
+  // --- RESIZABLE SIDEBAR STATE ---
+  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const startResizing = React.useCallback((mouseDownEvent) => {
+    mouseDownEvent.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = React.useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = React.useCallback(
+    (mouseMoveEvent) => {
+      if (isResizing && !isMobile) {
+        // Calculate new width relative to the left edge of the content area
+        // The main content starts at 282px (margin-left of .main-content) or 92px if collapsed
+        // So visible width of list = cursor X position - offset.
+
+        const offset = isSidebarCollapsed ? 92 : 282; // 70px + 12px margins or 250px + margins
+        let newWidth = mouseMoveEvent.clientX - offset;
+
+        // Constraints
+        if (newWidth < 250) newWidth = 250;
+        if (newWidth > 800) newWidth = 800;
+
+        setSidebarWidth(newWidth);
+      }
+    },
+    [isResizing, isMobile, isSidebarCollapsed],
+  );
+
+  useEffect(() => {
+    window.addEventListener("mousemove", resize);
+    window.addEventListener("mouseup", stopResizing);
+    return () => {
+      window.removeEventListener("mousemove", resize);
+      window.removeEventListener("mouseup", stopResizing);
+    };
+  }, [resize, stopResizing]);
+
   // --- FIREBASE AUTH & FIRESTORE INTEGRATION ---
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -1042,126 +1092,150 @@ function App() {
   return (
     <div className={`app-container ${darkMode ? "dark-mode" : ""}`}>
       {/* Sidebar (Drawer) */}
-      <div className="sidebar">
+      <div className={`sidebar ${isSidebarCollapsed ? "collapsed" : ""}`}>
         <LayoutGroup>
-          <button
-            className={`sidebar-item ${activeTab === "My Day" ? "active" : ""}`}
-            onClick={() => {
-              setActiveTab("My Day");
+          <div
+            style={{
+              flex: 1,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
             }}
           >
-            {activeTab === "My Day" && (
-              <motion.div
-                layoutId="active-pill"
-                className="active-pill"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            <button
+              className={`sidebar-item ${activeTab === "My Day" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("My Day");
+              }}
+            >
+              {activeTab === "My Day" && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+              <motion.span layout className="nav-text">
+                My Day
+              </motion.span>
+              <VuesaxIcon
+                name="sun"
+                isActive={activeTab === "My Day"}
+                darkMode={darkMode}
+                style={{ zIndex: 2 }}
               />
-            )}
-            <motion.span layout className="nav-text">
-              My Day
-            </motion.span>
-            <VuesaxIcon
-              name="sun"
-              isActive={activeTab === "My Day"}
-              darkMode={darkMode}
-              style={{ zIndex: 2 }}
-            />
-          </button>
-          <button
-            className={`sidebar-item ${activeTab === "Chat" ? "active" : ""}`}
-            onClick={() => {
-              setActiveTab("Chat");
-              setActiveChatId("new");
-            }}
-          >
-            {activeTab === "Chat" && (
-              <motion.div
-                layoutId="active-pill"
-                className="active-pill"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            </button>
+            <button
+              className={`sidebar-item ${activeTab === "Chat" ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab("Chat");
+                setActiveChatId("new");
+              }}
+            >
+              {activeTab === "Chat" && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+              <motion.span layout className="nav-text">
+                Chat
+              </motion.span>
+              <VuesaxIcon
+                name="message-text"
+                isActive={activeTab === "Chat"}
+                darkMode={darkMode}
+                style={{ zIndex: 2 }}
               />
-            )}
-            <motion.span layout className="nav-text">
-              Chat
-            </motion.span>
-            <VuesaxIcon
-              name="message-text"
-              isActive={activeTab === "Chat"}
-              darkMode={darkMode}
-              style={{ zIndex: 2 }}
-            />
-          </button>
-          <button
-            className={`sidebar-item ${
-              activeTab === "Calendar" ? "active" : ""
-            }`}
-            onClick={() => {
-              setActiveTab("Calendar");
-            }}
-          >
-            {activeTab === "Calendar" && (
-              <motion.div
-                layoutId="active-pill"
-                className="active-pill"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            </button>
+            <button
+              className={`sidebar-item ${
+                activeTab === "Calendar" ? "active" : ""
+              }`}
+              onClick={() => {
+                setActiveTab("Calendar");
+              }}
+            >
+              {activeTab === "Calendar" && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+              <motion.span layout className="nav-text">
+                Calendar
+              </motion.span>
+              <VuesaxIcon
+                name="calendar"
+                isActive={activeTab === "Calendar"}
+                darkMode={darkMode}
+                style={{ zIndex: 2 }}
               />
-            )}
-            <motion.span layout className="nav-text">
-              Calendar
-            </motion.span>
-            <VuesaxIcon
-              name="calendar"
-              isActive={activeTab === "Calendar"}
-              darkMode={darkMode}
-              style={{ zIndex: 2 }}
-            />
-          </button>
+            </button>
 
-          <button
-            className={`sidebar-item ${activeTab === "Insights" ? "active" : ""}`}
-            onClick={() => setActiveTab("Insights")}
-          >
-            {activeTab === "Insights" && (
-              <motion.div
-                layoutId="active-pill"
-                className="active-pill"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            <button
+              className={`sidebar-item ${activeTab === "Insights" ? "active" : ""}`}
+              onClick={() => setActiveTab("Insights")}
+            >
+              {activeTab === "Insights" && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+              <motion.span layout className="nav-text">
+                Insights
+              </motion.span>
+              <VuesaxIcon
+                name="chart-2"
+                isActive={activeTab === "Insights"}
+                darkMode={darkMode}
+                style={{ zIndex: 2 }}
               />
-            )}
-            <motion.span layout className="nav-text">
-              Insights
-            </motion.span>
-            <VuesaxIcon
-              name="chart-2"
-              isActive={activeTab === "Insights"}
-              darkMode={darkMode}
-              style={{ zIndex: 2 }}
-            />
-          </button>
+            </button>
 
-          <button
-            className={`sidebar-item ${
-              activeTab === "Account Settings" ? "active" : ""
-            }`}
-            onClick={() => {
-              setActiveTab("Account Settings");
-            }}
-          >
-            {activeTab === "Account Settings" && (
-              <motion.div
-                layoutId="active-pill"
-                className="active-pill"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            <button
+              className={`sidebar-item ${
+                activeTab === "Account Settings" ? "active" : ""
+              }`}
+              onClick={() => {
+                setActiveTab("Account Settings");
+              }}
+            >
+              {activeTab === "Account Settings" && (
+                <motion.div
+                  layoutId="active-pill"
+                  className="active-pill"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+              )}
+              <motion.span layout className="nav-text">
+                Profile
+              </motion.span>
+              <VuesaxIcon
+                name="user"
+                isActive={activeTab === "Account Settings"}
+                darkMode={darkMode}
+                style={{ zIndex: 2 }}
               />
-            )}
-            <motion.span layout className="nav-text">
-              Profile
-            </motion.span>
+            </button>
+          </div>
+
+          {/* Collapse Toggle */}
+          <button
+            className="sidebar-item"
+            style={{ marginTop: "auto" }}
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            <span className="nav-text">Collapse</span>
             <VuesaxIcon
-              name="user"
-              isActive={activeTab === "Account Settings"}
+              name={isSidebarCollapsed ? "arrow-right-1" : "arrow-left-1"}
+              variant="Linear"
               darkMode={darkMode}
-              style={{ zIndex: 2 }}
             />
           </button>
         </LayoutGroup>
@@ -1169,7 +1243,9 @@ function App() {
 
       {/* Removed Overlay */}
 
-      <div className="main-content">
+      <div
+        className={`main-content ${isSidebarCollapsed ? "collapsed-sidebar" : ""}`}
+      >
         {/* Header */}
         <div
           className={`header ${isSearchOpen ? "search-active" : ""}`}
@@ -1324,6 +1400,7 @@ function App() {
             {/* Left Pane: Chat List */}
             <div
               className={`chat-list-pane ${activeChatId ? "mobile-hidden" : ""}`}
+              style={{ width: isMobile ? "100%" : sidebarWidth }}
             >
               <div
                 style={{
@@ -1418,10 +1495,33 @@ function App() {
               />
             </div>
 
+            {/* Resizer Handle */}
+            {!isMobile && (
+              <div
+                className={`resizer-handle ${isResizing ? "resizing" : ""}`}
+                onMouseDown={startResizing}
+              />
+            )}
+
             {/* Right Pane: Active Chat Content */}
             <div
               className={`chat-view-pane ${!activeChatId ? "mobile-hidden" : ""}`}
             >
+              {/* Desktop Close/Cancel Button */}
+              {activeChatId && !isMobile && (
+                <button
+                  className="desktop-chat-close-btn"
+                  onClick={() => setActiveChatId(null)}
+                >
+                  <VuesaxIcon
+                    name="close-circle"
+                    variant="Linear"
+                    size={24}
+                    darkMode={darkMode}
+                  />
+                </button>
+              )}
+
               {/* Mobile Back Button Header */}
               <div className="chat-mobile-header desktop-hidden">
                 <button
