@@ -103,7 +103,61 @@ const TodayTaskList = ({ darkMode, tasks = [], onToggleTaskCompletion }) => {
                   >
                     {task.title}
                   </div>
-                  <div className="task-meta">
+                    <div className="task-meta">
+                    <div 
+                        className={`task-action-btn ${darkMode ? "dark-mode" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Function to add to calendar
+                          const addToCalendar = (t) => {
+                             // Create .ics content
+                             const now = new Date();
+                             // Parse task date (YYYY-MM-DD)
+                             // and time (HH:MM or "All Day")
+                             // Simple construction
+                             let startDateTime = t.date.replace(/-/g, '') + 'T090000'; // Default 9AM
+                             let endDateTime = t.date.replace(/-/g, '') + 'T100000';
+                             
+                             if (t.time && t.time !== 'All Day') {
+                                 const [hh, mm] = t.time.split(':');
+                                 startDateTime = t.date.replace(/-/g, '') + 'T' + hh + mm + '00';
+                                 // End time + 1 hour
+                                 let endH = parseInt(hh) + 1;
+                                 let endHStr = String(endH).padStart(2, '0');
+                                 if (endH > 23) endHStr = "23"; // Clip to end of day roughly
+                                 endDateTime = t.date.replace(/-/g, '') + 'T' + endHStr + mm + '00';
+                             }
+
+                             const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Astra//Task App//EN
+BEGIN:VEVENT
+UID:${t.id || Date.now()}@astra.app
+DTSTAMP:${now.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${startDateTime}
+DTEND:${endDateTime}
+SUMMARY:${t.title}
+DESCRIPTION:Created via Astra Task App
+END:VEVENT
+END:VCALENDAR`;
+
+                             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                             const link = document.createElement('a');
+                             link.href = window.URL.createObjectURL(blob);
+                             link.setAttribute('download', `${t.title}.ics`);
+                             document.body.appendChild(link);
+                             link.click();
+                             document.body.removeChild(link);
+                          };
+                          addToCalendar(task);
+                        }}
+                        title="Add to Calendar"
+                        style={{ marginRight: 8, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      >
+                         <VuesaxIcon name="calendar-add" size={16} variant="Linear" color={darkMode ? "#aaa" : "#666"} />
+                      </div>
+
                     <div className={`task-time ${darkMode ? "dark-mode" : ""}`}>
                       {task.time}
                     </div>
