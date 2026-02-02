@@ -90,8 +90,8 @@ function App() {
 
   useEffect(() => {
     const handleResize = () => {
-        setIsMobile(window.innerWidth <= 768);
-    }
+      setIsMobile(window.innerWidth <= 768);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -195,11 +195,29 @@ function App() {
     const setupNotifications = async () => {
       try {
         if (!("Notification" in window)) return;
+
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
+          // Explicitly register the SW to ensure background support
+          let registration;
+          try {
+            registration = await navigator.serviceWorker.register(
+              "/firebase-messaging-sw.js",
+            );
+            console.log(
+              "Service Worker registered with scope:",
+              registration.scope,
+            );
+          } catch (err) {
+            console.error("Service Worker registration failed:", err);
+            // Fallback to letting getToken try, but logging the error
+          }
+
           const token = await getToken(messaging, {
             vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY,
+            serviceWorkerRegistration: registration,
           });
+
           if (token) {
             console.log("FCM Token:", token);
             setFcmToken(token);
@@ -275,11 +293,11 @@ function App() {
     const notifRef = collection(db, "users", user.uid, "notifications");
     const qNotif = query(notifRef, orderBy("createdAt", "desc"));
     const unsubNotif = onSnapshot(qNotif, (snapshot) => {
-        const loadedNotif = snapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id
-        }));
-        setNotifications(loadedNotif);
+      const loadedNotif = snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      setNotifications(loadedNotif);
     });
 
     return () => {
@@ -408,14 +426,16 @@ function App() {
 
       // [MOVED] Add to Notifications Collection centrally
       try {
-          await addDoc(collection(db, "users", user.uid, "notifications"), {
-              type: "task_created",
-              title: `Task Created: ${taskData.title}`,
-              timestamp: new Date().toLocaleString(),
-              createdAt: new Date().toISOString(),
-              read: false
-          });
-      } catch(e) { console.error("Error adding notification rec", e); }
+        await addDoc(collection(db, "users", user.uid, "notifications"), {
+          type: "task_created",
+          title: `Task Created: ${taskData.title}`,
+          timestamp: new Date().toLocaleString(),
+          createdAt: new Date().toISOString(),
+          read: false,
+        });
+      } catch (e) {
+        console.error("Error adding notification rec", e);
+      }
     };
 
     // --- CASE 0: HANDLE PENDING AM/PM ANSWER ---
@@ -1654,34 +1674,38 @@ function App() {
             <ProductivityInsights tasks={tasks} darkMode={darkMode} />
           </div>
         ) : activeTab === "My Day" ? (
-                <div className="content-scrollable">
-                  {showNotifications ? (
-                       <NotificationsPage 
-                           notifications={notifications} 
-                           onBack={() => setShowNotifications(false)} 
-                           darkMode={darkMode} 
-                       />
-                  ) : (
-                      <CreativeMyDay
-                        tasks={tasks}
-                        darkMode={darkMode}
-                        userProfile={userProfile}
-                        user={user}
-                        onToggleTaskCompletion={handleToggleTaskCompletion}
-                        onShowNotifications={() => {
-                            setShowNotifications(true);
-                            // Mark all as read
-                            const unread = notifications.filter(n => !n.read);
-                            unread.forEach(async (n) => {
-                                try {
-                                    await setDoc(doc(db, "users", user.uid, "notifications", n.id), { read: true }, { merge: true });
-                                } catch(e) {}
-                            });
-                        }} 
-                        hasUnread={notifications.some(n => !n.read)}
-                      />
-                  )}
-                </div>
+          <div className="content-scrollable">
+            {showNotifications ? (
+              <NotificationsPage
+                notifications={notifications}
+                onBack={() => setShowNotifications(false)}
+                darkMode={darkMode}
+              />
+            ) : (
+              <CreativeMyDay
+                tasks={tasks}
+                darkMode={darkMode}
+                userProfile={userProfile}
+                user={user}
+                onToggleTaskCompletion={handleToggleTaskCompletion}
+                onShowNotifications={() => {
+                  setShowNotifications(true);
+                  // Mark all as read
+                  const unread = notifications.filter((n) => !n.read);
+                  unread.forEach(async (n) => {
+                    try {
+                      await setDoc(
+                        doc(db, "users", user.uid, "notifications", n.id),
+                        { read: true },
+                        { merge: true },
+                      );
+                    } catch (e) {}
+                  });
+                }}
+                hasUnread={notifications.some((n) => !n.read)}
+              />
+            )}
+          </div>
         ) : activeTab === "Account Settings" ? (
           <div className="results-container">
             <AccountSettings
