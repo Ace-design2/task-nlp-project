@@ -159,6 +159,7 @@ function App() {
               {
                 lastLoginAt: new Date().toISOString(),
                 email: currentUser.email,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Save TimeZone
               },
               { merge: true },
             );
