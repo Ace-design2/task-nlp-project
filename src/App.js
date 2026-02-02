@@ -80,13 +80,17 @@ function App() {
   const [isTyping, setIsTyping] = useState(false);
 
   // --- RESIZABLE SIDEBAR STATE ---
-  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(250);
   const [isResizing, setIsResizing] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isTablet, setIsTablet] = useState(window.innerWidth > 768 && window.innerWidth <= 1024);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+        setIsTablet(window.innerWidth > 768 && window.innerWidth <= 1024);
+    }
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

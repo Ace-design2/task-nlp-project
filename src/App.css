@@ -44,12 +44,14 @@
   max-width: 100%;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   background-color: #ffffff;
   color: #333;
   min-height: 100vh;
   display: flex;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
   overflow: hidden;
 }
 
@@ -74,10 +76,12 @@ body.dark-mode {
   /* FIXED: Always visible on desktop */
   left: 0; /* aligned with margin-left */
   top: 10px;
-  transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
   z-index: 1000;
-  
+
   /* Snippet specific styles */
   padding: 12px;
   display: flex;
@@ -106,16 +110,16 @@ body.dark-mode {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
+
   cursor: pointer;
   border: none;
   background-color: transparent;
   width: 100%;
   color: #333;
   text-align: left;
-  
+
   /* Typography from snippet */
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 12px;
   font-weight: 400;
   overflow: hidden; /* Ensure content doesn't spill during transition */
@@ -136,13 +140,15 @@ body.dark-mode {
 }
 
 .sidebar-item .nav-text {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 12px;
   white-space: nowrap;
   opacity: 1;
   max-width: 150px; /* Arbitrary large enough width */
-  transition: opacity 0.2s ease, max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    opacity 0.2s ease,
+    max-width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* Ensure active text is consistent with snippet (400 weight) unless user wants bold override. 
@@ -154,9 +160,8 @@ body.dark-mode {
 
 .active-pill {
   /* Hidden for this style as background-color is used directly */
-  display: none; 
+  display: none;
 }
-
 
 /* Sidebar Collapsed State */
 .sidebar.collapsed {
@@ -297,6 +302,7 @@ body.dark-mode {
 }
 
 /* Mobile Navigation Styles */
+/* Only apply mobile layout (bottom nav, hidden sidebar) for screens strictly smaller than iPad portrait */
 @media (max-width: 768px) {
   .bottom-navigation {
     display: flex !important;
@@ -312,20 +318,20 @@ body.dark-mode {
 
   .main-content {
     padding-bottom: 0px; /* Increased space for floating nav (which is ~80px + margin) */
-    margin-left: 0; 
+    margin-left: 0 !important;
   }
 
   /* Adjust form container for mobile width and bottom nav */
   .form-container {
     bottom: 20px; /* Reduced from 110px since nav bar is hidden in chat */
-    width: calc(100% - 32px); 
+    width: calc(100% - 32px);
     max-width: 100%;
     padding: 12px;
     left: 50%;
     transform: translateX(-50%);
-    
-  /* Make form container also slightly glass-like if desired, but sticking to solid for now to ensure readability */
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+
+    /* Make form container also slightly glass-like if desired, but sticking to solid for now to ensure readability */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 
   .header.search-active .title {
@@ -370,7 +376,7 @@ body.dark-mode {
 .chat-item-content {
   align-self: stretch;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   gap: 4px;
   display: flex; /* Changed from inline-flex */
   min-width: 0; /* Important for flex truncation */
@@ -393,7 +399,7 @@ body.dark-mode {
 
 .chat-item-card.dark {
   outline: 1px solid rgba(193, 18, 31, 0.3);
-  background-color: #1E1E1E;
+  background-color: #1e1e1e;
 }
 
 /* Hover Effect with Red Accent & Active State */
@@ -412,10 +418,10 @@ body.dark-mode {
 
 .chat-item-title {
   /* Removed width: 100% to let flex handle it */
-  flex: 1; 
+  flex: 1;
   min-width: 0; /* Allows shrinking below content size */
   font-size: 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 500;
   word-wrap: break-word;
   white-space: nowrap;
@@ -434,7 +440,7 @@ body.dark-mode {
 
 .chat-item-time {
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 400;
   word-wrap: break-word;
   white-space: nowrap;
@@ -453,11 +459,11 @@ body.dark-mode {
 /* Mobile Responsiveness */
 @media (max-width: 600px) {
   .chat-item-card {
-    padding: 16px; 
+    padding: 16px;
   }
-  
+
   .chat-item-title {
-    font-size: 15px; 
+    font-size: 15px;
   }
 
   .chat-item-time {
@@ -481,7 +487,7 @@ body.dark-mode {
   background: #fff;
   color: #000;
   outline: none;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   transition: all 0.2s ease;
   margin-top: 12px; /* Move down a bit */
@@ -512,8 +518,8 @@ body.dark-mode {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* --- ASTRA DESIGN --- */
@@ -537,7 +543,7 @@ body.dark-mode {
   min-height: 380px;
   background: white;
   border-radius: 24px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.05); /* Gentle shadow */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05); /* Gentle shadow */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -550,11 +556,10 @@ body.dark-mode {
 
 .astra-start-page.dark .astra-card {
   background: #121212;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* Orb */
-
 
 .astra-avatar {
   width: 40px;
@@ -582,7 +587,7 @@ body.dark-mode {
 /* Inner Prompt Box (Visual Only in Card) */
 .astra-prompt-box {
   width: 100%;
-  background: #F7F9FB; /* Very light subtle blue/grey */
+  background: #f7f9fb; /* Very light subtle blue/grey */
   border-radius: 20px;
   padding: 16px;
   display: flex;
@@ -595,7 +600,7 @@ body.dark-mode {
 }
 
 .astra-start-page.dark .astra-prompt-box {
-  background: #1E1E1E;
+  background: #1e1e1e;
   color: #aaa;
 }
 
@@ -611,7 +616,7 @@ body.dark-mode {
   height: 32px;
   border-radius: 50%;
   border: none;
-  background: #EAEEF1;
+  background: #eaeef1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -646,7 +651,7 @@ body.dark-mode {
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 700px; 
+  max-width: 700px;
   padding: 0 16px; /* Default side padding */
   box-sizing: border-box;
   z-index: 100;
@@ -657,9 +662,30 @@ body.dark-mode {
 }
 
 /* Desktop Centering Adjustment */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .astra-float-input-container {
-    left: calc(50% + 141px);
+    left: calc(
+      50% + 141px
+    ); /* Center in the remaining space (282px sidebar / 2) */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet/iPad Landscape & Small Desktop */
+  .astra-float-input-container {
+    /* If sidebar is collapsed (92px), offset center by 46px */
+    /* If sidebar is open (250px), offset center by 125px */
+    /* Since we don't have CSS variables for sidebar state here easily without inline styles,
+           we'll approximate or assume user keeps it collapsed mostly on tablet.
+           But a better generic approach is centering relative to window and letting JS handle precise offset if needed,
+           OR just centered in viewport is often fine visually.
+           
+           Let's center in the VIEW VIEW (right pane).
+           Right pane starts at 250px+margin or 70px+margin.
+        */
+    left: 60%; /* Rough approximation for tablet with sidebar */
+    transform: translateX(-50%);
+    width: calc(100% - 300px); /* Constrain width */
   }
 }
 
@@ -670,7 +696,7 @@ body.dark-mode {
     max-width: 100%;
     padding: 0 12px;
   }
-  
+
   .astra-input-pill {
     min-height: 50px;
     border-radius: 25px;
@@ -678,34 +704,31 @@ body.dark-mode {
   }
 }
 
-
-
-
 .astra-input-pill {
   width: 100%;
   background: white;
   min-height: 48px;
   border-radius: 35px; /* Full pill shape */
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   padding: 5px 10px 5px 20px;
   gap: 12px;
   pointer-events: auto;
-  border: 1px solid rgba(0,0,0,0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   transition: background 0.3s;
 }
 
 .app-container.dark-mode .astra-input-pill {
-  background: #1E1E1E;
+  background: #1e1e1e;
   border: 1px solid #333;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
 .astra-input-area {
   flex: 1;
   border: none;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 16px;
   outline: none;
   background: transparent;
@@ -727,7 +750,7 @@ body.dark-mode {
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: #F0F2F5;
+  background: #f0f2f5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -774,8 +797,8 @@ body.dark-mode {
 }
 
 .chat-list-pane {
-  width: 400px; /* Fixed width for list */
-  border-right: 1px solid rgba(0,0,0,0.1);
+  width: 300px; /* Fixed width for list (Reduced from 400px) */
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -784,7 +807,7 @@ body.dark-mode {
 }
 
 .app-container.dark-mode .chat-list-pane {
-  border-right: 1px solid rgba(255,255,255,0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chat-view-pane {
@@ -810,7 +833,8 @@ body.dark-mode {
     display: block; /* Stack or just show one */
   }
 
-  .chat-list-pane, .chat-view-pane {
+  .chat-list-pane,
+  .chat-view-pane {
     width: 100%;
     border-right: none;
   }
@@ -818,7 +842,7 @@ body.dark-mode {
   .mobile-hidden {
     display: none !important;
   }
-  
+
   .desktop-hidden {
     display: flex !important; /* or block */
   }
@@ -828,9 +852,9 @@ body.dark-mode {
   .desktop-hidden {
     display: none !important;
   }
-  
+
   /* Reset width for pane if it was set to 100% via some other rule? No, specific class handles it. */
-  
+
   /* Input positioning adjustment for 3-pane */
   /* Sidebar is 250px + margin (~262px). Chat List is 300px. */
   /* Total Left Offset = ~560px. Center of Right Pane is (Screen - 560)/2 + 560. */
@@ -864,26 +888,26 @@ body.dark-mode {
 
 .chat-mobile-header {
   padding: 10px;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
 }
 
 .app-container.dark-mode .chat-mobile-header {
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Very small screens - FORCE Override */
 @media (max-width: 360px) {
   .astra-input-pill {
     padding: 4px 6px 4px 12px !important;
-    gap: 6px !important; 
+    gap: 6px !important;
     min-height: 44px !important;
   }
-  
-  .astra-input-icon-btn, 
+
+  .astra-input-icon-btn,
   .astra-send-btn {
-    width: 32px !important; 
+    width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;
   }
