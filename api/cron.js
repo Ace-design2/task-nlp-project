@@ -36,13 +36,23 @@ module.exports = async function handler(req, res) {
 
     const now = new Date();
 
-    // DEBUG: Log current server time
-    const currentDay = now.toISOString().split("T")[0]; // UTC date
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const currentTime = `${hours}:${minutes}`; // UTC time
+    // ADJUSTMENT: The server is in UTC. The User found in logs is in UTC+1.
+    // We need to compare "Task Time" vs "User's Local Time".
+    // We will shift the server time by +1 Hour (UTC+1) to match the user's perception.
+    // In a real multi-user app, you would need to store the Timezone on the User profile.
 
-    console.log(`Server Time (UTC): ${currentDay} ${currentTime}`);
+    // Create a date object shifted to UTC+1
+    const userTime = new Date(now.getTime() + 60 * 60 * 1000); // Add 1 hour
+
+    // DEBUG: Log calculated user time
+    // Use getUTC methods on the shifted object to get the "Local" time representation
+    const currentDay = userTime.toISOString().split("T")[0];
+    const hours = String(userTime.getUTCHours()).padStart(2, "0");
+    const minutes = String(userTime.getUTCMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+
+    console.log(`Server Time (UTC): ${now.toISOString()}`);
+    console.log(`User Time (Calculated UTC+1): ${currentDay} ${currentTime}`);
 
     const snapshot = await db
       .collectionGroup("tasks")
@@ -62,13 +72,10 @@ module.exports = async function handler(req, res) {
 
       if (!task.date || !task.time) return;
 
-      const logEntry = `Task ${docSnap.id} (User ${userId}): Date=${task.date}, Time=${task.time} vs Server=${currentDay} ${currentTime}`;
+      const logEntry = `Task ${docSnap.id}: Date=${task.date}, Time=${task.time} vs UserTime=${currentDay} ${currentTime}`;
       logs.push(logEntry);
 
       // Time Check
-      // NOTE: This comparison assumes task.time is in UTC or User is in UTC.
-      // If user is UTC+1, 18:00 Local is 17:00 UTC.
-      // Server (17:00) sees Task (18:00) -> 18:00 <= 17:00 is FALSE. Skipped.
       const isDateMatch = task.date === currentDay;
       const isTimeDue = task.time <= currentTime;
 
@@ -151,7 +158,8 @@ module.exports = async function handler(req, res) {
       // Return logs in the response so the user can debug via browser
       .json({
         success: true,
-        serverTimeUTC: `${currentDay} ${currentTime}`,
+        serverTimeUTC: now.toISOString(),
+        userTimeCalculated: `${currentDay} ${currentTime}`,
         processed: snapshot.size,
         sent: sentCount,
         logs: logs,
