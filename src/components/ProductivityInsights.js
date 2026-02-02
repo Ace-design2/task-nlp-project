@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import "./ProductivityInsights.css";
 import VuesaxIcon from "./VuesaxIcon";
+import ContributionGraph from "./ContributionGraph";
 
 const ProductivityInsights = ({ tasks = [], darkMode }) => {
   const [timeRange, setTimeRange] = React.useState("weekly"); // 'weekly', 'monthly', 'yearly'
@@ -258,6 +259,9 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       </div>
 
       <div className="charts-section">
+        {/* Contribution Graph - Adapts to timeRange */}
+        <ContributionGraph tasks={tasks} darkMode={darkMode} timeRange={timeRange} />
+
         {/* Weekly Activity Chart */}
         <div className="chart-card">
           <div className="chart-header">
