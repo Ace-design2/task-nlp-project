@@ -12,8 +12,8 @@
   padding:12px 4px 100px 4px; /* Added bottom padding for scroll space above fixed nav/input */
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-  height: 100%; /* Fill container */
-  overflow-y: auto; /* Enable scrolling */
+  /* height: 100%;  <-- REMOVED to let it expand */
+  /* overflow-y: auto; <-- REMOVED to let parent scroll */
   display: flex;
   flex-direction: column;
   gap: 24px;

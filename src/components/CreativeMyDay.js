@@ -8,6 +8,8 @@ const CreativeMyDay = ({
   userProfile,
   user,
   onToggleTaskCompletion,
+  onShowNotifications,
+  hasUnread,
 }) => {
   // 1. Time-based Greeting
   const greeting = useMemo(() => {
@@ -48,23 +50,59 @@ const CreativeMyDay = ({
     <div className={`creative-container ${darkMode ? "dark-mode" : ""}`}>
       {/* FIXED TOP SECTION */}
       <div className="creative-fixed-section">
-        {/* Header: Profile & Greeting */}
+        {/* Header: Profile (Left), Greeting (Mid), Notif (Right) */}
         <div className="creative-header">
-          <div>
+           {/* 1. Profile Left */}
+           <div className="profile-icon" style={{ marginRight: 16 }}>
+                {profileImage ? (
+                <img src={profileImage} alt="Profile" />
+                ) : (
+                <div className="profile-placeholder">
+                    {displayName.charAt(0).toUpperCase()}
+                </div>
+                )}
+            </div>
+
+          {/* 2. Greeting */}
+          <div style={{ flex: 1 }}>
             <h1 className="greeting-text">
               {greeting}, {displayName.split(" ")[0]}
             </h1>
             <p className="sub-greeting">Let's make today productive.</p>
           </div>
-          <div className="profile-icon">
-            {profileImage ? (
-              <img src={profileImage} alt="Profile" />
-            ) : (
-              <div className="profile-placeholder">
-                {displayName.charAt(0).toUpperCase()}
-              </div>
+          
+          {/* 3. Notif Right */}
+          <div 
+            className="notif-btn" 
+            onClick={onShowNotifications}
+            style={{
+                background: darkMode ? "rgba(255,255,255,0.1)" : "#f5f5f5",
+                padding: 10,
+                borderRadius: "50%",
+                cursor: "pointer",
+                display: "flex",
+                position: 'relative'
+            }}
+            >
+            <VuesaxIcon 
+                name="notification" 
+                variant={hasUnread ? "Bold" : "Linear"} 
+                color={hasUnread ? "#FF4B4B" : (darkMode ? "#fff" : "#292D32")}
+                size={22}
+            />
+            {hasUnread && (
+                <div style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 8,
+                    height: 8,
+                    background: '#FF4B4B',
+                    borderRadius: '50%',
+                    border: `2px solid ${darkMode ? '#1E1E1E' : '#fff'}`
+                }} />
             )}
-          </div>
+           </div>
         </div>
 
         {/* Progress Card (Glassmorphism) */}

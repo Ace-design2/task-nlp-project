@@ -17,6 +17,7 @@ import ChatList from "./components/ChatList";
 
 import VerificationPending from "./components/VerificationPending";
 import AstraStartPage from "./components/AstraStartPage"; // [NEW] relative import
+import NotificationsPage from "./components/NotificationsPage"; // [NEW]
 import { getRandomTimePrompt } from "./constants/prompts";
 
 import { auth, db, messaging } from "./firebase";
@@ -73,6 +74,8 @@ function App() {
   const [text, setText] = useState("");
   /* Removed isSidebarOpen state */
   const [activeTab, setActiveTab] = useState("My Day");
+  const [notifications, setNotifications] = useState([]); // [NEW]
+  const [showNotifications, setShowNotifications] = useState(false); // [NEW]
 
   const [pendingTask, setPendingTask] = useState(null);
   const [isWaitingForTime, setIsWaitingForTime] = useState(false);
@@ -268,9 +271,21 @@ function App() {
       setChats(loadedChats);
     });
 
+    // 3. Subscribe to Notifications
+    const notifRef = collection(db, "users", user.uid, "notifications");
+    const qNotif = query(notifRef, orderBy("createdAt", "desc"));
+    const unsubNotif = onSnapshot(qNotif, (snapshot) => {
+        const loadedNotif = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id
+        }));
+        setNotifications(loadedNotif);
+    });
+
     return () => {
       unsubTasks();
       unsubChats();
+      unsubNotif();
     };
   }, [user]);
 
@@ -390,6 +405,17 @@ function App() {
         pushToken: fcmToken || null,
         sent: false,
       });
+
+      // [MOVED] Add to Notifications Collection centrally
+      try {
+          await addDoc(collection(db, "users", user.uid, "notifications"), {
+              type: "task_created",
+              title: `Task Created: ${taskData.title}`,
+              timestamp: new Date().toLocaleString(),
+              createdAt: new Date().toISOString(),
+              read: false
+          });
+      } catch(e) { console.error("Error adding notification rec", e); }
     };
 
     // --- CASE 0: HANDLE PENDING AM/PM ANSWER ---
@@ -1628,15 +1654,34 @@ function App() {
             <ProductivityInsights tasks={tasks} darkMode={darkMode} />
           </div>
         ) : activeTab === "My Day" ? (
-          <div className="tasks-view-container" style={{ padding: "0 0" }}>
-            <CreativeMyDay
-              tasks={tasks}
-              darkMode={darkMode}
-              userProfile={userProfile}
-              user={user}
-              onToggleTaskCompletion={handleToggleTaskCompletion}
-            />
-          </div>
+                <div className="content-scrollable">
+                  {showNotifications ? (
+                       <NotificationsPage 
+                           notifications={notifications} 
+                           onBack={() => setShowNotifications(false)} 
+                           darkMode={darkMode} 
+                       />
+                  ) : (
+                      <CreativeMyDay
+                        tasks={tasks}
+                        darkMode={darkMode}
+                        userProfile={userProfile}
+                        user={user}
+                        onToggleTaskCompletion={handleToggleTaskCompletion}
+                        onShowNotifications={() => {
+                            setShowNotifications(true);
+                            // Mark all as read
+                            const unread = notifications.filter(n => !n.read);
+                            unread.forEach(async (n) => {
+                                try {
+                                    await setDoc(doc(db, "users", user.uid, "notifications", n.id), { read: true }, { merge: true });
+                                } catch(e) {}
+                            });
+                        }} 
+                        hasUnread={notifications.some(n => !n.read)}
+                      />
+                  )}
+                </div>
         ) : activeTab === "Account Settings" ? (
           <div className="results-container">
             <AccountSettings

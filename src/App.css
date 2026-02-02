@@ -977,3 +977,12 @@ body.dark-mode {
 .app-container.dark-mode .desktop-chat-close-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Main Content Area Scroll Fix */
+.content-scrollable {
+  flex-grow: 1;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
