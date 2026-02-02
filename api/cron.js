@@ -35,14 +35,14 @@ module.exports = async function handler(req, res) {
     const messaging = admin.messaging();
 
     const now = new Date();
-    // ... rest of logic ...
 
-    // Note: To minimize diff size, I'm pasting the logic here,
-    // but in a real refactor I might keep the logic separate.
-    // However, to ensure scope access to `db` and `messaging` which are now local,
-    // I need to include the rest of the file here or structure it differently.
+    // DEBUG: Log current server time
+    const currentDay = now.toISOString().split("T")[0]; // UTC date
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`; // UTC time
 
-    // Let's just inline the rest of functionality for safety in this tool call
+    console.log(`Server Time (UTC): ${currentDay} ${currentTime}`);
 
     const snapshot = await db
       .collectionGroup("tasks")
@@ -54,6 +54,7 @@ module.exports = async function handler(req, res) {
     const batch = db.batch();
     const promises = [];
     let sentCount = 0;
+    const logs = []; // Collection of decision logs
 
     snapshot.forEach((docSnap) => {
       const task = docSnap.data();
@@ -61,13 +62,19 @@ module.exports = async function handler(req, res) {
 
       if (!task.date || !task.time) return;
 
-      const currentDay = now.toISOString().split("T")[0]; // UTC date
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const currentTime = `${hours}:${minutes}`; // UTC time
+      const logEntry = `Task ${docSnap.id} (User ${userId}): Date=${task.date}, Time=${task.time} vs Server=${currentDay} ${currentTime}`;
+      logs.push(logEntry);
 
-      // Time Check (Simplified for MVP as discussed)
-      if (task.date === currentDay && task.time <= currentTime) {
+      // Time Check
+      // NOTE: This comparison assumes task.time is in UTC or User is in UTC.
+      // If user is UTC+1, 18:00 Local is 17:00 UTC.
+      // Server (17:00) sees Task (18:00) -> 18:00 <= 17:00 is FALSE. Skipped.
+      const isDateMatch = task.date === currentDay;
+      const isTimeDue = task.time <= currentTime;
+
+      if (isDateMatch && isTimeDue) {
+        logs.push(`   -> MATCH! Condition Met.`);
+
         // Multi-Device Broadcasting
         const sendPromise = db
           .collection("users")
@@ -76,7 +83,7 @@ module.exports = async function handler(req, res) {
           .get()
           .then(async (tokenSnapshot) => {
             if (tokenSnapshot.empty) {
-              console.log(`No tokens for user ${userId}, marking sent anyway.`);
+              logs.push(`   -> No tokens found for user ${userId}`);
               return;
             }
 
@@ -97,14 +104,22 @@ module.exports = async function handler(req, res) {
               };
 
               sendTasks.push(
-                messaging.send(message).catch((err) => {
-                  console.error("Failed to send to device", err);
-                  if (
-                    err.code === "messaging/registration-token-not-registered"
-                  ) {
-                    tokenDoc.ref.delete();
-                  }
-                }),
+                messaging
+                  .send(message)
+                  .then(() => {
+                    logs.push(
+                      `   --> Sent to token ending in ...${tokenData.token.slice(-6)}`,
+                    );
+                  })
+                  .catch((err) => {
+                    console.error("Failed to send to device", err);
+                    logs.push(`   --> Failed to send: ${err.message}`);
+                    if (
+                      err.code === "messaging/registration-token-not-registered"
+                    ) {
+                      tokenDoc.ref.delete();
+                    }
+                  }),
               );
             });
             await Promise.all(sendTasks);
@@ -118,6 +133,10 @@ module.exports = async function handler(req, res) {
           });
 
         promises.push(sendPromise);
+      } else {
+        logs.push(
+          `   -> SKIPPED. DateMatch: ${isDateMatch}, TimeDue: ${isTimeDue}`,
+        );
       }
     });
 
@@ -129,7 +148,14 @@ module.exports = async function handler(req, res) {
 
     res
       .status(200)
-      .json({ success: true, processed: snapshot.size, sent: sentCount });
+      // Return logs in the response so the user can debug via browser
+      .json({
+        success: true,
+        serverTimeUTC: `${currentDay} ${currentTime}`,
+        processed: snapshot.size,
+        sent: sentCount,
+        logs: logs,
+      });
   } catch (error) {
     console.error("Critical Error in Cron Handler:", error);
     res.status(500).json({
