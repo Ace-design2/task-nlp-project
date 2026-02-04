@@ -9,7 +9,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "firebase": "^12.7.0",
-    "firebase-admin": "^13.6.0",
+    "firebase-admin": "^13.0.0",
     "framer-motion": "^12.23.26",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -40,5 +40,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "fast-xml-parser": "5.3.4",
+    "nth-check": "2.1.1",
+    "postcss": "8.4.38",
+    "jsonpath": "1.1.1",
+    "webpack-dev-server": "5.2.1"
   }
 }
