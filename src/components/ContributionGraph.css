@@ -48,6 +48,21 @@
        but for initial snap we might not want smooth? 
        Actually smooth is fine. */
     scroll-behavior: smooth;
+    
+    /* Scrollbar styling for webkit */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+.graph-scroller::-webkit-scrollbar {
+    height: 6px;
+}
+.graph-scroller::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+.contribution-graph-card.dark-mode .graph-scroller::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.2);
 }
 
 /* Container for Yearly Grid */
@@ -184,16 +199,29 @@
     color: #666;
 }
 
+.contribution-graph-card.dark-mode .graph-footer {
+    color: #aaa;
+}
+
+.legend-cells {
+    display: flex;
+    gap: 4px;
+}
+
 /* Mobile specific overrides */
 @media (max-width: 600px) {
+    .contribution-graph-card {
+        padding: 16px;
+    }
+
     .graph-grid {
         width: fit-content; /* Revert to fit-content for scrolling on mobile */
         justify-content: flex-start;
     }
 
     .graph-linear.monthly {
-        /* On mobile, ensure it wraps nicely and uses available width */
-        justify-content: center;
+        /* On mobile, ensure it wraps nicely and uses available width or scrolls */
+        justify-content: flex-start;
         flex-wrap: wrap; /* Re-enable wrap for mobile */
         gap: 8px;
     }
@@ -203,12 +231,4 @@
         width: 14px;
         height: 14px;
     }
-}
-.contribution-graph-card.dark-mode .graph-footer {
-    color: #aaa;
-}
-
-.legend-cells {
-    display: flex;
-    gap: 4px;
 }

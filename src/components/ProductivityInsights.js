@@ -214,6 +214,9 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
         </button>
       </div>
 
+      {/* Contribution Graph - Adapts to timeRange */}
+      <ContributionGraph tasks={tasks} darkMode={darkMode} timeRange={timeRange} />
+
       {/* Stats Grid */}
       <div className="stats-grid">
         <div className="stat-card">
@@ -259,8 +262,6 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       </div>
 
       <div className="charts-section">
-        {/* Contribution Graph - Adapts to timeRange */}
-        <ContributionGraph tasks={tasks} darkMode={darkMode} timeRange={timeRange} />
 
         {/* Weekly Activity Chart */}
         <div className="chart-card">

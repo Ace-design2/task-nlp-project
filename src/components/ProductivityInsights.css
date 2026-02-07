@@ -262,6 +262,7 @@
   transition: opacity 0.2s;
   pointer-events: none;
   white-space: nowrap;
+  z-index: 10;
 }
 
 .bar-column:hover .bar-tooltip {
@@ -295,6 +296,7 @@
   display: flex;
   gap: 16px;
   margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .legend-item {
@@ -328,3 +330,96 @@
 .stats-grid .stat-card:nth-child(1) { animation-delay: 0.1s; }
 .stats-grid .stat-card:nth-child(2) { animation-delay: 0.2s; }
 .stats-grid .stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* Tablet & Mobile */
+@media (max-width: 768px) {
+  .insights-container {
+    padding: 0 0 80px 0;
+  }
+  
+  .insights-title {
+    font-size: 24px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .chart-card {
+    padding: 20px;
+  }
+  
+  .bar-chart-container {
+    height: 180px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .insights-title {
+    font-size: 22px;
+  }
+
+  .timeframe-toggle {
+    width: 100%;
+    margin-bottom: 20px;
+    justify-content: space-between;
+  }
+  
+  .toggle-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically */
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 16px;
+    flex-direction: row; /* Horizontal layout for cards on mobile */
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .stat-icon-wrapper {
+    margin-bottom: 0;
+    margin-right: 12px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+    order: 2; /* Put value on right */
+  }
+  
+  .stat-label {
+    order: 1; /* Put label on left */
+    flex: 1;
+  }
+
+  /* Make charts scroll if needed or compact them */
+  .bar-chart-container {
+    overflow-x: auto;
+    justify-content: flex-start;
+    gap: 12px;
+    padding-bottom: 20px;
+  }
+  
+  .bar-column {
+    min-width: 30px; /* Ensure bars have width */
+  }
+
+  .chart-card {
+    padding: 16px;
+  }
+  
+  .chart-title {
+    font-size: 14px;
+  }
+}

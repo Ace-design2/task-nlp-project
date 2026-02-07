@@ -1,8 +1,5 @@
 /* Glassmorphism Variables */
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
   --accent-color: #c1121f;
 }
@@ -22,10 +19,9 @@
 .creative-fixed-section {
   position: sticky;
   top: 0;
-  padding: 12px 20px 20px 20px;
-  background: var(--glass-bg, rgba(255,255,255,0.85));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: #fff;
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -37,7 +33,7 @@
 }
 
 .creative-container.dark-mode .creative-fixed-section {
-    background: rgba(30,30,30,0.85);
+    background: #1E1E1E;
 }
 
 /* Push tasks down below the fixed header (approx height 200px) */
@@ -46,9 +42,6 @@
 }
 
 .creative-container.dark-mode {
-  --glass-bg: rgba(30, 30, 30, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   --accent-gradient: linear-gradient(135deg, #ff4d4d 0%, #ff8080 100%); /* Softer pastel for dark mode contrast */
   color: #fff;
 }
@@ -59,6 +52,8 @@
   justify-content: space-between;
   align-items: center;
   transition: opacity 0.5s ease-in;
+  padding-left: 12px;
+  padding-right: 12px;
   /* Removed fixed widths as we reverted */
 }
 
@@ -109,11 +104,9 @@
 
 /* Progress Section */
 .progress-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   border-radius: 20px;
   padding: 20px;
   display: flex;
@@ -124,10 +117,13 @@
 
 .progress-card.horizontal {
   align-items: stretch;
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
-.progress-card:hover {
-  transform: translateY(-2px);
+.creative-container.dark-mode .progress-card {
+  background: #1E1E1E;
+  border-color: rgba(255,255,255,0.05);
 }
 
 .progress-header-row {
@@ -211,10 +207,7 @@
   box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
-.creative-task-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
+
 
 .creative-task-card.completed {
   opacity: 0.6;
