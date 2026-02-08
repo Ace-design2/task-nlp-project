@@ -186,7 +186,7 @@ body.dark-mode {
   /* Adjusted margin to account for fixed sidebar (250px width + 12px margin + ~20px gap) */
   margin-left: 282px;
   transition: margin-left 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  padding: 20px;
+  padding: 0; /* REMOVED PADDING per user request */
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -794,6 +794,8 @@ body.dark-mode {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
 .chat-list-pane {
@@ -985,4 +987,5 @@ body.dark-mode {
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 12px;
 }

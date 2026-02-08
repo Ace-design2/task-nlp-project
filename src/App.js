@@ -1445,7 +1445,7 @@ function App() {
 
         {/* Content Body */}
         {activeTab === "Chat" ? (
-          <div className="chat-desktop-layout">
+          <div className="chat-desktop-layout" style={{ padding: "12px", boxSizing: "border-box" }}>
             {/* Left Pane: Chat List */}
             <div
               className={`chat-list-pane ${activeChatId ? "mobile-hidden" : ""}`}

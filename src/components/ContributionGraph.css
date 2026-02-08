@@ -1,93 +1,93 @@
 /* ContributionGraph.css */
 
 .contribution-graph-card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.03);
-    margin-bottom: 24px; 
-    /* Important: animate in */
-    animation: slideUpCard 0.5s ease-out forwards;
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  margin-bottom: 0px;
+  /* Important: animate in */
+  animation: slideUpCard 0.5s ease-out forwards;
 }
 
 .contribution-graph-card.dark-mode {
-    background: #1E1E1E;
-    border-color: rgba(255,255,255,0.05);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .contribution-header {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
 }
 
 .contribution-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
 }
 
 .contribution-graph-card.dark-mode .contribution-title {
-    color: #e0e0e0;
+  color: #e0e0e0;
 }
 
 .contribution-subtitle {
-    font-size: 13px;
-    color: #888;
-    margin-top: 4px;
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
 }
 
 /* Scroller to handle overflow on smaller screens */
 .graph-scroller {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 8px; /* space for scroll bar if needed */
-    /* Smooth scrolling only if user scrolls manually, 
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px; /* space for scroll bar if needed */
+  /* Smooth scrolling only if user scrolls manually, 
        but for initial snap we might not want smooth? 
        Actually smooth is fine. */
-    scroll-behavior: smooth;
-    
-    /* Scrollbar styling for webkit */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,0,0,0.2) transparent;
+  scroll-behavior: smooth;
+
+  /* Scrollbar styling for webkit */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 .graph-scroller::-webkit-scrollbar {
-    height: 6px;
+  height: 6px;
 }
 .graph-scroller::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 .contribution-graph-card.dark-mode .graph-scroller::-webkit-scrollbar-thumb {
-    background-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Container for Yearly Grid */
 .daily-grid-container {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 /* New floating label inside column */
 .month-label-floating {
-    position: absolute;
-    top: -20px;
-    left: 0;
-    font-size: 10px;
-    color: #999;
-    white-space: nowrap;
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  color: #999;
+  white-space: nowrap;
 }
 
 /* YEARLY Grid layout */
 .graph-grid {
-    display: flex;
-    gap: 4px; /* Space between columns (weeks) */
-    width: 100%; /* Ensure it takes up full width on desktop */
-    justify-content: space-between; /* Spread columns across the width */
-    margin-top: 20px; /* Space for labels */
+  display: flex;
+  gap: 4px; /* Space between columns (weeks) */
+  width: 100%; /* Ensure it takes up full width on desktop */
+  justify-content: space-between; /* Spread columns across the width */
+  margin-top: 20px; /* Space for labels */
 }
 
 /* 
@@ -96,139 +96,156 @@
 */
 
 .graph-column {
-    display: flex;
-    flex-direction: column;
-    gap: 4px; /* Space between rows (days) */
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Space between rows (days) */
 }
 
 /* LINEAR Layout (Weekly / Monthly) */
 .graph-linear {
-    display: flex;
-    gap: 6px;
-    width: 100%;
-    justify-content: flex-start;
-    align-items: center;
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .graph-linear.weekly {
-    justify-content: space-between; 
+  justify-content: space-between;
 }
 
 .graph-linear.monthly {
-    gap: 6px; 
-    flex-wrap: nowrap; /* Desktop: usually no wrap, spread out */
-    justify-content: space-between; /* Fill screen on desktop */
+  gap: 6px;
+  flex-wrap: nowrap; /* Desktop: usually no wrap, spread out */
+  justify-content: space-between; /* Fill screen on desktop */
 }
 
-
 .linear-cell-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .cell-label {
-    font-size: 10px;
-    color: #999;
-    font-weight: 500;
+  font-size: 10px;
+  color: #999;
+  font-weight: 500;
 }
-
 
 /* CELL STYLES */
 .graph-cell {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    background-color: #f0f2f5; 
-    transition: all 0.2s ease;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background-color: #f0f2f5;
+  transition: all 0.2s ease;
 }
 
 .graph-linear.weekly .graph-cell {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
 }
 
 .graph-linear.monthly .graph-cell {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
 }
 
-
 .graph-cell.empty {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .contribution-graph-card.dark-mode .graph-cell {
-    background-color: rgba(255,255,255,0.05); /* Base empty */
+  background-color: rgba(255, 255, 255, 0.05); /* Base empty */
 }
 
 /* Levels */
-.graph-cell.level-0 { background-color: #f0f2f5; }
-.graph-cell.level-1 { background-color: #fee2e2; }
-.graph-cell.level-2 { background-color: #fca5a5; }
-.graph-cell.level-3 { background-color: #ef4444; }
-.graph-cell.level-4 { background-color: #b91c1c; }
+.graph-cell.level-0 {
+  background-color: #f0f2f5;
+}
+.graph-cell.level-1 {
+  background-color: #fee2e2;
+}
+.graph-cell.level-2 {
+  background-color: #fca5a5;
+}
+.graph-cell.level-3 {
+  background-color: #ef4444;
+}
+.graph-cell.level-4 {
+  background-color: #b91c1c;
+}
 
 /* Dark Mode Colors */
-.contribution-graph-card.dark-mode .graph-cell.level-0 { background-color: rgba(255,255,255,0.05); }
-.contribution-graph-card.dark-mode .graph-cell.level-1 { background-color: rgba(193, 18, 31, 0.2); }
-.contribution-graph-card.dark-mode .graph-cell.level-2 { background-color: rgba(193, 18, 31, 0.4); }
-.contribution-graph-card.dark-mode .graph-cell.level-3 { background-color: rgba(193, 18, 31, 0.7); }
-.contribution-graph-card.dark-mode .graph-cell.level-4 { background-color: #c1121f; }
+.contribution-graph-card.dark-mode .graph-cell.level-0 {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.contribution-graph-card.dark-mode .graph-cell.level-1 {
+  background-color: rgba(193, 18, 31, 0.2);
+}
+.contribution-graph-card.dark-mode .graph-cell.level-2 {
+  background-color: rgba(193, 18, 31, 0.4);
+}
+.contribution-graph-card.dark-mode .graph-cell.level-3 {
+  background-color: rgba(193, 18, 31, 0.7);
+}
+.contribution-graph-card.dark-mode .graph-cell.level-4 {
+  background-color: #c1121f;
+}
 
 /* Hover */
 .graph-cell:hover:not(.empty) {
-    outline: 1px solid rgba(0,0,0,0.3);
-    transform: scale(1.1);
+  outline: 1px solid rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
 }
 .contribution-graph-card.dark-mode .graph-cell:hover:not(.empty) {
-    outline: 1px solid rgba(255,255,255,0.5);
+  outline: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 /* Legend */
 .graph-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: #666;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #666;
 }
 
 .contribution-graph-card.dark-mode .graph-footer {
-    color: #aaa;
+  color: #aaa;
 }
 
 .legend-cells {
-    display: flex;
-    gap: 4px;
+  display: flex;
+  gap: 4px;
 }
 
 /* Mobile specific overrides */
 @media (max-width: 600px) {
-    .contribution-graph-card {
-        padding: 16px;
-    }
+  .contribution-graph-card {
+    padding: 16px;
+  }
 
-    .graph-grid {
-        width: fit-content; /* Revert to fit-content for scrolling on mobile */
-        justify-content: flex-start;
-    }
+  .graph-grid {
+    width: fit-content; /* Revert to fit-content for scrolling on mobile */
+    justify-content: flex-start;
+  }
 
-    .graph-linear.monthly {
-        /* On mobile, ensure it wraps nicely and uses available width or scrolls */
-        justify-content: flex-start;
-        flex-wrap: wrap; /* Re-enable wrap for mobile */
-        gap: 8px;
-    }
-    
-    .graph-linear.monthly .graph-cell {
-        /* Make them slightly larger touch targets if space permits, or keep as is */
-        width: 14px;
-        height: 14px;
-    }
+  .graph-linear.monthly {
+    /* On mobile, ensure it wraps nicely and uses available width or scrolls */
+    justify-content: flex-start;
+    flex-wrap: wrap; /* Re-enable wrap for mobile */
+    gap: 8px;
+  }
+
+  .graph-linear.monthly .graph-cell {
+    /* Make them slightly larger touch targets if space permits, or keep as is */
+    width: 14px;
+    height: 14px;
+  }
 }

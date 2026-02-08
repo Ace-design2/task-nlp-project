@@ -5,7 +5,7 @@
   width: 100%;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   height: 100%;
   overflow: hidden; /* Changed from overflow-y: auto to handle pane scrolling individually if needed */
   display: flex;
@@ -16,7 +16,7 @@
 .creative-calendar-fixed-section {
   position: relative;
   flex: 1; /* Take remaining space (Center) */
-  padding: 12px 20px 0px 20px;
+  padding: 12px 12px 0px 12px;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -29,14 +29,14 @@
 /* Removed Desktop Adjustment media query */
 
 .creative-calendar-container.dark-mode .creative-calendar-fixed-section {
-    background: transparent; 
+  background: transparent;
 }
 
 /* Right Pane: Tasks */
 .selected-date-section {
   width: 360px; /* Fixed width on right */
   padding: 20px;
-  border-left: 1px solid rgba(0,0,0,0.1);
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -48,7 +48,7 @@
 }
 
 .creative-calendar-container.dark-mode .selected-date-section {
-  border-left: 1px solid rgba(255,255,255,0.1);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Mobile Responsiveness */
@@ -61,7 +61,7 @@
   .creative-calendar-fixed-section {
     height: auto;
     overflow-y: visible;
-    padding: 12px 0; /* Reduced padding on mobile */
+    padding: 12px 12px 0px 12px; /* Reduced padding on mobile */
     flex: none;
   }
 
@@ -70,8 +70,8 @@
     border-left: none;
     height: auto;
     overflow-y: visible;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    padding: 20px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 12px 12px 0px 12px;
   }
 }
 
@@ -91,14 +91,17 @@
   font-size: 24px;
   font-weight: 700;
   text-align: center;
-  background: var(--accent-gradient, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
+  background: var(
+    --accent-gradient,
+    linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .creative-nav-btn {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   border: none;
   border-radius: 50%;
   width: 36px;
@@ -110,11 +113,11 @@
   transition: all 0.2s;
 }
 .creative-calendar-container.dark-mode .creative-nav-btn {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 .creative-nav-btn:hover {
   transform: scale(1.1);
-  background: rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 /* Calendar Grid Card */
@@ -130,7 +133,7 @@
 
 .creative-calendar-container.dark-mode .creative-calendar-card {
   background: rgba(30, 30, 30, 0.6);
-  border-color: rgba(255,255,255,0.1);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -170,14 +173,17 @@
 }
 
 .calendar-day-cell:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 .creative-calendar-container.dark-mode .calendar-day-cell:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .calendar-day-cell.selected {
-  background: var(--accent-color, linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%));
+  background: var(
+    --accent-color,
+    linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%)
+  );
   color: white;
   box-shadow: 0 4px 12px rgba(193, 18, 31, 0.3);
   transform: scale(1.05);
@@ -189,7 +195,7 @@
   font-weight: 700;
 }
 .calendar-day-cell.selected.today {
-  border: 2px solid rgba(255,255,255,0.8);
+  border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .calendar-day-cell.empty {
@@ -225,8 +231,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .selected-date-header {
@@ -242,7 +254,7 @@
   background: #fff;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -250,14 +262,20 @@
 }
 
 .creative-calendar-container.dark-mode .calendar-task-card {
-  background: #1E1E1E;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  background: #1e1e1e;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Priority Colors */
-.priority-high { border-left-color: #FF4B4B; }
-.priority-medium { border-left-color: #FFB800; }
-.priority-low { border-left-color: #00A231; }
+.priority-high {
+  border-left-color: #ff4b4b;
+}
+.priority-medium {
+  border-left-color: #ffb800;
+}
+.priority-low {
+  border-left-color: #00a231;
+}
 
 .cal-task-time {
   font-size: 12px;

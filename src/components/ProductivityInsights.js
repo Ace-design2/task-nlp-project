@@ -184,9 +184,12 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
   }, [tasks, timeRange]);
 
   return (
-    <div className={`insights-container ${darkMode ? "dark-mode" : ""}`}>
+    <div
+      className={`insights-container ${darkMode ? "dark-mode" : ""}`}
+      style={{ padding: "12px 12px 100px 12px", boxSizing: "border-box" }}
+    >
       <div className="insights-header">
-        <h2 className="insights-title">Usage & Insights</h2>
+        <h1 className="insights-title">Usage & Insights</h1>
         <p className="insights-subtitle">
           Track your productivity trends and task habits.
         </p>
@@ -215,7 +218,11 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       </div>
 
       {/* Contribution Graph - Adapts to timeRange */}
-      <ContributionGraph tasks={tasks} darkMode={darkMode} timeRange={timeRange} />
+      <ContributionGraph
+        tasks={tasks}
+        darkMode={darkMode}
+        timeRange={timeRange}
+      />
 
       {/* Stats Grid */}
       <div className="stats-grid">
@@ -262,7 +269,6 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
       </div>
 
       <div className="charts-section">
-
         {/* Weekly Activity Chart */}
         <div className="chart-card">
           <div className="chart-header">
