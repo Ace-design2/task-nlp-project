@@ -153,7 +153,7 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
             name="microphone"
             variant="Linear"
             darkMode={darkMode}
-            color="#c1121f"
+            color={darkMode ? "#ffffff" : "#c1121f"}
           />
         </button>
       )}

@@ -773,8 +773,8 @@ body.dark-mode {
 }
 
 .app-container.dark-mode .astra-input-pill {
-  background: #1e1e1e;
-  border: 1px solid rgba(193, 18, 31, 0.3);
+  background: #363636;
+  border: 1px solid rgba(193, 18, 31);
   box-shadow: none;
 }
 
@@ -797,6 +797,10 @@ body.dark-mode {
   color: white;
 }
 
+.app-container.dark-mode .astra-input-area::placeholder {
+  color: rgba(255, 255, 255, 0.7); /* White placeholder with some transparency */
+}
+
 /* Icons in Input */
 .astra-input-icon-btn {
   width: 40px;
@@ -814,7 +818,7 @@ body.dark-mode {
 
 .app-container.dark-mode .astra-input-icon-btn {
   background: #333;
-  color: #ddd;
+  color: #ffffff;
 }
 
 .astra-send-btn {
