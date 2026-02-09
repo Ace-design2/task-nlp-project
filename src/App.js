@@ -949,25 +949,6 @@ function App() {
     }
   };
 
-  const handleDeleteAllHistory = async () => {
-    if (!user || !activeChatId) return;
-    history.forEach(async (item) => {
-      try {
-        await deleteDoc(
-          doc(
-            db,
-            "users",
-            user.uid,
-            "chats",
-            activeChatId,
-            "messages",
-            item.id,
-          ),
-        );
-      } catch (e) {}
-    });
-  };
-
   const handleDeleteChat = async (chatId) => {
     if (!user) return;
     if (window.confirm("Are you sure you want to delete this chat?")) {
@@ -1620,7 +1601,6 @@ function App() {
                     history={history}
                     onRestore={handleRestoreHistory}
                     onDelete={handleDeleteHistory}
-                    onDeleteAll={handleDeleteAllHistory}
                     darkMode={darkMode}
                     isTyping={isTyping}
                     userProfile={userProfile}

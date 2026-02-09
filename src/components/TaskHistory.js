@@ -7,7 +7,7 @@ export default function TaskHistory({
   history,
   onRestore,
   onDelete,
-  onDeleteAll,
+
   darkMode,
   isTyping,
   userProfile,
@@ -123,13 +123,7 @@ export default function TaskHistory({
         </div>
       ))}
 
-      {history.length > 0 && (
-        <div className="delete-all-wrapper">
-          <button className="delete-all-btn" onClick={onDeleteAll}>
-            Clear Chat
-          </button>
-        </div>
-      )}
+
 
       {isTyping && (
         <div
