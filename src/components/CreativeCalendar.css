@@ -45,6 +45,7 @@
   height: 100%;
   flex-shrink: 0;
   margin-top: 0; /* Remove margin-top */
+  box-sizing: border-box; /* Prevent padding from increasing width */
 }
 
 .creative-calendar-container.dark-mode .selected-date-section {

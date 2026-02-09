@@ -192,7 +192,7 @@ body.dark-mode {
   height: 100vh;
   max-width: 100%;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: #fafafa;
 }
 
 .main-content.collapsed-sidebar {
@@ -358,7 +358,7 @@ body.dark-mode {
 .chat-category-group {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
@@ -853,6 +853,7 @@ body.dark-mode {
   overflow: hidden;
   padding: 12px;
   box-sizing: border-box;
+  background-color: #ffffff;
 }
 
 .chat-list-pane {
@@ -890,6 +891,7 @@ body.dark-mode {
 @media (max-width: 768px) {
   .chat-desktop-layout {
     display: block; /* Stack or just show one */
+    background-color: #ffffff;
   }
 
   .chat-list-pane,
