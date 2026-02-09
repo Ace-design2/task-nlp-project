@@ -856,6 +856,10 @@ body.dark-mode {
   background-color: #ffffff;
 }
 
+.app-container.dark-mode .chat-desktop-layout {
+  background-color: #000000;
+}
+
 .chat-list-pane {
   width: 300px; /* Fixed width for list (Reduced from 400px) */
   border-right: 1px solid rgba(0, 0, 0, 0.1);
