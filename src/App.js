@@ -81,6 +81,10 @@ function App() {
   const [isWaitingForTime, setIsWaitingForTime] = useState(false);
   const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  
+  // --- STUDY PLANNER STATE ---
+  const [studyPlannerState, setStudyPlannerState] = useState("IDLE"); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
+  const [studyPlannerData, setStudyPlannerData] = useState({ topic: null, days: null });
 
   // --- RESIZABLE SIDEBAR STATE ---
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -334,6 +338,22 @@ function App() {
     return () => unsubHistory();
   }, [user, activeChatId]);
 
+
+
+  // Helper to add AI message (Moved out/cloned for scope access if needed, 
+  // but handleProcessTask has it defined inside. We need it accessible or passed.
+  // For now, I will define a ref or move addAiMessage to component scope, 
+  // OR just assume I'll put this logic INSIDE handleProcessTask or use a clearer flow.
+  // actually, let's keep fetchStudySchedule outside and pass a callback or just move logic into handleProcessTask
+  // since addAiMessage is defined inside handleProcessTask currently.
+  // RE-STRATEGY: I'll put the fetching logic inside handleProcessTask or a generic effect/function that has access to addDoc.
+  // To keep it clean, I'll define addAiMessageWrapper at component level or just implement inline in handleProcessTask.
+  
+  // Let's defer implementation of fetchStudySchedule to be called FROM handleProcessTask directly
+  // or define addAiMessage at component level (which involves database deps).
+  
+
+
   const handleProcessTask = async (text) => {
     if (!text.trim()) return;
     if (!user) {
@@ -437,6 +457,88 @@ function App() {
         console.error("Error adding notification rec", e);
       }
     };
+
+    // --- CASE -1: STUDY PLANNER FLOW ---
+    console.log("DEBUG: handleProcessTask", { text, studyPlannerState, studyPlannerData });
+
+    if (studyPlannerState === "AWAITING_TOPIC") {
+      console.log("DEBUG: Processing Topic", text);
+      const newTopic = text;
+      setStudyPlannerData(prev => ({ ...prev, topic: newTopic }));
+      setStudyPlannerState("AWAITING_DAYS");
+      
+      setIsTyping(true);
+      setTimeout(() => {
+        addAiMessage(`Great! How many days do you want to study **${newTopic}**?`);
+        setIsTyping(false);
+      }, 800);
+      return;
+    }
+
+    if (studyPlannerState === "AWAITING_DAYS") {
+      console.log("DEBUG: Processing Days", text);
+      const days = parseInt(text);
+      if (isNaN(days) || days <= 0) {
+        addAiMessage("Please enter a valid number of days (e.g., 3, 5, 7).");
+        return;
+      }
+
+      setStudyPlannerData(prev => ({ ...prev, days: days }));
+      
+      // Trigger API Call
+      setIsTyping(true);
+      addAiMessage(`Generating a **${days}-day** study plan for **${studyPlannerData.topic}**...`);
+
+      try {
+        // Sanitize topic: "CSC 416" -> "CSC416"
+        const sanitizedTopic = studyPlannerData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2");
+
+        const response = await fetch(
+          `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(
+             sanitizedTopic
+          )}&days=${days}`
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+           throw new Error(data.detail || "Failed to generate schedule");
+        }
+
+        setIsTyping(false);
+        
+        let scheduleText = `Here is your study schedule for **${data.query || studyPlannerData.topic}** over **${data.days || days} days**:\n\n`;
+        
+        if (data.schedule && Object.keys(data.schedule).length > 0) {
+          Object.entries(data.schedule).forEach(([day, info]) => {
+            scheduleText += `**${day}** (${info.total_hours} hours):\n`;
+            info.topics.forEach(t => {
+               scheduleText += `- ${t.topic} (${t.time}h)\n`;
+            });
+            scheduleText += "\n";
+          });
+          scheduleText += "\nDo you want to add these tasks to your calendar? (Coming Soon)";
+        } else {
+          scheduleText += "No schedule could be generated for this topic.";
+        }
+
+        await addAiMessage(scheduleText);
+        
+        setStudyPlannerState("IDLE");
+        setStudyPlannerData({ topic: null, days: null });
+
+      } catch (error) {
+        console.error("Study Planner Error:", error);
+        setIsTyping(false);
+        
+        const errorMessage = error.message && error.message.includes("No topics found") 
+          ? `I couldn't find any topics for "**${studyPlannerData.topic}**". Please try a different course code (e.g., CSC416) or keyword.`
+          : "Sorry, I couldn't generate a schedule for that topic. Please try again.";
+          
+        await addAiMessage(errorMessage);
+        setStudyPlannerState("IDLE");
+      }
+      return;
+    }
 
     // --- CASE 0: HANDLE PENDING AM/PM ANSWER ---
     if (isWaitingForAmPm && pendingTask) {
@@ -1616,9 +1718,62 @@ function App() {
                     <button
                       type="button"
                       className="study-schedule-btn"
-                      onClick={() =>
-                        console.log("Build a Study Schedule clicked")
-                      }
+                      onClick={async () => {
+                        if (!user) {
+                          alert("Please log in to use this feature.");
+                          return;
+                        }
+                        
+                        // Ensure we have an active chat or create one
+                        let chatId = activeChatId;
+                        if (!chatId || chatId === "new") {
+                           try {
+                             const newChatRef = await addDoc(
+                               collection(db, "users", user.uid, "chats"),
+                               {
+                                 firstPrompt: "Study Schedule",
+                                 createdAt: new Date().toISOString(),
+                                 lastMessageTime: new Date().toISOString(),
+                               }
+                             );
+                             chatId = newChatRef.id;
+                             setActiveChatId(chatId);
+                           } catch(e) { console.error(e); return; }
+                        }
+                        
+                        // 1. Add USER Message "Build a Study Schedule" (Manually, bypassing NLP)
+                        try {
+                          await addDoc(
+                            collection(db, "users", user.uid, "chats", chatId, "messages"),
+                            {
+                              text: "Build a Study Schedule",
+                              sender: "user",
+                              timestamp: new Date().toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }),
+                              createdAt: new Date().toISOString(),
+                            }
+                          );
+                        } catch(e) { console.error("Error adding user msg", e); }
+
+                        // 2. Set State
+                        setStudyPlannerState("AWAITING_TOPIC");
+                        
+                        // 3. Add AI Message asking for topic
+                        try {
+                           await addDoc(
+                             collection(db, "users", user.uid, "chats", chatId, "messages"),
+                             {
+                               text: "I can help you build a study schedule! What subject or course code are you studying? (e.g. CSC416)",
+                               sender: "ai",
+                               timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                               createdAt: new Date().toISOString(),
+                               isAstra: true
+                             }
+                           );
+                        } catch(e) {}
+                      }}
                     >
                       <span>Build a Study Schedule</span>
                       <div className="study-schedule-icon">
