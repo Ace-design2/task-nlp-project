@@ -1612,20 +1612,39 @@ function App() {
                   className="astra-float-input-container"
                   onSubmit={handleSubmit}
                 >
-                  <div className="astra-input-pill">
-                    <input
-                      className="astra-input-area"
-                      placeholder="Create a task..."
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleSubmit(e);
-                        }
-                      }}
-                      autoFocus
-                    />
+                  <div className="astra-input-group">
+                    <button
+                      type="button"
+                      className="study-schedule-btn"
+                      onClick={() =>
+                        console.log("Build a Study Schedule clicked")
+                      }
+                    >
+                      <span>Build a Study Schedule</span>
+                      <div className="study-schedule-icon">
+                        <VuesaxIcon
+                          name="arrow-up"
+                          variant="Linear"
+                          size={16}
+                          color="currentColor"
+                        />
+                      </div>
+                    </button>
+
+                    <div className="astra-input-pill">
+                      <input
+                        className="astra-input-area"
+                        placeholder="Create a task..."
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSubmit(e);
+                          }
+                        }}
+                        autoFocus
+                      />
 
                     <VoiceInput
                       onTextReady={setText}
@@ -1640,6 +1659,7 @@ function App() {
                         color="#ffffff"
                       />
                     </button>
+                  </div>
                   </div>
                 </form>
               )}
