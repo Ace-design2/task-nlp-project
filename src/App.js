@@ -84,7 +84,7 @@ function App() {
   
   // --- STUDY PLANNER STATE ---
   const [studyPlannerState, setStudyPlannerState] = useState("IDLE"); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
-  const [studyPlannerData, setStudyPlannerData] = useState({ topic: null, days: null });
+  const [studyPlannerData, setStudyPlannerData] = useState({ topic: null, days: null, dailyHours: null });
 
   // --- RESIZABLE SIDEBAR STATE ---
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -484,29 +484,72 @@ function App() {
       }
 
       setStudyPlannerData(prev => ({ ...prev, days: days }));
-      
+      setStudyPlannerState("AWAITING_DAILY_HOURS"); // New State
+
+      setIsTyping(true);
+      setTimeout(() => {
+        addAiMessage(`Got it. How many hours per day can you dedicate strictly to studying?`);
+        setIsTyping(false);
+      }, 800);
+      return;
+    }
+
+    if (studyPlannerState === "AWAITING_DAILY_HOURS") {
+      console.log("DEBUG: Processing Daily Hours", text);
+      const hours = parseFloat(text);
+      if (isNaN(hours) || hours <= 0) {
+        addAiMessage("Please enter a valid number of hours (e.g., 2, 3.5).");
+        return;
+      }
+
+      const finalData = { ...studyPlannerData, dailyHours: hours };
+      setStudyPlannerData(finalData);
+
       // Trigger API Call
       setIsTyping(true);
-      addAiMessage(`Generating a **${days}-day** study plan for **${studyPlannerData.topic}**...`);
+      addAiMessage(`Generating a **${finalData.days}-day** study plan for **${finalData.topic}** (${hours} hours/day)...`);
 
       try {
         // Sanitize topic: "CSC 416" -> "CSC416"
-        const sanitizedTopic = studyPlannerData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2");
+        const sanitizedTopic = finalData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2");
 
         const response = await fetch(
           `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(
              sanitizedTopic
-          )}&days=${days}`
+          )}&days=${finalData.days}&daily_hours=${hours}`
         );
         const data = await response.json();
 
-        if (!response.ok) {
+        // Handle Statuses
+        if (data.status === "impossible") {
+             // Impossible Scenario
+             const errorMsg = data.error || "Schedule is not possible.";
+             const suggestion = data.suggestion 
+                ? `\n\n**Suggestion:** You need at least **${data.suggestion.needed_days} days** (at ${data.suggestion.needed_daily_hours.toFixed(1)} hours/day) to cover this content.`
+                : "";
+             
+             setIsTyping(false);
+             await addAiMessage(`⚠️ **Schedule Not Possible**\n\n${errorMsg}${suggestion}`);
+             
+             setStudyPlannerState("IDLE");
+             setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+             return;
+        }
+
+        if (data.status === "adjusted") {
+             // Adjusted Scenario - Warning first
+             const warningMsg = data.message || "Schedule adjusted.";
+             await addAiMessage(`⚠️ **Note:** ${warningMsg}`);
+        }
+
+        // Proceed to render schedule (Success or Adjusted)
+        if (!response.ok && data.status !== "adjusted") {
            throw new Error(data.detail || "Failed to generate schedule");
         }
 
         setIsTyping(false);
         
-        let scheduleText = `Here is your study schedule for **${data.query || studyPlannerData.topic}** over **${data.days || days} days**:\n\n`;
+        let scheduleText = `Here is your study schedule for **${data.query || finalData.topic}** over **${finalData.days} days**:\n\n`;
         
         if (data.schedule && Object.keys(data.schedule).length > 0) {
           Object.entries(data.schedule).forEach(([day, info]) => {
@@ -524,14 +567,14 @@ function App() {
         await addAiMessage(scheduleText);
         
         setStudyPlannerState("IDLE");
-        setStudyPlannerData({ topic: null, days: null });
+        setStudyPlannerData({ topic: null, days: null, dailyHours: null });
 
       } catch (error) {
         console.error("Study Planner Error:", error);
         setIsTyping(false);
         
         const errorMessage = error.message && error.message.includes("No topics found") 
-          ? `I couldn't find any topics for "**${studyPlannerData.topic}**". Please try a different course code (e.g., CSC416) or keyword.`
+          ? `I couldn't find any topics for "**${finalData.topic}**". Please try a different course code (e.g., CSC416) or keyword.`
           : "Sorry, I couldn't generate a schedule for that topic. Please try again.";
           
         await addAiMessage(errorMessage);

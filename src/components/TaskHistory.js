@@ -2,6 +2,8 @@ import React from "react";
 import VuesaxIcon from "./VuesaxIcon";
 import AstraAvatar from "./AstraAvatar";
 import "./TaskHistory.css";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function TaskHistory({
   history,
@@ -92,7 +94,11 @@ export default function TaskHistory({
               title={item.sender !== "ai" ? "Tap to edit" : ""}
               style={{ cursor: item.sender === "ai" ? "default" : "pointer" }}
             >
-              {item.text}
+              <div className="markdown-content">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {item.text}
+                </ReactMarkdown>
+              </div>
             </div>
 
             <div

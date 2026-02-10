@@ -168,9 +168,33 @@
   color: #aaa;
 }
 
-.dark-mode-history .delete-btn {
-  /* Invert icon handled by VuesaxIcon component logic usually, 
-     but if it's an SVG inside, we might need filter manually if not using component props correctly.
-     TaskHistory uses VuesaxIcon component passed 'darkMode' prop, so it handles color. 
-  */
+
+
+/* Markdown Content Styles */
+.chat-bubble .markdown-content p {
+  margin: 0 0 8px 0;
+}
+
+.chat-bubble .markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble .markdown-content ul, 
+.chat-bubble .markdown-content ol {
+  margin: 4px 0 8px 20px;
+  padding: 0;
+}
+
+.chat-bubble .markdown-content li {
+  margin-bottom: 2px;
+}
+
+.chat-bubble .markdown-content strong {
+  font-weight: 700;
+}
+
+/* Ensure links are visible/clickable if any */
+.chat-bubble .markdown-content a {
+  color: inherit;
+  text-decoration: underline;
 }
