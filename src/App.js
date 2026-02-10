@@ -51,6 +51,14 @@ function App() {
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
+  // Update theme-color meta tag for iOS/Android status bar
+  useEffect(() => {
+    const metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
+    }
+  }, [darkMode]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
