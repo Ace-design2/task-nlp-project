@@ -93,6 +93,7 @@ function App() {
   // --- STUDY PLANNER STATE ---
   const [studyPlannerState, setStudyPlannerState] = useState("IDLE"); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
   const [studyPlannerData, setStudyPlannerData] = useState({ topic: null, days: null, dailyHours: null });
+  const [tempGeneratedSchedule, setTempGeneratedSchedule] = useState(null); // [NEW] Store schedule for confirmation
 
   // --- RESIZABLE SIDEBAR STATE ---
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -567,15 +568,21 @@ function App() {
             });
             scheduleText += "\n";
           });
-          scheduleText += "\nDo you want to add these tasks to your calendar? (Coming Soon)";
+          scheduleText += "\nDo you want to add these tasks to your calendar? (Reply 'Yes')";
         } else {
           scheduleText += "No schedule could be generated for this topic.";
         }
 
         await addAiMessage(scheduleText);
         
-        setStudyPlannerState("IDLE");
-        setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+        if (data.schedule && Object.keys(data.schedule).length > 0) {
+           setTempGeneratedSchedule(data.schedule);
+           setStudyPlannerState("AWAITING_CALENDAR_CONFIRMATION");
+           // Data persistance not cleared yet
+        } else {
+           setStudyPlannerState("IDLE");
+           setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+        }
 
       } catch (error) {
         console.error("Study Planner Error:", error);
@@ -589,6 +596,64 @@ function App() {
         setStudyPlannerState("IDLE");
       }
       return;
+    }
+
+    // --- CASE -0.5: CONFIRM ADD TO CALENDAR ---
+    if (studyPlannerState === "AWAITING_CALENDAR_CONFIRMATION") {
+       const lower = text.toLowerCase();
+       if (lower.includes("yes") || lower.includes("sure") || lower.includes("yeah") || lower.includes("y")) {
+          // Add to calendar
+          if (tempGeneratedSchedule) {
+             let addedCount = 0;
+             const today = new Date();
+             
+             // Iterate through the schedule: "Day 1", "Day 2", etc.
+             for (const [dayKey, dayInfo] of Object.entries(tempGeneratedSchedule)) {
+                // Parse "Day X" -> X
+                const dayNum = parseInt(dayKey.replace("Day ", ""));
+                if (isNaN(dayNum)) continue;
+
+                // Calculate Date: Today + dayNum (Starting tomorrow as Day 1)
+                // If user wants Day 1 to be Today, we'd do dayNum - 1. 
+                // Let's assume Day 1 = Tomorrow for prep? Or Day 1 = Today?
+                // Let's do Day 1 = Tomorrow to be safe/standard for planning.
+                const targetDate = new Date(today);
+                targetDate.setDate(today.getDate() + dayNum); 
+                const dateStr = targetDate.toISOString().split('T')[0];
+
+                // Create Tasks for each topic
+                for (const topicItem of dayInfo.topics) {
+                   const newTask = {
+                      title: `Study: ${topicItem.topic}`,
+                      date: dateStr,
+                      time: "All Day", // No specific time info from generator yet
+                      completed: false,
+                      priority: "High",
+                      createdAt: new Date().toISOString()
+                   };
+                   await addTaskToDb(newTask);
+                   addedCount++;
+                }
+             }
+             
+             setIsTyping(true);
+             setTimeout(() => {
+                addAiMessage(`✅ **Success!** Added **${addedCount} study tasks** to your calendar, starting tomorrow.`);
+                setIsTyping(false);
+             }, 800);
+          } else {
+             addAiMessage("Error: Could not retrieve schedule data.");
+          }
+       } else {
+          // User declined
+          addAiMessage("Okay, I won't add them. Let me know if you need anything else!");
+       }
+
+       // Reset
+       setStudyPlannerState("IDLE");
+       setTempGeneratedSchedule(null);
+       setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+       return;
     }
 
     // --- CASE 0: HANDLE PENDING AM/PM ANSWER ---
