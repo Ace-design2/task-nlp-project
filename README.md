@@ -1,4 +1,4 @@
-# Task NLP App
+# Astra to-do
 
 A modern, intelligent task management application built with **React** and **Firebase**, featuring Natural Language Processing (NLP) for intuitive task creation.
 
@@ -28,7 +28,7 @@ A modern, intelligent task management application built with **React** and **Fir
 
     ```bash
     git clone https://github.com/Ace-design2/task-nlp-project.git
-    cd task-nlp-app
+    cd astra-to-do
     ```
 
 2.  **Install Dependencies**
@@ -38,7 +38,6 @@ A modern, intelligent task management application built with **React** and **Fir
     ```
 
 3.  **Setup Firebase**
-
     - Create a Firebase project.
     - Add your configuration keys in `src/firebase.js` (or use environment variables).
 

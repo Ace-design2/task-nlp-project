@@ -1,5 +1,5 @@
 specVersion: "v1"
-serviceId: "task-nlp-app"
+serviceId: "astra-to-do"
 location: "us-east4"
 schema:
   source: "./schema"
@@ -7,7 +7,7 @@ schema:
     postgresql:
       database: "fdcdb"
       cloudSql:
-        instanceId: "task-nlp-app-fdc"
+        instanceId: "astra-to-do-fdc"
         # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
         # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
 connectorDirs: ["./example"]

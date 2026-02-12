@@ -122,7 +122,7 @@ function LoginPage({ onLogin, darkMode }) {
                 ? "Sign up to continue with"
                 : "Log in to continue with"}
             </span>{" "}
-            <span className="highlight-text">Task-NLP.app.</span>
+            <span className="highlight-text">Astra to-do.</span>
           </div>
 
           {error && (

@@ -296,7 +296,7 @@ const AccountSettings = ({
       </div>
 
       <div className="version-info">
-        <p>Task NLP App v0.1.0</p>
+        <p>Astra to-do v0.1.0</p>
       </div>
     </div>
   );
