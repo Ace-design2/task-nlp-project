@@ -600,7 +600,7 @@ function App() {
         const sanitizeTopic = (t) => t.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2").toUpperCase();
 
         let generatedSchedule = {};
-        let finalStatus = "success";
+
         let aggregatedMessage = "";
 
         if (finalData.selectedCourses && finalData.selectedCourses.length > 0) {
@@ -701,7 +701,7 @@ function App() {
              }
 
              generatedSchedule = binPackedSchedule;
-             finalStatus = successCount > 0 ? "success" : "failed";
+
              
              const extendedMsg = currentDay > finalData.days 
                 ? `\n\n**Note:** To cover all ${courseCount} courses within **${hours} hours/day**, the schedule spans **${currentDay} days** (requested: ${finalData.days}).` 
