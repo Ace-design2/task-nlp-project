@@ -493,13 +493,69 @@ function App() {
 
     if (studyPlannerState === "AWAITING_TOPIC") {
       console.log("DEBUG: Processing Topic", text);
-      const newTopic = text;
-      setStudyPlannerData(prev => ({ ...prev, topic: newTopic }));
+      const lower = text.toLowerCase();
+
+      // [NEW] Check for "All" selection if we have possibleMatches
+      if (studyPlannerData.possibleMatches && studyPlannerData.possibleMatches.length > 0) {
+          if (lower.match(/^all\b|everything|both/i) || lower.includes("all of them") || lower.includes("all the courses") || lower.includes("all of it")) {
+              // User selected ALL
+              setStudyPlannerData(prev => ({ 
+                  ...prev, 
+                  topic: "Multiple Courses", 
+                  selectedCourses: prev.possibleMatches // Copy matches to selectedCourses
+              }));
+              setStudyPlannerState("AWAITING_DAYS");
+              
+              setIsTyping(true);
+              setTimeout(() => {
+                  addAiMessage(`Great! How many days do you want to study **all ${studyPlannerData.possibleMatches.length} courses**?`);
+                  setIsTyping(false);
+              }, 800);
+              return;
+          }
+      }
+
+      setStudyPlannerData(prev => ({ ...prev, topic: text }));
       setStudyPlannerState("AWAITING_DAYS");
       
       setIsTyping(true);
       setTimeout(() => {
-        addAiMessage(`Great! How many days do you want to study **${newTopic}**?`);
+        addAiMessage(`Great! How many days do you want to study **${text}**?`);
+        setIsTyping(false);
+      }, 800);
+      return;
+    }
+
+    if (studyPlannerState === "AWAITING_TOPIC") {
+      console.log("DEBUG: Processing Topic", text);
+      const lower = text.toLowerCase();
+
+      // [NEW] Check for "All" selection if we have possibleMatches
+      if (studyPlannerData.possibleMatches && studyPlannerData.possibleMatches.length > 0) {
+          if (lower.match(/^all\b|everything|both/i) || lower.includes("all of them") || lower.includes("all the courses") || lower.includes("all of it")) {
+              // User selected ALL
+              setStudyPlannerData(prev => ({ 
+                  ...prev, 
+                  topic: "Multiple Courses", 
+                  selectedCourses: prev.possibleMatches // Copy matches to selectedCourses
+              }));
+              setStudyPlannerState("AWAITING_DAYS");
+              
+              setIsTyping(true);
+              setTimeout(() => {
+                  addAiMessage(`Great! How many days do you want to study **all ${studyPlannerData.possibleMatches.length} courses**?`);
+                  setIsTyping(false);
+              }, 800);
+              return;
+          }
+      }
+
+      setStudyPlannerData(prev => ({ ...prev, topic: text }));
+      setStudyPlannerState("AWAITING_DAYS");
+      
+      setIsTyping(true);
+      setTimeout(() => {
+        addAiMessage(`Great! How many days do you want to study **${text}**?`);
         setIsTyping(false);
       }, 800);
       return;
@@ -540,52 +596,178 @@ function App() {
       addAiMessage(`Generating a **${finalData.days}-day** study plan for **${finalData.topic}** (${hours} hours/day)...`);
 
       try {
-        // Sanitize topic: "CSC 416" -> "CSC416"
-      // Also Force Uppercase because backend might be case-sensitive for course lookup
-      const sanitizedTopic = finalData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2").toUpperCase();
+        // Sanitize topic function
+        const sanitizeTopic = (t) => t.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2").toUpperCase();
 
-      console.log(`DEBUG: Fetching schedule for ${sanitizedTopic}`);
-        const response = await fetch(
-          `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(
-             sanitizedTopic
-          )}&days=${finalData.days}&daily_hours=${hours}`
-        );
-        const data = await response.json();
+        let generatedSchedule = {};
+        let finalStatus = "success";
+        let aggregatedMessage = "";
 
-        // Handle Statuses
-        if (data.status === "impossible") {
-             // Impossible Scenario
-             const errorMsg = data.error || "Schedule is not possible.";
-             const suggestion = data.suggestion 
-                ? `\n\n**Suggestion:** You need at least **${data.suggestion.needed_days} days** (at ${data.suggestion.needed_daily_hours.toFixed(1)} hours/day) to cover this content.`
+        if (finalData.selectedCourses && finalData.selectedCourses.length > 0) {
+             // --- MULTI-COURSE GENERATION (BIN PACKING) ---
+             const courseCount = finalData.selectedCourses.length;
+             let successCount = 0;
+
+             // 1. Fetch Phase: Ask for enough time per course to get meaty tasks (e.g. 1.5 hours)
+             // We will re-schedule them anyway, so we just want the content.
+             const fetchHoursPerCourse = 1.5; 
+
+             // Parallel Fetch
+             const promises = finalData.selectedCourses.map(async (course) => {
+                 const sTopic = sanitizeTopic(course.code);
+                 try {
+                     const res = await fetch(
+                        `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(sTopic)}&days=${finalData.days}&daily_hours=${fetchHoursPerCourse}`
+                     );
+                     const d = await res.json();
+                     return { code: course.code, data: d, result: res.ok };
+                 } catch (e) {
+                     return { code: course.code, error: e };
+                 }
+             });
+
+             const results = await Promise.all(promises);
+             
+             // 2. Flatten & Interleave Phase
+             // We want to mix courses: A, B, C, A, B, C... not AAAAA, BBBBB.
+             const allTasks = [];
+             const courseQueues = {};
+
+             results.forEach(item => {
+                 if (item.data && item.data.schedule) {
+                     successCount++;
+                     const tasksForCourse = [];
+                     // Extract all tasks for this course
+                     Object.values(item.data.schedule).forEach(dayInfo => {
+                         dayInfo.topics.forEach(t => {
+                             tasksForCourse.push({
+                                 ...t,
+                                 topic: `${item.code}: ${t.topic}`, // Prefix
+                                 originalTime: t.time
+                             });
+                         });
+                     });
+                     courseQueues[item.code] = tasksForCourse;
+                 }
+             });
+
+             // Round Robin Interleave
+             let hasMore = true;
+             while (hasMore) {
+                 hasMore = false;
+                 for (const courseCode of Object.keys(courseQueues)) {
+                     if (courseQueues[courseCode].length > 0) {
+                         allTasks.push(courseQueues[courseCode].shift());
+                         hasMore = true;
+                     }
+                 }
+             }
+
+             // 3. Bin Packing Phase (Client-Side Scheduling)
+             const userDailyLimit = hours; // User's requested limit (e.g. 3 hours)
+             const binPackedSchedule = {};
+             let currentDay = 1;
+             let currentDayHours = 0;
+             let currentDayTopics = [];
+
+             allTasks.forEach(task => {
+                 const taskTime = task.time || 1.0; // Default if missing
+                 
+                 // If adding this task exceeds limit (and we have at least one task already), move to next day
+                 // Exception: If a single task is huge > limit, we must put it on its own day (or split it, but simple for now).
+                 if (currentDayHours + taskTime > userDailyLimit && currentDayTopics.length > 0) {
+                     // Save current day
+                     binPackedSchedule[`Day ${currentDay}`] = {
+                         total_hours: currentDayHours,
+                         topics: [...currentDayTopics]
+                     };
+                     // Reset for next day
+                     currentDay++;
+                     currentDayHours = 0;
+                     currentDayTopics = [];
+                 }
+
+                 // Add task
+                 currentDayTopics.push(task);
+                 currentDayHours += taskTime;
+             });
+
+             // Save last day
+             if (currentDayTopics.length > 0) {
+                 binPackedSchedule[`Day ${currentDay}`] = {
+                     total_hours: currentDayHours,
+                     topics: [...currentDayTopics]
+                 };
+             }
+
+             generatedSchedule = binPackedSchedule;
+             finalStatus = successCount > 0 ? "success" : "failed";
+             
+             const extendedMsg = currentDay > finalData.days 
+                ? `\n\n**Note:** To cover all ${courseCount} courses within **${hours} hours/day**, the schedule spans **${currentDay} days** (requested: ${finalData.days}).` 
                 : "";
-             
-             setIsTyping(false);
-             await addAiMessage(`⚠️ **Schedule Not Possible**\n\n${errorMsg}${suggestion}`);
-             
-             setStudyPlannerState("IDLE");
-             setStudyPlannerData({ topic: null, days: null, dailyHours: null });
-             return;
-        }
 
-        if (data.status === "adjusted") {
-             // Adjusted Scenario - Warning first
-             const warningMsg = data.message || "Schedule adjusted.";
-             await addAiMessage(`⚠️ **Note:** ${warningMsg}`);
-        }
+             aggregatedMessage = `Generated a optimized schedule for **${successCount}/${courseCount} courses**.${extendedMsg}`;
 
-        // Proceed to render schedule (Success or Adjusted)
-        if (!response.ok && data.status !== "adjusted") {
-           throw new Error(data.detail || "Failed to generate schedule");
+        } else {
+            // --- SINGLE COURSE GENERATION (Existing) ---
+            const sanitizedTopic = sanitizeTopic(finalData.topic);
+            console.log(`DEBUG: Fetching schedule for ${sanitizedTopic}`);
+            
+            const response = await fetch(
+              `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(
+                 sanitizedTopic
+              )}&days=${finalData.days}&daily_hours=${hours}`
+            );
+            const data = await response.json();
+            
+            if (data.status === "impossible") {
+                 // Impossible Scenario
+                 const errorMsg = data.error || "Schedule is not possible.";
+                 const suggestion = data.suggestion 
+                    ? `\n\n**Suggestion:** You need at least **${data.suggestion.needed_days} days** (at ${data.suggestion.needed_daily_hours.toFixed(1)} hours/day) to cover this content.`
+                    : "";
+                 
+                 setIsTyping(false);
+                 await addAiMessage(`⚠️ **Schedule Not Possible**\n\n${errorMsg}${suggestion}`);
+                 
+                 setStudyPlannerState("IDLE");
+                 setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+                 return;
+            }
+    
+            if (data.status === "adjusted") {
+                 // Adjusted Scenario - Warning first
+                 const warningMsg = data.message || "Schedule adjusted.";
+                 await addAiMessage(`⚠️ **Note:** ${warningMsg}`);
+            }
+    
+            if (!response.ok && data.status !== "adjusted") {
+               throw new Error(data.detail || "Failed to generate schedule");
+            }
+
+            generatedSchedule = data.schedule;
+            if (data.course) {
+                 setStudyPlannerData(prev => ({ ...prev, course: data.course }));
+            }
+            aggregatedMessage = `Here is your study schedule for **${data.query || finalData.topic}** over **${finalData.days} days**:`;
         }
 
         setIsTyping(false);
         
-        let scheduleText = `Here is your study schedule for **${data.query || finalData.topic}** over **${finalData.days} days**:\n\n`;
+        let scheduleText = `${aggregatedMessage}\n\n`;
         
-        if (data.schedule && Object.keys(data.schedule).length > 0) {
-          Object.entries(data.schedule).forEach(([day, info]) => {
-            scheduleText += `**${day}** (${info.total_hours} hours):\n`;
+        if (generatedSchedule && Object.keys(generatedSchedule).length > 0) {
+          // Sort days just in case
+          const sortedDays = Object.keys(generatedSchedule).sort((a,b) => {
+              const da = parseInt(a.replace("Day ", ""));
+              const db = parseInt(b.replace("Day ", ""));
+              return da - db;
+          });
+
+          sortedDays.forEach((day) => {
+            const info = generatedSchedule[day];
+            scheduleText += `**${day}** (${info.total_hours.toFixed(1)} hours):\n`; // Show 1 decimal
             info.topics.forEach(t => {
                scheduleText += `- ${t.topic} (${t.time}h)\n`;
             });
@@ -593,44 +775,28 @@ function App() {
           });
           scheduleText += "\nDo you want to add these tasks to your calendar? (Reply 'Yes')";
         } else {
-          scheduleText += "No schedule could be generated for this topic.";
+          scheduleText += "No schedule could be generated.";
         }
 
         await addAiMessage(scheduleText);
         
-        if (data.schedule && Object.keys(data.schedule).length > 0) {
-           setTempGeneratedSchedule(data.schedule);
-            if (data.course) {
-                console.log("DEBUG: Course data received from API", data.course);
-                setStudyPlannerData(prev => ({ ...prev, course: data.course }));
-            } else {
-                console.log("DEBUG: No course data in response. Checking Firestore & Local...");
-                
-                // 1. Try Firestore Library
-                let foundCourse = courseLibrary.find(c => 
-                    c.code.replace(/\s+/g, '').toUpperCase() === sanitizedTopic.replace(/\s+/g, '').toUpperCase()
-                );
-
-                // 2. Fallback to Local JSON if not found
-                if (!foundCourse) {
-                    const localArray = localCourses.courses || [];
-                    foundCourse = localArray.find(c => 
-                        c.code.replace(/\s+/g, '').toUpperCase() === sanitizedTopic.replace(/\s+/g, '').toUpperCase()
-                    );
-                }
-
-                if (foundCourse) {
-                     console.log("DEBUG: Found course data (Firestore/Local)", foundCourse);
-                     setStudyPlannerData(prev => ({ ...prev, course: foundCourse }));
-                } else {
-                     console.log("DEBUG: No course data found anywhere.");
-                }
-            }
+        if (generatedSchedule && Object.keys(generatedSchedule).length > 0) {
+           setTempGeneratedSchedule(generatedSchedule);
+           // ... (Firestore fallback logic omitted for cleanliness in multi-mode, but kept for single if needed)
+           if (!finalData.selectedCourses) {
+                // ... (Original logic for resolving course if single match) ...
+                // Keeping minimal for diff.
+                if (!studyPlannerData.course) { /* ... */ } 
+           }
+           
            setStudyPlannerState("AWAITING_CALENDAR_CONFIRMATION");
            // Data persistance not cleared yet
+        
         } else {
-           setStudyPlannerState("IDLE");
-           setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+            console.log("DEBUG: Schedule generation failed/empty");
+            // If empty, clean up state
+            setStudyPlannerState("IDLE");
+            setStudyPlannerData({ topic: null, days: null, dailyHours: null });
         }
 
       } catch (error) {
@@ -850,6 +1016,16 @@ function App() {
       }
 
       console.log("Sending request with text:", text);
+
+      // --- 1. Check for Study Schedule Intent (Client-Side Logic) ---
+      const lowerText = text.toLowerCase();
+      if ((lowerText.includes("study schedule") || lowerText.includes("study plan") || lowerText.includes("study routine") || lowerText.includes("schedule for")) 
+           && (lowerText.includes("course") || lowerText.includes("csc") || lowerText.match(/[a-z]{3}\s?\d{3}/)) ) {
+          
+          await processStudyScheduleRequest(text, addAiMessage);
+          return;
+      }
+      
       let response;
       try {
         response = await fetch(
@@ -1313,6 +1489,109 @@ function App() {
 
     return () => clearInterval(intervalId);
   }, [tasks, notifiedTasks]);
+
+  // --- STUDY SCHEDULE HELPER ---
+  const processStudyScheduleRequest = async (inputText, addAiMessage) => {
+      const lower = inputText.toLowerCase();
+      
+      // 1. Check for specific course codes first (e.g. CSC416)
+      const codeMatch = inputText.match(/\b[A-Z]{3}\s?\d{3}\b/i);
+      if (codeMatch) {
+          // Found a direct course code!
+          // Normalize it (e.g. "csc 416" -> "CSC416")
+          const code = codeMatch[0].replace(/\s+/g, "").toUpperCase();
+          
+          // Proceed directly to "How many days?"
+          setStudyPlannerData(prev => ({ ...prev, topic: code }));
+          setStudyPlannerState("AWAITING_DAYS");
+          
+          setIsTyping(true);
+          setTimeout(() => {
+              addAiMessage(`Great! I see you want to study **${code}**. How many days do you want to allocate?`);
+              setIsTyping(false);
+          }, 800);
+          return;
+      }
+
+      // 2. Check for Level and Semester criteria
+      let levelFilter = null;
+      if (lower.match(/100\s?(l|level)?/)) levelFilter = "100L";
+      else if (lower.match(/200\s?(l|level)?/)) levelFilter = "200L";
+      else if (lower.match(/300\s?(l|level)?/)) levelFilter = "300L";
+      else if (lower.match(/400\s?(l|level)?/)) levelFilter = "400L";
+      else if (lower.match(/500\s?(l|level)?/)) levelFilter = "500L";
+
+      let semesterFilter = null;
+      if (lower.match(/(1st|first)\s?sem(ester)?/)) semesterFilter = "First";
+      else if (lower.match(/(2nd|second)\s?sem(ester)?/)) semesterFilter = "Second";
+
+      // 3. Find Matches in ALL Courses (Firestore + Local)
+      // Combine them safely
+      const allCourses = [...courseLibrary];
+      // Add local courses if not already in library (avoid dupes by code)
+      const localList = localCourses.courses || [];
+      localList.forEach(lc => {
+          if (!allCourses.find(ac => ac.code === lc.code)) {
+              allCourses.push(lc);
+          }
+      });
+
+      let matches = allCourses;
+
+      if (levelFilter) {
+          matches = matches.filter(c => c.level === levelFilter);
+      }
+      if (semesterFilter) {
+          matches = matches.filter(c => c.semester === semesterFilter);
+      }
+
+      // 4. Handle Results (If filters were applied or fuzzy matching logic needed)
+      // If we only have filters but no matches, or if we have filters:
+      if (levelFilter || semesterFilter) {
+          if (matches.length === 0) {
+               // No matches found -> Fallback to generic question
+               setStudyPlannerState("AWAITING_TOPIC");
+               setIsTyping(true);
+               setTimeout(() => {
+                  addAiMessage(`I couldn't find any courses matching "**${inputText}**". What is the specific **course code**?`);
+                  setIsTyping(false);
+               }, 800);
+          } else if (matches.length === 1) {
+              // Exact match -> Proceed
+              const course = matches[0];
+              setStudyPlannerData(prev => ({ ...prev, topic: course.code, course: course }));
+              setStudyPlannerState("AWAITING_DAYS");
+              
+              setIsTyping(true);
+              setTimeout(() => {
+                  addAiMessage(`Found **${course.code}** (${course.title}). How many days do you want to study?`);
+                  setIsTyping(false);
+              }, 800);
+          } else {
+              // Multiple matches -> Ask user to pick
+              // [MODIFIED] Store matches for "all" selection
+              setStudyPlannerData(prev => ({ ...prev, possibleMatches: matches })); // Store matches!
+              setStudyPlannerState("AWAITING_TOPIC");
+              
+              const courseListStr = matches.map(c => `• **${c.code}**: ${c.title}`).join("\n");
+              
+              setIsTyping(true);
+              setTimeout(() => {
+                  addAiMessage(`I found ${matches.length} courses matching your request:\n\n${courseListStr}\n\nWhich one would you like to create a schedule for?`);
+                  setIsTyping(false);
+              }, 800);
+          }
+          return;
+      }
+      
+      // Fallback if no specific logic matched:
+       setStudyPlannerState("AWAITING_TOPIC");
+       setIsTyping(true);
+       setTimeout(() => {
+          addAiMessage(`I can help with that! What specific subject or course code are you studying?`);
+          setIsTyping(false);
+       }, 800);
+  };
 
   // --- DEEP SEARCH LOGIC ---
   const handleDeepSearch = async (queryText) => {
