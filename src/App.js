@@ -23,6 +23,8 @@ import { getRandomTimePrompt } from "./constants/prompts";
 import { auth, db, messaging } from "./firebase";
 import { getToken, onMessage } from "firebase/messaging";
 import { onAuthStateChanged } from "firebase/auth";
+import localCourses from "./data/courses.json"; // [NEW] Fallback course data
+import { uploadCoursesToFirestore } from "./utils/uploadCourses"; // [NEW] Migration utility
 import {
   collection,
   query,
@@ -33,6 +35,7 @@ import {
   setDoc,
   orderBy,
   getDocs,
+  writeBatch,
 } from "firebase/firestore";
 
 function App() {
@@ -89,6 +92,24 @@ function App() {
   const [isWaitingForTime, setIsWaitingForTime] = useState(false);
   const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [courseLibrary, setCourseLibrary] = useState([]); // [NEW] Firestore Data
+
+  // [NEW] Sync Courses from Firestore (and auto-upload if empty)
+  useEffect(() => {
+    const q = query(collection(db, "courses"));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      if (snapshot.empty) {
+        console.log("Firestore 'courses' empty. Uploading local data...");
+        await uploadCoursesToFirestore();
+      } else {
+        const courses = snapshot.docs.map(doc => doc.data());
+        console.log("Loaded courses from Firestore:", courses.length);
+        setCourseLibrary(courses);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
   
   // --- STUDY PLANNER STATE ---
   const [studyPlannerState, setStudyPlannerState] = useState("IDLE"); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
@@ -520,8 +541,10 @@ function App() {
 
       try {
         // Sanitize topic: "CSC 416" -> "CSC416"
-        const sanitizedTopic = finalData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2");
+      // Also Force Uppercase because backend might be case-sensitive for course lookup
+      const sanitizedTopic = finalData.topic.replace(/([a-zA-Z]+)\s+(\d+)/g, "$1$2").toUpperCase();
 
+      console.log(`DEBUG: Fetching schedule for ${sanitizedTopic}`);
         const response = await fetch(
           `https://task-nlp-expertsystemlogic.onrender.com/schedule?query=${encodeURIComponent(
              sanitizedTopic
@@ -577,6 +600,32 @@ function App() {
         
         if (data.schedule && Object.keys(data.schedule).length > 0) {
            setTempGeneratedSchedule(data.schedule);
+            if (data.course) {
+                console.log("DEBUG: Course data received from API", data.course);
+                setStudyPlannerData(prev => ({ ...prev, course: data.course }));
+            } else {
+                console.log("DEBUG: No course data in response. Checking Firestore & Local...");
+                
+                // 1. Try Firestore Library
+                let foundCourse = courseLibrary.find(c => 
+                    c.code.replace(/\s+/g, '').toUpperCase() === sanitizedTopic.replace(/\s+/g, '').toUpperCase()
+                );
+
+                // 2. Fallback to Local JSON if not found
+                if (!foundCourse) {
+                    const localArray = localCourses.courses || [];
+                    foundCourse = localArray.find(c => 
+                        c.code.replace(/\s+/g, '').toUpperCase() === sanitizedTopic.replace(/\s+/g, '').toUpperCase()
+                    );
+                }
+
+                if (foundCourse) {
+                     console.log("DEBUG: Found course data (Firestore/Local)", foundCourse);
+                     setStudyPlannerData(prev => ({ ...prev, course: foundCourse }));
+                } else {
+                     console.log("DEBUG: No course data found anywhere.");
+                }
+            }
            setStudyPlannerState("AWAITING_CALENDAR_CONFIRMATION");
            // Data persistance not cleared yet
         } else {
@@ -623,8 +672,16 @@ function App() {
 
                 // Create Tasks for each topic
                 for (const topicItem of dayInfo.topics) {
+                   let taskTitle = `Study: ${studyPlannerData.topic} - ${topicItem.topic}`;
+                   
+                   // Use API Course Title if available
+                   if (studyPlannerData.course) {
+                       const { code, title } = studyPlannerData.course;
+                       taskTitle = `Study: ${code} - ${title} | ${topicItem.topic}`;
+                   }
+
                    const newTask = {
-                      title: `Study: ${topicItem.topic}`,
+                      title: taskTitle,
                       date: dateStr,
                       time: "All Day", // No specific time info from generator yet
                       completed: false,
@@ -638,7 +695,7 @@ function App() {
              
              setIsTyping(true);
              setTimeout(() => {
-                addAiMessage(`✅ **Success!** Added **${addedCount} study tasks** to your calendar, starting tomorrow.`);
+                addAiMessage(`✅ **Success!** Added **${addedCount} study tasks** to your calendar. You can track your progress in the **Insights** section.`);
                 setIsTyping(false);
              }, 800);
           } else {
@@ -1337,6 +1394,33 @@ function App() {
     );
   }
 
+  // [NEW] Delete Course Handler
+  const handleDeleteCourse = async (courseName) => {
+    try {
+        // 1. Identify tasks to delete
+        // Task Title format: "Study: <CourseName> | <Topic>"
+        const tasksToDelete = tasks.filter(t => t.title.startsWith(`Study: ${courseName}`));
+        
+        console.log(`Deleting ${tasksToDelete.length} tasks for course: ${courseName}`);
+
+        // 2. Delete from Firestore
+        const batch = writeBatch(db);
+        tasksToDelete.forEach(t => {
+            const taskRef = doc(db, "users", user.uid, "tasks", t.id);
+            batch.delete(taskRef);
+        });
+
+        await batch.commit();
+        
+        // 3. Optional: Trigger a refresh or let onSnapshot handle it (onSnapshot will handle it)
+        console.log("Course tasks deleted successfully.");
+
+    } catch (error) {
+        console.error("Error deleting course tasks:", error);
+        alert("Error deleting course tasks. Please try again.");
+    }
+  };
+
   return (
     <div className={`app-container ${darkMode ? "dark-mode" : ""}`}>
       {/* Sidebar (Drawer) */}
@@ -1942,7 +2026,11 @@ function App() {
           </div>
         ) : activeTab === "Insights" ? (
           <div className="tasks-view-container">
-            <ProductivityInsights tasks={tasks} darkMode={darkMode} />
+            <ProductivityInsights 
+                tasks={tasks} 
+                darkMode={darkMode} 
+                onDeleteCourse={handleDeleteCourse} 
+            />
           </div>
         ) : activeTab === "My Day" ? (
           <div className="content-scrollable">

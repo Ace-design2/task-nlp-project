@@ -3,7 +3,7 @@ import "./ProductivityInsights.css";
 import VuesaxIcon from "./VuesaxIcon";
 import ContributionGraph from "./ContributionGraph";
 
-const ProductivityInsights = ({ tasks = [], darkMode }) => {
+const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
   const [timeRange, setTimeRange] = React.useState("weekly"); // 'weekly', 'monthly', 'yearly'
 
   // Statistics Calculations
@@ -361,10 +361,231 @@ const ProductivityInsights = ({ tasks = [], darkMode }) => {
               <div className="dot p-low"></div> Low / Normal
             </div>
           </div>
+          </div>
         </div>
-      </div>
+
+      {/* Study Section */}
+      <StudySection tasks={tasks} onDeleteCourse={onDeleteCourse} darkMode={darkMode} />
     </div>
   );
 };
 
+const StudySection = ({ tasks, onDeleteCourse, darkMode }) => {
+    const [selectedCourse, setSelectedCourse] = React.useState(null);
+
+    const courses = useMemo(() => {
+        const map = {};
+        tasks.forEach(t => {
+            if (!t.title.startsWith("Study: ")) return;
+            
+            // Parse "Study: Course - Topic" vs "Study: Topic"
+            let courseName = "";
+            let topicName = "";
+            
+            const content = t.title.replace("Study: ", "");
+            
+            // Prioritize "Course | Topic" format (New)
+            if (content.includes(" | ")) {
+                const parts = content.split(" | ");
+                courseName = parts[0].trim();
+                topicName = parts.slice(1).join(" | ").trim();
+            } 
+            // Fallback to "Course - Topic" (Old)
+            else if (content.includes(" - ")) {
+                const parts = content.split(" - ");
+                courseName = parts[0].trim();
+                topicName = parts.slice(1).join(" - ").trim();
+            } else {
+                courseName = content; // Fallback
+                topicName = content;
+            }
+
+            if (!map[courseName]) map[courseName] = { name: courseName, total: 0, completed: 0, tasks: [] };
+            map[courseName].total++;
+            if (t.completed) map[courseName].completed++;
+            
+            // Store task with parsed topic name for display
+            map[courseName].tasks.push({ ...t, parsedTopic: topicName });
+        });
+        return Object.values(map);
+    }, [tasks]);
+
+    const selectedCourseData = useMemo(() => {
+        if (!selectedCourse) return null;
+        const course = courses.find(c => c.name === selectedCourse);
+        if (!course) return null;
+        return {
+            ...course,
+            tasks: [...course.tasks].sort((a, b) => new Date(a.date) - new Date(b.date))
+        };
+    }, [selectedCourse, courses]);
+
+    if (courses.length === 0) return null;
+
+    return (
+        <div className="study-section" style={{ marginTop: 32, position: 'relative' }}>
+            <div className="insights-header" style={{ marginBottom: 16 }}>
+                <h2 className="insights-title" style={{ fontSize: 18 }}>Study Progress</h2>
+            </div>
+            
+            <div className="courses-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                {courses.map(course => {
+                    const progress = Math.round((course.completed / course.total) * 100);
+                    return (
+                        <div 
+                            key={course.name} 
+                            className="course-card" 
+                            onClick={() => setSelectedCourse(course.name)}
+                            style={{
+                                background: darkMode ? '#1e1e1e' : '#fff',
+                                padding: 16,
+                                borderRadius: 16,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 12,
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                    <div style={{
+                                        width: 32, height: 32, borderRadius: 10,
+                                        background: 'linear-gradient(135deg, #FF4B4B 0%, #C1121F 100%)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        <VuesaxIcon name="book" variant="Bold" size={16} color="#fff" />
+                                    </div>
+                                    <span style={{ fontWeight: 600, fontSize: 15 }}>{course.name}</span>
+                                </div>
+                                
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation(); 
+                                        if (window.confirm(`Delete all study tasks for "${course.name}"?`)) {
+                                            if (onDeleteCourse) onDeleteCourse(course.name);
+                                        }
+                                    }}
+                                    style={{ background: 'none', border:'none', cursor:'pointer', opacity: 0.5 }}
+                                >
+                                    <VuesaxIcon name="trash" size={16} color={darkMode ? '#ff4b4b' : '#ff4b4b'} />
+                                </button>
+                            </div>
+
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6, opacity: 0.7 }}>
+                                    <span>Progress</span>
+                                    <span>{progress}%</span>
+                                </div>
+                                <div style={{ width: '100%', height: 6, background: darkMode ? '#333' : '#f0f0f0', borderRadius: 3, overflow: 'hidden' }}>
+                                    <div style={{ width: `${progress}%`, height: '100%', background: '#C1121F', borderRadius: 3 }} />
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* DETAIL VIEW OVERLAY */}
+            {selectedCourseData && (
+                 <div style={{
+                     position: 'fixed', 
+                     top: 0, left: 0, right: 0, bottom: 0,
+                     background: darkMode ? '#121212' : '#f9f9f9',
+                     zIndex: 100,
+                     padding: 20,
+                     overflowY: 'auto',
+                     display: 'flex',
+                     flexDirection: 'column'
+                 }}>
+                     <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
+                        <button 
+                            onClick={() => setSelectedCourse(null)}
+                            style={{ 
+                                background: 'transparent', border: 'none', 
+                                display: 'flex', alignItems: 'center', gap: 8, 
+                                cursor: 'pointer', marginBottom: 20,
+                                color: darkMode ? '#fff' : '#000',
+                                opacity: 0.7
+                            }}
+                        >
+                            <VuesaxIcon name="arrow-left" size={24} color={darkMode ? '#fff' : '#000'} />
+                            <span style={{ fontSize: 16 }}>Back to Insights</span>
+                        </button>
+
+                        <div style={{ 
+                            background: darkMode ? '#1e1e1e' : '#fff', 
+                            padding: 24, borderRadius: 24,
+                            marginBottom: 24,
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 20 }}>
+                                <div>
+                                    <h1 style={{ fontSize: 24, margin: '0 0 8px 0' }}>{selectedCourseData.name}</h1>
+                                    <div style={{ opacity: 0.6, fontSize: 14 }}>
+                                        {selectedCourseData.completed} / {selectedCourseData.total} Tasks Completed
+                                    </div>
+                                </div>
+                                <div style={{ 
+                                    width: 48, height: 48, borderRadius: 16,
+                                    background: 'linear-gradient(135deg, #FF4B4B 0%, #C1121F 100%)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    <VuesaxIcon name="book" variant="Bold" size={24} color="#fff" />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: 10 }}>
+                                <div style={{ width: '100%', height: 8, background: darkMode ? '#333' : '#f0f0f0', borderRadius: 4, overflow: 'hidden' }}>
+                                    <div style={{ 
+                                        width: `${Math.round((selectedCourseData.completed / selectedCourseData.total) * 100)}%`, 
+                                        height: '100%', background: '#C1121F', borderRadius: 4 
+                                    }} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 style={{ fontSize: 18, marginBottom: 16 }}>Course Schedule</h3>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                            {selectedCourseData.tasks.map((task, idx) => (
+                                <div key={task.id || idx} style={{
+                                    background: darkMode ? '#1e1e1e' : '#fff',
+                                    padding: 16, borderRadius: 16,
+                                    display: 'flex', alignItems: 'center', gap: 16,
+                                    opacity: task.completed ? 0.6 : 1
+                                }}>
+                                    <div style={{
+                                        width: 24, height: 24, borderRadius: 8,
+                                        border: `2px solid ${task.completed ? '#00A231' : (darkMode ? '#444' : '#ddd')}`,
+                                        background: task.completed ? '#00A231' : 'transparent',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>
+                                        {task.completed && <VuesaxIcon name="tick-circle" variant="Bold" size={14} color="#fff" />}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ 
+                                            fontSize: 15, fontWeight: 500,
+                                            textDecoration: task.completed ? 'line-through' : 'none'
+                                        }}>
+                                            {task.parsedTopic}
+                                        </div>
+                                        <div style={{ fontSize: 12, opacity: 0.6, marginTop: 4 }}>
+                                            {task.date} • {task.time || 'All Day'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                     </div>
+                 </div>
+            )}
+        </div>
+    );
+};
+
 export default ProductivityInsights;
+
