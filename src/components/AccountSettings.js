@@ -17,6 +17,8 @@ const AccountSettings = ({
   const [phone, setPhone] = useState("");
   const [photoURL, setPhotoURL] = useState(user?.photoURL || "");
   const [newPhotoBase64, setNewPhotoBase64] = useState(null); // Changed to Base64
+  const [department, setDepartment] = useState("");
+  const [level, setLevel] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -36,6 +38,12 @@ const AccountSettings = ({
   useEffect(() => {
     if (userProfile?.phone) {
       setPhone(userProfile.phone);
+    }
+    if (userProfile?.department) {
+      setDepartment(userProfile.department);
+    }
+    if (userProfile?.level) {
+      setLevel(userProfile.level);
     }
   }, [userProfile]);
 
@@ -108,6 +116,8 @@ const AccountSettings = ({
           email: user.email,
           updatedAt: new Date().toISOString(),
           displayName: name,
+          department: department,
+          level: level
         };
 
         if (newPhotoBase64) {
@@ -191,12 +201,39 @@ const AccountSettings = ({
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="Phone Number"
                 />
+                
+                <select 
+                   className="edit-input" 
+                   value={department} 
+                   onChange={(e) => setDepartment(e.target.value)}
+                >
+                   <option value="" disabled>Select Department</option>
+                   <option value="Computer Science">Computer Science</option>
+                   <option value="Chemistry">Chemistry</option>
+                   <option value="Physics">Physics</option>
+                   <option value="Mathematics">Mathematics</option>
+                   <option value="Statistics">Statistics</option>
+                </select>
+
+                <select 
+                   className="edit-input" 
+                   value={level} 
+                   onChange={(e) => setLevel(e.target.value)}
+                >
+                   <option value="" disabled>Select Level</option>
+                   <option value="100 Level">100 Level</option>
+                   <option value="200 Level">200 Level</option>
+                   <option value="300 Level">300 Level</option>
+                   <option value="400 Level">400 Level</option>
+                </select>
               </div>
             ) : (
               <>
                 <h3 className="user-name">{user?.displayName || "User"}</h3>
                 <p className="user-email">{user?.email || "Anonymous"}</p>
                 {phone && <p className="user-phone">{phone}</p>}
+                {department && <p className="user-detail">Department: {department}</p>}
+                {level && <p className="user-detail">Level: {level}</p>}
               </>
             )}
           </div>
@@ -210,6 +247,8 @@ const AccountSettings = ({
                 setIsEditing(false);
                 setName(user?.displayName || "");
                 setPhone(userProfile?.phone || "");
+                setDepartment(userProfile?.department || "");
+                setLevel(userProfile?.level || "");
                 setPhotoURL(user?.photoURL || "");
                 setNewPhotoBase64(null);
               }}
