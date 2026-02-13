@@ -444,6 +444,31 @@ function App() {
   };
 
 
+    // [NEW] Notification Handlers
+    const handleMarkAllRead = async () => {
+        if (!user) return;
+        const batch = writeBatch(db);
+        notifications.forEach(n => {
+            const ref = doc(db, "users", user.uid, "notifications", n.id);
+            batch.delete(ref);
+        });
+        try {
+            await batch.commit();
+            setNotifications([]); // Optimistic update
+        } catch (e) {
+            console.error("Error clearing notifications:", e);
+        }
+    };
+
+    const handleMarkRead = async (id) => {
+        if (!user) return;
+        try {
+            await deleteDoc(doc(db, "users", user.uid, "notifications", id));
+        } catch (e) {
+            console.error("Error deleting notification:", e);
+        }
+    };
+
   const handleProcessTask = async (text) => {
     if (!text.trim()) return;
     if (!user) {
@@ -547,6 +572,8 @@ function App() {
         console.error("Error adding notification rec", e);
       }
     };
+    
+
 
     // --- CASE -1: STUDY PLANNER FLOW ---
     console.log("DEBUG: handleProcessTask", { text, studyPlannerState, studyPlannerData });
@@ -2201,12 +2228,10 @@ function App() {
               <div className="chat-mobile-header desktop-hidden">
                 <button
                   onClick={() => setActiveChatId(null)}
+                  className="glass-back-btn" 
                   style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
+                    border: "none", // Override default button border if any
+                    // Removed inline background to use class
                   }}
                 >
                   <VuesaxIcon
@@ -2214,7 +2239,15 @@ function App() {
                     variant="Bold"
                     darkMode={darkMode}
                   />
-                  <span style={{ marginLeft: 8, fontWeight: 500 }}>Back</span>
+                  {/* Removed 'Back' text if we want icon-only glass button, 
+                      User asked for "icon", usually meaning the round button style.
+                      If they want text "Back" inside the glass pill, we can keep it.
+                      iOS 26 style implies a clean glass circle or pill. 
+                      Let's keep text but make it look good or remove it?
+                      "use the ios26 glass morphism style on the back icons" -> Icons suggests circle.
+                      Let's try removing the text for a pure icon look or keeping it if it fits. 
+                      I'll remove the text to match the "icon" request and the circle style in CSS.
+                  */}
                 </button>
               </div>
 
@@ -2389,6 +2422,8 @@ function App() {
                 notifications={notifications}
                 onBack={() => setShowNotifications(false)}
                 darkMode={darkMode}
+                onMarkAllRead={handleMarkAllRead}
+                onMarkRead={handleMarkRead}
               />
             ) : (
                   <CreativeMyDay
@@ -2400,19 +2435,9 @@ function App() {
                     onProfileClick={() => setActiveTab("Account Settings")}
                     onShowNotifications={() => {
                       setShowNotifications(true);
-                      // Mark all as read
-                      const unread = notifications.filter((n) => !n.read);
-                      unread.forEach(async (n) => {
-                        try {
-                          await setDoc(
-                            doc(db, "users", user.uid, "notifications", n.id),
-                            { read: true },
-                            { merge: true },
-                          );
-                        } catch (e) {}
-                      });
+                      // Auto-mark removed as per user request (manual delete only)
                     }}
-                    hasUnread={notifications.some((n) => !n.read)}
+                    hasUnread={notifications.length > 0} 
                   />
             )}
           </div>

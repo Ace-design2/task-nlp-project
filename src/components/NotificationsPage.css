@@ -116,3 +116,48 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+.mark-all-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.mark-all-btn:hover {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.notifications-page.dark-mode .mark-all-btn {
+    color: #4B8BFF;
+}
+
+.notifications-page.dark-mode .mark-all-btn:hover {
+    background: rgba(75, 139, 255, 0.15);
+}
+
+.mark-read-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    margin-left: auto; /* Push to right */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.mark-read-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.notifications-page.dark-mode .mark-read-btn:hover {
+    background: rgba(255,255,255,0.1);
+}

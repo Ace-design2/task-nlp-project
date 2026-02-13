@@ -186,7 +186,7 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
   return (
     <div
       className={`insights-container ${darkMode ? "dark-mode" : ""}`}
-      style={{ padding: "12px 12px 100px 12px", boxSizing: "border-box" }}
+      style={{ padding: "12px 12px 112px 12px", boxSizing: "border-box" }}
     >
       <div className="insights-header">
         <h1 className="insights-title">Usage & Insights</h1>
@@ -423,8 +423,8 @@ const StudySection = ({ tasks, onDeleteCourse, darkMode }) => {
     if (courses.length === 0) return null;
 
     return (
-        <div className="study-section" style={{ marginTop: 32, position: 'relative' }}>
-            <div className="insights-header" style={{ marginBottom: 16 }}>
+        <div className="study-section" style={{ marginTop: 12, position: 'relative' }}>
+            <div className="insights-header" style={{ marginBottom: 12 }}>
                 <h2 className="insights-title" style={{ fontSize: 18 }}>Study Progress</h2>
             </div>
             
@@ -504,16 +504,14 @@ const StudySection = ({ tasks, onDeleteCourse, darkMode }) => {
                      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
                         <button 
                             onClick={() => setSelectedCourse(null)}
+                            className="glass-back-btn"
                             style={{ 
-                                background: 'transparent', border: 'none', 
-                                display: 'flex', alignItems: 'center', gap: 8, 
-                                cursor: 'pointer', marginBottom: 20,
+                                border: 'none', 
+                                marginBottom: 20,
                                 color: darkMode ? '#fff' : '#000',
-                                opacity: 0.7
                             }}
                         >
                             <VuesaxIcon name="arrow-left" size={24} color={darkMode ? '#fff' : '#000'} />
-                            <span style={{ fontSize: 16 }}>Back to Insights</span>
                         </button>
 
                         <div style={{ 
