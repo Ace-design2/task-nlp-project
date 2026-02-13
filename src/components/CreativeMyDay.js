@@ -10,6 +10,7 @@ const CreativeMyDay = ({
   onToggleTaskCompletion,
   onShowNotifications,
   hasUnread,
+  onProfileClick, // [NEW]
 }) => {
   // 1. Time-based Greeting
   const greeting = useMemo(() => {
@@ -32,7 +33,6 @@ const CreativeMyDay = ({
   };
 
   const todayTasks = tasks.filter((task) => isToday(task.date));
-  // const weekTasks = tasks.filter((task) => !isToday(task.date)); // Unused in this view
 
   // 3. Stats Calculation
   const total = todayTasks.length;
@@ -53,7 +53,11 @@ const CreativeMyDay = ({
         {/* Header: Profile (Left), Greeting (Mid), Notif (Right) */}
         <div className="creative-header">
            {/* 1. Profile Left */}
-           <div className="profile-icon" style={{ marginRight: 16 }}>
+           <div 
+             className="profile-icon" 
+             style={{ marginRight: 16, cursor: "pointer" }} 
+             onClick={onProfileClick}
+           >
                 {profileImage ? (
                 <img src={profileImage} alt="Profile" />
                 ) : (

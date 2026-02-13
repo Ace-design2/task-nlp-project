@@ -2336,28 +2336,29 @@ function App() {
                 darkMode={darkMode}
               />
             ) : (
-              <CreativeMyDay
-                tasks={tasks}
-                darkMode={darkMode}
-                userProfile={userProfile}
-                user={user}
-                onToggleTaskCompletion={handleToggleTaskCompletion}
-                onShowNotifications={() => {
-                  setShowNotifications(true);
-                  // Mark all as read
-                  const unread = notifications.filter((n) => !n.read);
-                  unread.forEach(async (n) => {
-                    try {
-                      await setDoc(
-                        doc(db, "users", user.uid, "notifications", n.id),
-                        { read: true },
-                        { merge: true },
-                      );
-                    } catch (e) {}
-                  });
-                }}
-                hasUnread={notifications.some((n) => !n.read)}
-              />
+                  <CreativeMyDay
+                    tasks={tasks}
+                    darkMode={darkMode}
+                    userProfile={userProfile}
+                    user={user}
+                    onToggleTaskCompletion={handleToggleTaskCompletion}
+                    onProfileClick={() => setActiveTab("Account Settings")}
+                    onShowNotifications={() => {
+                      setShowNotifications(true);
+                      // Mark all as read
+                      const unread = notifications.filter((n) => !n.read);
+                      unread.forEach(async (n) => {
+                        try {
+                          await setDoc(
+                            doc(db, "users", user.uid, "notifications", n.id),
+                            { read: true },
+                            { merge: true },
+                          );
+                        } catch (e) {}
+                      });
+                    }}
+                    hasUnread={notifications.some((n) => !n.read)}
+                  />
             )}
           </div>
         ) : activeTab === "Account Settings" ? (

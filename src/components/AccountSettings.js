@@ -143,11 +143,11 @@ const AccountSettings = ({
         <h2>Account</h2>
         {!isEditing && (
           <button
-            className="edit-btn-icon"
+            className="edit-profile-text-btn"
             onClick={() => setIsEditing(true)}
             aria-label="Edit Profile"
           >
-            <VuesaxIcon name="edit" variant="Bold" darkMode={darkMode} />
+            Edit profile
           </button>
         )}
       </div>

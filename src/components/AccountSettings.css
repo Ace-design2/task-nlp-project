@@ -27,24 +27,28 @@
   margin: 0;
 }
 
-.edit-btn-icon {
+.edit-profile-text-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00A231; /* Use app primary color or similar */
+  padding: 8px 12px;
+  border-radius: 8px;
   transition: background-color 0.2s;
 }
 
-.edit-btn-icon:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.edit-profile-text-btn:hover {
+  background-color: rgba(0, 162, 49, 0.1);
 }
 
-.settings-container.dark-mode .edit-btn-icon:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.settings-container.dark-mode .edit-profile-text-btn {
+  color: #4CAF50;
+}
+
+.settings-container.dark-mode .edit-profile-text-btn:hover {
+  background-color: rgba(76, 175, 80, 0.1);
 }
 
 .settings-section {

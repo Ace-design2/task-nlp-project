@@ -1056,3 +1056,8 @@ body.dark-mode {
   flex-direction: column;
   
 }
+p.user-detail {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin: 0px;
+}
