@@ -788,10 +788,13 @@ body.dark-mode {
   background: transparent;
   color: #333;
   resize: none;
-  height: 24px; /* Fixed for single line look, auto-expand logic separate if needed */
-  max-height: 100px;
+  height: auto;
+  min-height: 24px;
+  max-height: 120px; /* Increased max-height for better visibility of long text */
   padding: 0;
   line-height: 24px;
+  overflow-y: auto; /* Scroll when max-height is reached */
+  display: block; /* Ensure it behaves like a block for height calculation */
 }
 
 .app-container.dark-mode .astra-input-area {

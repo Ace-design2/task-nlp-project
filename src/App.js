@@ -2275,15 +2275,22 @@ function App() {
                     </button>
 
                     <div className="astra-input-pill">
-                      <input
+                      <textarea
                         className="astra-input-area"
                         placeholder="Create a task..."
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        rows={1}
+                        onChange={(e) => {
+                          setText(e.target.value);
+                          e.target.style.height = "auto";
+                          e.target.style.height = `${e.target.scrollHeight}px`;
+                        }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter") {
+                          if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             handleSubmit(e);
+                            // Reset height after submit
+                            e.target.style.height = "auto";
                           }
                         }}
                         autoFocus
