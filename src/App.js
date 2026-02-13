@@ -393,6 +393,57 @@ function App() {
   
 
 
+  // [NEW] General Conversation Logic
+  const processGeneralConversation = async (text, addAiMessage) => {
+    const lower = text.toLowerCase();
+
+    // 1. Greetings
+    if (lower.match(/^(hello|hi|hey|greetings|good morning|good afternoon|good evening)/)) {
+       const name = user.displayName ? user.displayName.split(" ")[0] : "there";
+       await addAiMessage(`Hello ${name}! How can I help you be productive today?`);
+       return true;
+    }
+
+    // 2. Identity / Profile
+    if (lower.includes("my name") || lower.includes("who am i")) {
+        await addAiMessage(`You are **${user.displayName || "User"}**.`);
+        return true;
+    }
+    if (lower.includes("my email")) {
+        await addAiMessage(`Your email is **${user.email}**.`);
+        return true;
+    }
+     if (lower.includes("my department")) {
+        await addAiMessage(`You are in the **${userProfile?.department || "Unknown Department"}**.`);
+        return true;
+    }
+     if (lower.includes("my level")) {
+        await addAiMessage(`You are in **${userProfile?.level || "Unknown Level"}**.`);
+        return true;
+    }
+    if (lower.includes("who are you") || lower.includes("what is your name")) {
+        await addAiMessage("I am **Astra**, your personal academic and productivity assistant.");
+        return true;
+    }
+
+    // 3. Task Stats
+    if (lower.includes("how many tasks") || lower.includes("task count") || lower.includes("pending tasks")) {
+        const pending = tasks.filter(t => !t.completed).length;
+        const total = tasks.length;
+        await addAiMessage(`You have **${pending} pending tasks** out of **${total} total tasks**.`);
+        return true;
+    }
+    
+    // 4. "What can you do?"
+    if (lower.includes("what can you do") || lower.includes("help")) {
+        await addAiMessage("I can help you manage your tasks, create study schedules, and answer questions about your profile.\n\nTry asking:\n- 'Create a task to study math'\n- 'How many tasks do I have?'\n- 'Build a study schedule for CSC411'");
+        return true;
+    }
+
+    return false;
+  };
+
+
   const handleProcessTask = async (text) => {
     if (!text.trim()) return;
     if (!user) {
@@ -1034,6 +1085,10 @@ function App() {
           await processStudyScheduleRequest(text, addAiMessage);
           return;
       }
+
+      // --- 2. Check for General Conversation ---
+      const handled = await processGeneralConversation(text, addAiMessage);
+      if (handled) return;
       
       let response;
       try {
