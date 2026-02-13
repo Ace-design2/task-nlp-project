@@ -146,21 +146,32 @@ const CreativeCalendar = ({ darkMode, tasks = [] }) => {
         {/* Header Controls */}
         <div className="calendar-creative-header">
           <button
-            className="creative-nav-btn"
+            className="creative-nav-btn glass-back-btn"
             onClick={handlePrevMonth}
             aria-label="Previous Month"
+            style={{
+              marginRight: 8,
+              width: 36, height: 36,
+              border: 'none',
+              color: darkMode ? '#fff' : '#000'
+            }}
           >
-            <VuesaxIcon name="arrow-left" size={20} darkMode={darkMode} />
+            <VuesaxIcon name="arrow-left" variant="Linear" size={18} darkMode={darkMode} />
           </button>
           <div className="month-display">
             {getMonthName(currentDate)} {currentDate.getFullYear()}
           </div>
           <button
-            className="creative-nav-btn"
+            className="creative-nav-btn glass-back-btn"
             onClick={handleNextMonth}
             aria-label="Next Month"
+            style={{
+              width: 36, height: 36,
+              border: 'none',
+              color: darkMode ? '#fff' : '#000'
+            }}
           >
-            <VuesaxIcon name="arrow-right" size={20} darkMode={darkMode} />
+            <VuesaxIcon name="arrow-right" variant="Linear" size={18} darkMode={darkMode} />
           </button>
         </div>
 
