@@ -5,13 +5,15 @@ A modern, intelligent task management application built with **React** and **Fir
 ## Features
 
 - **Natural Language Processing**: Create tasks easily by typing or speaking naturally (e.g., "Meeting with John tomorrow at 2pm").
+- **Conversational AI**: Interact with Astra to ask about your profile, task stats, or just say hello.
 - **Voice Commands**: Integrated voice recognition for hands-free task interaction.
-- **Smart Dashboard ("My Day")**: A focused view of your daily tasks with progress tracking and sticky headers.
+- **Smart Dashboard ("My Day")**: A focused view of your daily tasks with progress tracking, sticky headers, and quick profile navigation.
+- **Study Planner**: Generate optimized study schedules for single or multiple courses based on your availability.
 - **Calendar View**: Visual overview of your schedule.
-- **AI Chat**: Integrated chat interface for managing tasks and interactions.
-- **Dark Mode**: Fully supported dark theme for comfortable viewing in any environment.
+- **AI Chat**: Integrated chat interface for managing tasks and interactions with auto-expanding input.
+- **Dark Mode**: Fully supported dark theme with dynamic status bar color for mobile devices.
 - **Real-time Sync**: Powered by Firebase for instant updates across devices.
-- **Modern UI**: Clean, glassmorphism-inspired design with smooth animations using Framer Motion.
+- **Modern UI**: Clean, glassmorphism-inspired design with smooth animations.
 
 ## Tech Stack
 
