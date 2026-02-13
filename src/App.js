@@ -54,11 +54,20 @@ function App() {
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  // Update theme-color meta tag for iOS/Android status bar
+  // Update theme-color meta tag for iOS/Android status bar & body background
   useEffect(() => {
     const metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (metaThemeColor) {
       metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
+    }
+    
+    // Apply dark-mode class to body for global background color
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+      document.body.style.backgroundColor = "#000000"; // Fallback/Explicit
+    } else {
+      document.body.classList.remove("dark-mode");
+      document.body.style.backgroundColor = "#ffffff";
     }
   }, [darkMode]);
 
