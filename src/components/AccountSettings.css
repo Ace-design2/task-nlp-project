@@ -1,282 +1,296 @@
 .settings-container {
-  padding: 12px;
-  max-width: 600px;
+  padding: 0;
+  max-width: 100%;
   margin: 0 auto;
   color: #333;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  background-color: #f5f5f5; /* Light grey background for the page */
+  overflow-y: auto;
+  padding-bottom: 60px; /* Prevent bottom clipping */
 }
 
 .settings-container.dark-mode {
+  background-color: #000;
   color: #e0e0e0;
 }
 
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-.settings-header h2 {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.edit-profile-text-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: #00A231; /* Use app primary color or similar */
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.edit-profile-text-btn:hover {
-  background-color: rgba(0, 162, 49, 0.1);
-}
-
-.settings-container.dark-mode .edit-profile-text-btn {
-  color: #4CAF50;
-}
-
-.settings-container.dark-mode .edit-profile-text-btn:hover {
-  background-color: rgba(76, 175, 80, 0.1);
-}
-
-.settings-section {
-  background-color: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* --- HEADER SECTION --- */
+.profile-header {
+  background: linear-gradient(135deg, #c1121f, #8a0c16); /* Static Gradient */
+  padding: 40px 20px 80px 20px; /* Extra bottom padding for overlap */
+  border-bottom-left-radius: 32px;
+  border-bottom-right-radius: 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%; /* Ensure full width within parent */
-  box-sizing: border-box; /* Include padding in width */
+  align-items: center;
+  text-align: center;
+  color: white;
+  position: relative;
+  flex-shrink: 0;
 }
 
-.settings-container.dark-mode .settings-section {
-  background-color: #1e1e1e;
-  box-shadow: none;
-  border: 1px solid #333;
-}
-
-/* User Profile */
-.user-profile {
-  display: flex;
-  align-items: flex-start; /* Align top for inputs */
-  gap: 16px;
-  flex-wrap: wrap; /* Allow wrapping on very small screens */
+.settings-container.dark-mode .profile-header {
+   background: linear-gradient(135deg, #8a0c16, #5c080f);
 }
 
 /* Avatar */
-.avatar-wrapper {
+.profile-avatar-wrapper {
   position: relative;
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0; /* Prevent avatar from squishing */
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.2); /* Subtle border */
 }
 
-.avatar-wrapper.editable {
+.profile-avatar-wrapper.editable {
   cursor: pointer;
 }
 
-.avatar-image {
-  width: 60px;
-  height: 60px;
+.profile-avatar {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  background-color: #fff;
 }
 
-.avatar-placeholder {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: #000;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.profile-name {
   font-size: 24px;
   font-weight: 700;
+  margin: 0 0 4px 0;
+  font-family: "Inter", sans-serif;
 }
 
-.settings-container.dark-mode .avatar-placeholder {
+.profile-email {
+  font-size: 14px;
+  opacity: 0.8;
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+}
+
+/* --- ACTION CARD (Floating) --- */
+.profile-action-card {
+  background: white;
+  margin: -50px 20px 20px 20px; /* Negative top margin for overlap */
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-container.dark-mode .profile-action-card {
+  background: #1e1e1e;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.card-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-icon {
+  font-size: 24px;
+}
+
+.card-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.settings-container.dark-mode .card-text h3 {
+  color: #fff;
+}
+
+.card-text p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.settings-container.dark-mode .card-text p {
+  color: #aaa;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.card-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.card-btn.primary {
+  background-color: #c1121f; /* App Red */
+  color: white;
+}
+
+.card-btn.secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.settings-container.dark-mode .card-btn.secondary {
   background-color: #333;
   color: #fff;
 }
 
-.avatar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.avatar-wrapper.editable:hover .avatar-overlay {
-  opacity: 1;
-}
-
-/* User Info */
-.user-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Center content vertically if not editing */
-  gap: 4px;
-  flex-grow: 1;
-  min-width: 0; /* Enable flex item shrinking/truncation */
-  width: 100%; /* Take available space */
-}
-
-.user-name {
-  margin: 0;
-  font-size: 18px;
+/* --- SECTIONS --- */
+.section-title {
+  padding: 0 24px;
+  margin: 10px 0 10px 0;
+  font-size: 13px;
   font-weight: 600;
-  word-break: break-word; /* Prevent overflow */
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.user-email {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-  word-break: break-all; /* Prevent overflow */
+.settings-list {
+  background: white;
+  margin: 0 20px 20px 20px;
+  border-radius: 20px;
+  overflow: hidden; /* For corner masking */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.settings-container.dark-mode .user-email {
-  color: #aaa;
+.settings-container.dark-mode .settings-list {
+  background: #1e1e1e;
 }
 
-.user-phone {
-  margin: 0;
-  font-size: 14px;
-  color: #4b8bff;
-  font-weight: 500;
-}
-
-/* Edit Mode Inputs */
-.edit-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  max-width: 100%; /* Ensure it doesn't overflow parent */
-}
-
-.edit-input {
-  width: 100%;
-  border: 1px solid #eee;
-  background-color: #f9f9f9;
-  padding: 10px 12px; /* Slightly easier tap targets */
-  border-radius: 8px;
-  font-family: inherit;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box; /* Crucial for padding inclusion */
-}
-
-.settings-container.dark-mode .edit-input {
-  background-color: #2c2c2c;
-  border: 1px solid #444;
-  color: #ccc;
-}
-
-.edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 8px;
-  flex-wrap: wrap;
-}
-
-.save-btn {
-  background-color: #000;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.settings-container.dark-mode .save-btn {
-  background-color: #fff;
-  color: #000;
-}
-
-.cancel-btn {
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.settings-container.dark-mode .cancel-btn {
-  color: #aaa;
-}
-
-/* Settings Item */
 .settings-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.settings-container.dark-mode .settings-item {
+  border-bottom: 1px solid #333;
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item:hover {
+  background-color: #f9f9f9;
+}
+
+.settings-container.dark-mode .settings-item:hover {
+  background-color: #252525;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.item-icon {
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.settings-container.dark-mode .item-icon {
+  color: #aaa;
 }
 
 .item-label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   font-size: 16px;
   font-weight: 500;
+  color: #333;
 }
 
-/* Logout Button */
-.logout-button {
-  width: 100%;
-  padding: 12px;
-  background-color: rgba(255, 75, 75, 0.1);
-  color: #ff4b4b;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
+.settings-container.dark-mode .item-label {
+  color: #fff;
+}
+
+.item-right {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background-color 0.2s;
-}
-
-.logout-button:hover {
-  background-color: rgba(255, 75, 75, 0.2);
-}
-
-/* Version Info */
-.version-info {
-  text-align: center;
   color: #999;
-  font-size: 12px;
-  margin-top: auto;
 }
 
-/* Toggle Switch */
+/* Edit Mode Styles Override */
+/* Reuse input styles but adapt for the new layout (e.g. inside the card or modal)
+   For now, we'll keep the edit inputs inside the Action Card area for simplicity 
+   or pop a modal. The previous design swapped the view. 
+   Let's keep the view swap but style it nicely.
+*/
+
+.edit-form-container {
+  padding: 20px;
+  background: white;
+  margin: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.settings-container.dark-mode .edit-form-container {
+  background: #1e1e1e;
+}
+
+.edit-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-label {
+  font-size: 12px;
+  color: #888;
+  font-weight: 600;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  font-size: 15px;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.settings-container.dark-mode .edit-input {
+    background: #2c2c2c;
+    border-color: #444;
+    color: #fff;
+}
+
+.logout-text {
+    color: #ff4b4b;
+}
+
+/* Switch */
 .switch {
   position: relative;
   display: inline-block;
@@ -298,7 +312,8 @@
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  transition: 0.4s;
+  transition: .4s;
+  border-radius: 34px;
 }
 
 .slider:before {
@@ -309,34 +324,43 @@
   left: 4px;
   bottom: 4px;
   background-color: white;
-  transition: 0.4s;
+  transition: .4s;
+  border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #000;
-}
-
-.settings-container.dark-mode input:checked + .slider {
-  background-color: #fff;
-}
-
-.settings-container.dark-mode .slider:before {
-  background-color: #000;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #000;
+  background-color: #c1121f;
 }
 
 input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
+/* --- Desktop / Tablet Responsiveness --- */
+@media (min-width: 768px) {
+  .profile-header {
+    padding-bottom: 100px; /* More overlap space */
+    border-bottom-left-radius: 48px;
+    border-bottom-right-radius: 48px;
+  }
 
-.slider.round:before {
-  border-radius: 50%;
+  .profile-action-card,
+  .settings-list,
+  .edit-form-container,
+  .section-title {
+    max-width: 600px; /* Opting for 600px for a tighter, cleaner look like the reference on desktop */
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+  
+  /* Ensure the negative margin on the card still works but centers */
+  .profile-action-card {
+    margin-top: -60px;
+    margin-bottom: 24px;
+  }
+  
+  .settings-list {
+    margin-bottom: 24px;
+  }
 }

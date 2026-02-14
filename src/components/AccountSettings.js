@@ -101,11 +101,10 @@ const AccountSettings = ({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // 1. Update Auth Profile (Display Name only, or photoURL if we want to try setting data URI - optional but often fails length)
+      // 1. Update Auth Profile (Display Name only)
       if (user) {
         await updateProfile(user, {
           displayName: name,
-          // photoURL: newPhotoBase64 // Often too long for Auth photoURL (2048 chars limit). We rely on Firestore.
         });
       }
 
@@ -117,7 +116,7 @@ const AccountSettings = ({
           updatedAt: new Date().toISOString(),
           displayName: name,
           department: department,
-          level: level
+          level: level,
         };
 
         if (newPhotoBase64) {
@@ -139,163 +138,207 @@ const AccountSettings = ({
 
   return (
     <div className={`settings-container ${darkMode ? "dark-mode" : ""}`}>
-      <div className="settings-header">
-        <h2>Account</h2>
-        {!isEditing && (
-          <button
-            className="edit-profile-text-btn"
-            onClick={() => setIsEditing(true)}
-            aria-label="Edit Profile"
-          >
-            Edit profile
-          </button>
-        )}
+      {/* --- HEADER --- */}
+      <div className="profile-header">
+        <div
+          className={`profile-avatar-wrapper ${isEditing ? "editable" : ""}`}
+          onClick={() => isEditing && fileInputRef.current.click()}
+        >
+          {photoURL ? (
+            <img src={photoURL} alt="Profile" className="profile-avatar" />
+          ) : (
+            <div
+              className="profile-avatar"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#fff",
+                color: "#c1121f",
+                fontSize: "32px",
+                fontWeight: "bold",
+              }}
+            >
+              {user?.displayName ? user.displayName[0].toUpperCase() : "U"}
+            </div>
+          )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </div>
+        <h2 className="profile-name">{name || "User Name"}</h2>
+        <p className="profile-email">{user?.email || "user@example.com"}</p>
       </div>
 
-      <div className="settings-section">
-        <div className="user-profile">
-          <div
-            className={`avatar-wrapper ${isEditing ? "editable" : ""}`}
-            onClick={() => isEditing && fileInputRef.current.click()}
-          >
-            {photoURL ? (
-              <img src={photoURL} alt="Profile" className="avatar-image" />
-            ) : (
-              <div className="avatar-placeholder">
-                {user?.email ? user.email[0].toUpperCase() : "U"}
-              </div>
-            )}
-            {isEditing && (
-              <div className="avatar-overlay">
-                <VuesaxIcon
-                  name="camera"
-                  variant="Bold"
-                  darkMode={true}
-                  style={{ color: "#fff" }}
-                />
-              </div>
-            )}
+      {/* --- FLOATING ACTION CARD --- */}
+      {!isEditing ? (
+        <div className="profile-action-card">
+          <div className="card-content">
+            <div style={{ fontSize: "28px" }}>🎓</div>
+            <div className="card-text">
+              <h3>
+                {department || userProfile?.department || "Complete Profile"}
+              </h3>
+              <p>
+                {level || userProfile?.level
+                  ? `Currently in ${level || userProfile?.level}`
+                  : "Add your department and level to get better suggestions."}
+              </p>
+            </div>
+          </div>
+          <div className="card-actions">
+            <button
+              className="card-btn primary"
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Profile
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* EDIT FORM (Replaces Card Area) */
+        <div className="edit-form-container">
+          <div className="edit-input-group">
+            <label className="edit-label">Full Name</label>
             <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              accept="image/*"
-              onChange={handleFileChange}
+              className="edit-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter full name"
+            />
+          </div>
+          <div className="edit-input-group">
+            <label className="edit-label">Department</label>
+            <select
+              className="edit-input"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+            >
+              <option value="" disabled>
+                Select Department
+              </option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Physics">Physics</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Statistics">Statistics</option>
+            </select>
+          </div>
+          <div className="edit-input-group">
+            <label className="edit-label">Level</label>
+            <select
+              className="edit-input"
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+            >
+              <option value="" disabled>
+                Select Level
+              </option>
+              <option value="100 Level">100 Level</option>
+              <option value="200 Level">200 Level</option>
+              <option value="300 Level">300 Level</option>
+              <option value="400 Level">400 Level</option>
+            </select>
+          </div>
+          <div className="edit-input-group">
+            <label className="edit-label">Phone</label>
+            <input
+              className="edit-input"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Phone number"
             />
           </div>
 
-          <div className="user-info">
-            {isEditing ? (
-              <div className="edit-fields">
-                <input
-                  className="edit-input"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your Name"
-                />
-                <input
-                  className="edit-input"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Phone Number"
-                />
-                
-                <select 
-                   className="edit-input" 
-                   value={department} 
-                   onChange={(e) => setDepartment(e.target.value)}
-                >
-                   <option value="" disabled>Select Department</option>
-                   <option value="Computer Science">Computer Science</option>
-                   <option value="Chemistry">Chemistry</option>
-                   <option value="Physics">Physics</option>
-                   <option value="Mathematics">Mathematics</option>
-                   <option value="Statistics">Statistics</option>
-                </select>
-
-                <select 
-                   className="edit-input" 
-                   value={level} 
-                   onChange={(e) => setLevel(e.target.value)}
-                >
-                   <option value="" disabled>Select Level</option>
-                   <option value="100 Level">100 Level</option>
-                   <option value="200 Level">200 Level</option>
-                   <option value="300 Level">300 Level</option>
-                   <option value="400 Level">400 Level</option>
-                </select>
-              </div>
-            ) : (
-              <>
-                <h3 className="user-name">{user?.displayName || "User"}</h3>
-                <p className="user-email">{user?.email || "Anonymous"}</p>
-                {phone && <p className="user-phone">{phone}</p>}
-                {department && <p className="user-detail">Department: {department}</p>}
-                {level && <p className="user-detail">Level: {level}</p>}
-              </>
-            )}
-          </div>
-        </div>
-
-        {isEditing && (
-          <div className="edit-actions">
+          <div className="card-actions" style={{ marginTop: "10px" }}>
             <button
-              className="cancel-btn"
-              onClick={() => {
-                setIsEditing(false);
-                setName(user?.displayName || "");
-                setPhone(userProfile?.phone || "");
-                setDepartment(userProfile?.department || "");
-                setLevel(userProfile?.level || "");
-                setPhotoURL(user?.photoURL || "");
-                setNewPhotoBase64(null);
-              }}
+              className="card-btn secondary"
+              onClick={() => setIsEditing(false)}
             >
               Cancel
             </button>
             <button
-              className="save-btn"
+              className="card-btn primary"
               onClick={handleSave}
               disabled={isSaving}
             >
               {isSaving ? "Saving..." : "Save Changes"}
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="settings-section">
+      {/* --- SETTINGS LIST --- */}
+      {/* --- SETTINGS GROUP 1 --- */}
+      <div className="section-title">Content</div>
+      <div className="settings-list">
         <div className="settings-item">
-          <div className="item-label">
-            <VuesaxIcon name="moon" variant="Bold" darkMode={darkMode} />
-            <span>Dark Mode</span>
+          <div className="item-left">
+            <div className="item-icon">
+              <VuesaxIcon name="mobile" variant="Bold" darkMode={darkMode} />
+            </div>
+            <div className="item-label">Connected Apps</div>
           </div>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={(e) => setDarkMode(e.target.checked)}
+          <div className="item-right">
+            <VuesaxIcon
+              name="arrow-right"
+              variant="Linear"
+              darkMode={darkMode}
+              size={16}
             />
-            <span className="slider round"></span>
-          </label>
+          </div>
+        </div>
+
+        <div className="settings-item">
+          <div className="item-left">
+            <div className="item-icon">
+              <VuesaxIcon name="moon" variant="Bold" darkMode={darkMode} />
+            </div>
+            <div className="item-label">Dark Mode</div>
+          </div>
+          <div className="item-right">
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={darkMode}
+                onChange={(e) => setDarkMode(e.target.checked)}
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div className="settings-section">
-        <button className="logout-button" onClick={onLogout}>
-          <VuesaxIcon
-            name="logout"
-            variant="Bold"
-            darkMode={darkMode}
-            style={{ color: "#FF4B4B" }}
-          />
-          <span>Log Out</span>
-        </button>
+      {/* --- SETTINGS GROUP 2 (Logout) --- */}
+      <div className="settings-list" style={{ marginTop: "24px" }}>
+        <div className="settings-item" onClick={onLogout}>
+          <div className="item-left">
+            <div className="item-icon logout-text">
+              <VuesaxIcon
+                name="logout"
+                variant="Bold"
+                darkMode={darkMode}
+                style={{ color: "#ff4b4b" }}
+              />
+            </div>
+            <div className="item-label logout-text">Log Out</div>
+          </div>
+        </div>
       </div>
 
-      <div className="version-info">
+      <div
+        className="version-info"
+        style={{
+          textAlign: "center",
+          color: "#aaa",
+          fontSize: "12px",
+          paddingBottom: "20px",
+        }}
+      >
         <p>Astra to-do v0.1.0</p>
       </div>
     </div>
