@@ -11,6 +11,13 @@
   padding-bottom: 60px; /* Prevent bottom clipping */
 }
 
+.profile-action-card,
+.settings-list,
+.section-title,
+.edit-form-container {
+  flex-shrink: 0;
+}
+
 .settings-container.dark-mode {
   background-color: #000;
   color: #e0e0e0;
