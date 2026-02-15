@@ -187,13 +187,23 @@ const AccountSettings = ({
               {user?.displayName ? user.displayName[0].toUpperCase() : "U"}
             </div>
           )}
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {isEditing && (
+              <div className="profile-avatar-overlay">
+                <VuesaxIcon
+                  name="camera"
+                  variant="Bold"
+                  darkMode={true} // Force white icon since overlay is dark
+                  style={{ color: "#fff" }}
+                />
+              </div>
+            )}
         </div>
         <h2 className="profile-name">{name || "User Name"}</h2>
         <p className="profile-email">{user?.email || "user@example.com"}</p>

@@ -25,7 +25,7 @@
 
 /* --- HEADER SECTION --- */
 .profile-header {
-  background: linear-gradient(135deg, #c1121f, #8a0c16); /* Static Gradient */
+  background: linear-gradient(to bottom, #c1121f 0%, #ff4d4d 100%); /* Vertical Waterfall Gradient */
   padding: 40px 20px 80px 20px; /* Extra bottom padding for overlap */
   border-bottom-left-radius: 32px;
   border-bottom-right-radius: 32px;
@@ -39,7 +39,7 @@
 }
 
 .settings-container.dark-mode .profile-header {
-   background: linear-gradient(135deg, #8a0c16, #5c080f);
+   background: linear-gradient(to bottom, #c1121f 0%, #5c080f 100%);
 }
 
 /* Avatar */
@@ -62,6 +62,21 @@
   border-radius: 50%;
   object-fit: cover;
   background-color: #fff;
+}
+
+.profile-avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  pointer-events: none; /* Let click pass through to wrapper */
 }
 
 .profile-name {
