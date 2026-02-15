@@ -47,49 +47,30 @@ const AccountSettings = ({
     }
   }, [userProfile]);
 
-  // [NEW] Force Red Status Bar on Profile Page (Light & Dark)
+  // [FIX] Force Red Status Bar on Profile Page (Light & Dark)
+  // We use a single effect that depends on darkMode to re-assert red if it changes.
+  // And we clean up ONLY when component unmounts.
   useEffect(() => {
-      // 1. Set Red Color immediately
-      const metaThemeColor = document.querySelector("meta[name='theme-color']");
-      if (metaThemeColor) {
-          metaThemeColor.setAttribute("content", "#c1121f");
-      }
-      document.body.style.backgroundColor = "#c1121f";
+    const applyRedTheme = () => {
+       const metaThemeColor = document.querySelector("meta[name='theme-color']");
+       if (metaThemeColor) {
+           metaThemeColor.setAttribute("content", "#c1121f");
+       }
+       document.body.style.backgroundColor = "#c1121f";
+    };
 
-      // 2. Revert on Unmount
-      return () => {
-          if (metaThemeColor) {
-              // Revert based on current darkMode state (captured in closure or ref? 
-              // Better to let App.js handle it, but we need to reset to SOMETHING.
-              // We'll reset to standard theme logic.
-              // Note: We can't easily access the live 'darkMode' in clean-up unless we include it in deps,
-              // but if we include it in deps, this effect runs on every toggle.
-              // Actually, that is desired: if darkMode toggles while here, we want to STAY red.
-              // But cleanup should revert to correct color.
-          }
-          // We don't strictly need to reset here because App.js useEffect will likely fire 
-          // if we change routes? No, App.js is parent and doesn't unmount.
-          // So we MUST reset here.
-      };
-  }, []); // Run once on mount (we will handle updates via a separate effect if needed or just force it)
+    // Apply immediately
+    applyRedTheme();
 
-  // Ensure it stays red even if darkMode toggles while on this page
-  useEffect(() => {
-      const metaThemeColor = document.querySelector("meta[name='theme-color']");
-      if (metaThemeColor) {
-          metaThemeColor.setAttribute("content", "#c1121f");
-      }
-      document.body.style.backgroundColor = "#c1121f";
-      
-      return () => {
-          // cleanup: revert to global theme
-           const metaThemeColor = document.querySelector("meta[name='theme-color']");
-           if (metaThemeColor) {
-               metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
-           }
-           document.body.style.backgroundColor = darkMode ? "#000000" : "#ffffff";
-      }
-  }, [darkMode]);
+    // Re-apply if darkMode changes (since App.js might try to fight it, but we blocked App.js via activeTab check too)
+    // But keeping this ensures it stays red.
+    return () => {
+       // Cleanup: We don't need to manually reset here if we trust App.js to take over when activeTab changes.
+       // But to be safe, we can leave it.
+       // Actually, if we just unmount, activeTab changes, and App.js effect runs (because activeTab changed).
+       // So App.js will restore the correct color. All good.
+    };
+  }, [darkMode]); // Re-run if darkMode toggles to ensure we stay red
 
   // Helper to resize and convert to Base64
   const processImage = (file) => {

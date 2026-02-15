@@ -47,6 +47,8 @@ function App() {
     return false;
   });
 
+  const [activeTab, setActiveTab] = useState("My Day");
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e) => setDarkMode(e.matches);
@@ -56,6 +58,13 @@ function App() {
 
   // Update theme-color meta tag for iOS/Android status bar & body background
   useEffect(() => {
+    // [MODIFIED] If we are on Account Settings, let that component handle it.
+    // We can check activeTab state. But wait, this useEffect doesn't depend on activeTab.
+    // We should add activeTab to deps? No, then it runs on tab switch.
+    // Actually, simple fix: If activeTab is "Account Settings", DO NOTHING here.
+    // This allows AccountSettings.js to set its own color without App.js overwriting it on darkMode toggle.
+    if (activeTab === "Account Settings") return;
+
     const metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (metaThemeColor) {
       metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
@@ -69,7 +78,7 @@ function App() {
       document.body.classList.remove("dark-mode");
       document.body.style.backgroundColor = "#ffffff";
     }
-  }, [darkMode]);
+  }, [darkMode, activeTab]); // Added activeTab dependency
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -93,7 +102,8 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [text, setText] = useState("");
   /* Removed isSidebarOpen state */
-  const [activeTab, setActiveTab] = useState("My Day");
+  /* Removed isSidebarOpen state */
+  /* [MOVED activeTab definition UP] */
   const [notifications, setNotifications] = useState([]); // [NEW]
   const [showNotifications, setShowNotifications] = useState(false); // [NEW]
 
