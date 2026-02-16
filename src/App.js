@@ -39,22 +39,46 @@ import {
 } from "firebase/firestore";
 
 function App() {
-  // Dark Mode State
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    return false;
+  // Theme Preference State: 'system', 'dark', 'light'
+  const [themePreference, setThemePreference] = useState(() => {
+     return localStorage.getItem("themePreference") || "system";
   });
 
-  const [activeTab, setActiveTab] = useState("My Day");
+  const [darkMode, setDarkMode] = useState(false);
 
+  // Effect to apply theme based on preference
   useEffect(() => {
+    const applyTheme = () => {
+      const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      let isDark = false;
+
+      if (themePreference === "dark") {
+        isDark = true;
+      } else if (themePreference === "light") {
+        isDark = false;
+      } else {
+        isDark = systemDark;
+      }
+
+      setDarkMode(isDark);
+    };
+
+    applyTheme();
+
+    // Listener for system changes if preference is 'system'
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e) => setDarkMode(e.matches);
+    const handler = () => {
+       if (themePreference === "system") applyTheme();
+    };
     mediaQuery.addEventListener("change", handler);
+    
+    // Save to local storage
+    localStorage.setItem("themePreference", themePreference);
+
     return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
+  }, [themePreference]);
+
+  const [activeTab, setActiveTab] = useState("My Day");
 
   // Update theme-color meta tag for iOS/Android status bar & body background
   useEffect(() => {
@@ -2457,7 +2481,8 @@ function App() {
               user={user}
               userProfile={userProfile}
               darkMode={darkMode}
-              setDarkMode={setDarkMode}
+              themePreference={themePreference}
+              setThemePreference={setThemePreference}
               onLogout={handleLogout}
             />
           </div>
