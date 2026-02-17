@@ -107,6 +107,8 @@ function App() {
     
     updateMetaTheme();
 
+    updateMetaTheme();
+
     // [NEW] iOS Specific Status Bar Logic
     let metaAppleStatus = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
     if (!metaAppleStatus) {
@@ -114,16 +116,17 @@ function App() {
         metaAppleStatus.name = "apple-mobile-web-app-status-bar-style";
         document.head.appendChild(metaAppleStatus);
     }
-    // 'black-translucent' allows the app background (red header) to be seen in the status bar area
-    // 'default' uses the white/black browser chrome.
-    // Use black-translucent for Chat to blend?
-    // WARNING: This affects layout (full screen).
-    // Let's stick to theme-color mainly, but ensure this is 'default' or 'black' so it doesn't conflict?
-    // Actually, Safari 15+ respects theme-color IF status-bar-style is 'default' or removed.
-    // If it's 'black-translucent', theme-color is ignored and content goes under.
-    // Let's force 'default' to ensure theme-color works.
-    metaAppleStatus.setAttribute("content", "default");
     
+    if (activeTab === "Chat") {
+        // 'black-translucent' causes the content to flow UNDER the status bar.
+        // This allows the Red Header to provide the background color.
+        // Note: The Header must have sufficient top padding!
+        metaAppleStatus.setAttribute("content", "black-translucent");
+    } else {
+        // Default behavior (white/black bar)
+        metaAppleStatus.setAttribute("content", "default");
+    }
+
     // Apply dark-mode class to body for global background color
     if (darkMode) {
       document.body.classList.add("dark-mode");
