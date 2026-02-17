@@ -85,16 +85,44 @@ function App() {
     // [MODIFIED] If we are on Account Settings, let that component handle it.
     if (activeTab === "Account Settings") return;
 
-    const metaThemeColor = document.querySelector("meta[name='theme-color']");
-    if (metaThemeColor) {
+    const updateMetaTheme = () => {
+        let metaThemeColor = document.querySelector("meta[name='theme-color']");
+        // Create if missing
+        if (!metaThemeColor) {
+            metaThemeColor = document.createElement('meta');
+            metaThemeColor.name = "theme-color";
+            document.head.appendChild(metaThemeColor);
+        }
+
         if (activeTab === "Chat") {
-            // [NEW] Chat Page Status Bar Color
+            // [NEW] Chat Page Status Bar Color -> Force Red
             metaThemeColor.setAttribute("content", "#c1121f");
         } else {
             // Default Status Bar Color
             metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
         }
+    };
+
+    updateMetaTheme();
+    
+    updateMetaTheme();
+
+    // [NEW] iOS Specific Status Bar Logic
+    let metaAppleStatus = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
+    if (!metaAppleStatus) {
+        metaAppleStatus = document.createElement('meta');
+        metaAppleStatus.name = "apple-mobile-web-app-status-bar-style";
+        document.head.appendChild(metaAppleStatus);
     }
+    // 'black-translucent' allows the app background (red header) to be seen in the status bar area
+    // 'default' uses the white/black browser chrome.
+    // Use black-translucent for Chat to blend?
+    // WARNING: This affects layout (full screen).
+    // Let's stick to theme-color mainly, but ensure this is 'default' or 'black' so it doesn't conflict?
+    // Actually, Safari 15+ respects theme-color IF status-bar-style is 'default' or removed.
+    // If it's 'black-translucent', theme-color is ignored and content goes under.
+    // Let's force 'default' to ensure theme-color works.
+    metaAppleStatus.setAttribute("content", "default");
     
     // Apply dark-mode class to body for global background color
     if (darkMode) {
