@@ -83,15 +83,17 @@ function App() {
   // Update theme-color meta tag for iOS/Android status bar & body background
   useEffect(() => {
     // [MODIFIED] If we are on Account Settings, let that component handle it.
-    // We can check activeTab state. But wait, this useEffect doesn't depend on activeTab.
-    // We should add activeTab to deps? No, then it runs on tab switch.
-    // Actually, simple fix: If activeTab is "Account Settings", DO NOTHING here.
-    // This allows AccountSettings.js to set its own color without App.js overwriting it on darkMode toggle.
     if (activeTab === "Account Settings") return;
 
     const metaThemeColor = document.querySelector("meta[name='theme-color']");
     if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
+        if (activeTab === "Chat") {
+            // [NEW] Chat Page Status Bar Color
+            metaThemeColor.setAttribute("content", "#c1121f");
+        } else {
+            // Default Status Bar Color
+            metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
+        }
     }
     
     // Apply dark-mode class to body for global background color
