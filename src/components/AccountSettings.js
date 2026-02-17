@@ -311,7 +311,6 @@ const AccountSettings = ({
                       </div>
                       <span className="menu-label">Log Out</span>
                   </div>
-                  <VuesaxIcon name="arrow-right" variant="Linear" color={darkMode? "#fff":"#333"} size={18} />
               </div>
           </div>
 
