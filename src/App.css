@@ -350,14 +350,15 @@ body.dark-mode {
   height: 100%;
   overflow-y: auto; /* Enable scrolling */
   padding-bottom: 110px; /* Space for scrolling */
-  padding-left: 4px;
-  padding-right: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
   box-sizing: border-box;
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
   gap: 12px;
   display: flex;
+  padding-top: 12px;
 }
 
 .chat-category-group {
@@ -496,6 +497,7 @@ body.dark-mode {
   font-size: 14px;
   transition: all 0.2s ease;
   margin-top: 12px; /* Move down a bit */
+  margin-bottom: 12px;
   box-sizing: border-box; /* Critical for keeping width valid */
 }
 
@@ -859,7 +861,7 @@ body.dark-mode {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  padding: 12px;
+  padding: 0px; /* Removed padding to allow header to fill */
   box-sizing: border-box;
   background-color: #ffffff;
 }
@@ -890,6 +892,7 @@ body.dark-mode {
   position: relative; /* For absolute positioning inside if needed */
   background: transparent;
   min-width: 0; /* Important for flex children */
+  padding-top: 12px;
 }
 
 /* Logic for new input positioning in desktop */
@@ -904,6 +907,7 @@ body.dark-mode {
   .chat-desktop-layout {
     display: block; /* Stack or just show one */
     background-color: #ffffff;
+    padding: 0px;
   }
 
   .chat-list-pane,

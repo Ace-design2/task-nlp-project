@@ -1993,13 +1993,13 @@ function App() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                background: darkMode ? "rgba(30,30,30,0.85)" : "#ffffff",
-                margin: "-20px -20px 0 -20px",
-                padding: "15px 20px",
+                backgroundColor: "#c1121f",
+                margin: "-20px -20px 20px -20px",
+                padding: "24px 20px",
+                paddingTop: "60px", 
                 width: "calc(100% + 40px)",
-                borderBottom: darkMode
-                  ? "1px solid rgba(255,255,255,0.1)"
-                  : "1px solid #e0e0e0",
+                borderBottomLeftRadius: "32px",
+                borderBottomRightRadius: "32px",
                 zIndex: 10,
                 boxSizing: "border-box",
               }}
@@ -2011,7 +2011,7 @@ function App() {
                   textAlign: "left",
                   margin: 0,
                   marginLeft: "10px",
-                  color: darkMode ? "#fff" : "#000",
+                  color: "#ffffff",
                 }}
               >
                 Chats
@@ -2038,13 +2038,13 @@ function App() {
                           }
                         }}
                         style={{
-                          border: `1px solid ${darkMode ? "#555" : "#ccc"}`,
-                          borderRadius: "8px", // Little border radius
-                          background: darkMode ? "#1a1a1a" : "#fff",
-                          color: darkMode ? "#fff" : "#000",
+                          border: "none",
+                          borderRadius: "20px",
+                          background: "rgba(255,255,255,0.2)", // Translucent white
+                          color: "#fff",
                           marginRight: "8px",
                           outline: "none",
-                          padding: "8px 12px", // Added padding
+                          padding: "8px 16px",
                           fontSize: "14px",
                         }}
                         autoFocus
@@ -2054,13 +2054,10 @@ function App() {
                   <button
                     onClick={() => {
                       if (isSearchOpen) {
-                        // If open and has query, maybe clear it? Or just close?
-                        // User request: clicking icon opens input.
-                        // If open, let's close it.
                         setIsSearchOpen(false);
                         if (searchQuery) {
                           setSearchQuery("");
-                          handleDeepSearch(""); // clear results
+                          handleDeepSearch(""); 
                         }
                       } else {
                         setIsSearchOpen(true);
@@ -2077,7 +2074,7 @@ function App() {
                     <VuesaxIcon
                       name={isSearchOpen ? "close-circle" : "search-normal"}
                       variant="Linear"
-                      darkMode={darkMode}
+                      color="#ffffff" // White
                     />
                   </button>
                 </div>
@@ -2095,8 +2092,7 @@ function App() {
                   <VuesaxIcon
                     name="edit"
                     variant="Linear"
-                    color="#c1121f"
-                    darkMode={darkMode}
+                    color="#ffffff" // White
                   />
                 </button>
               </div>
@@ -2132,7 +2128,7 @@ function App() {
 
         {/* Content Body */}
         {activeTab === "Chat" ? (
-          <div className="chat-desktop-layout" style={{ padding: "12px", boxSizing: "border-box" }}>
+          <div className="chat-desktop-layout" style={{ padding: "0px", boxSizing: "border-box" }}>
             {/* Left Pane: Chat List */}
             <div
               className={`chat-list-pane ${activeChatId ? "mobile-hidden" : ""}`}
@@ -2143,11 +2139,15 @@ function App() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: 10,
-                  padding: "0 10px",
+                  
+                  padding: "24px",
+                
+                  backgroundColor: "#c1121f", // Red background
+                  borderRadius: "0 0 32px 32px", // Top corners square, bottom rounded
+                  color: "#fff"
                 }}
               >
-                <h1 className="title" style={{ margin: 0 }}>
+                <h1 className="title" style={{ margin: 0, color: "#fff", fontSize: "28px" }}>
                   Chats
                 </h1>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -2164,12 +2164,13 @@ function App() {
                       border: "none",
                       cursor: "pointer",
                       padding: 8,
+                      display: "flex", // ensure flex for icon centering
                     }}
                   >
                     <VuesaxIcon
                       name={isSearchOpen ? "close-circle" : "search-normal"}
                       variant="Linear"
-                      darkMode={darkMode}
+                      color="#ffffff"
                     />
                   </button>
                   <button
@@ -2179,13 +2180,13 @@ function App() {
                       border: "none",
                       cursor: "pointer",
                       padding: 8,
+                      display: "flex",
                     }}
                   >
                     <VuesaxIcon
                       name="edit"
                       variant="Linear"
-                      color="#c1121f"
-                      darkMode={darkMode}
+                      color="#ffffff"
                     />
                   </button>
                 </div>

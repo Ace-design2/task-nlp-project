@@ -59,6 +59,11 @@
   gap: 4px;
   width: fit-content;
   margin-bottom: 0px;
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* Added shadow for depth when sticky */
 }
 
 .insights-container.dark-mode .timeframe-toggle {
