@@ -481,6 +481,7 @@ body.dark-mode {
 .chat-search-wrapper {
   width: 100%;
   box-sizing: border-box;
+  margin-top: 12px;
   padding: 0 4px; /* Slight side padding inside main container */
 }
 
@@ -497,7 +498,7 @@ body.dark-mode {
   font-size: 14px;
   transition: all 0.2s ease;
   margin-top: 12px; /* Move down a bit */
-  margin-bottom: 12px;
+ 
   box-sizing: border-box; /* Critical for keeping width valid */
 }
 
