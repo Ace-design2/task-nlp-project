@@ -85,7 +85,7 @@ function App() {
     // [MODIFIED] If we are on Account Settings, let that component handle it.
     if (activeTab === "Account Settings") return;
 
-    const updateMetaTheme = () => {
+    const updateTheme = () => {
         let metaThemeColor = document.querySelector("meta[name='theme-color']");
         // Create if missing
         if (!metaThemeColor) {
@@ -94,20 +94,26 @@ function App() {
             document.head.appendChild(metaThemeColor);
         }
 
+        // [Logic for Chat Tab: Red Theme]
         if (activeTab === "Chat") {
-            // [NEW] Chat Page Status Bar Color -> Force Red
             metaThemeColor.setAttribute("content", "#c1121f");
+            document.body.style.backgroundColor = "#c1121f"; // Force Body Red
         } else {
-            // Default Status Bar Color
-            metaThemeColor.setAttribute("content", darkMode ? "#000000" : "#ffffff");
+            // [Default Theme: Dark/Light]
+            const color = darkMode ? "#000000" : "#ffffff";
+            metaThemeColor.setAttribute("content", color);
+            document.body.style.backgroundColor = color;
+        }
+
+        // Apply global dark-mode class (affects text color etc)
+        if (darkMode) {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
         }
     };
 
-    updateMetaTheme();
-    
-    updateMetaTheme();
-
-    updateMetaTheme();
+    updateTheme();
 
     // [NEW] iOS Specific Status Bar Logic
     let metaAppleStatus = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
@@ -117,22 +123,8 @@ function App() {
         document.head.appendChild(metaAppleStatus);
     }
     
-    if (activeTab === "Chat") {
-        // [MODIFIED] Revert to 'default' to allow theme-color to take precedence comfortably
-        // 'black-translucent' was causing issues or not working as expected.
-        metaAppleStatus.setAttribute("content", "default");
-    } else {
-        metaAppleStatus.setAttribute("content", "default");
-    }
-
-    // Apply dark-mode class to body for global background color
-    if (darkMode) {
-      document.body.classList.add("dark-mode");
-      document.body.style.backgroundColor = "#000000"; // Fallback/Explicit
-    } else {
-      document.body.classList.remove("dark-mode");
-      document.body.style.backgroundColor = "#ffffff";
-    }
+    // Always use default to respect theme-color
+    metaAppleStatus.setAttribute("content", "default");
   }, [darkMode, activeTab]); // Added activeTab dependency
 
   const [isLoading, setIsLoading] = useState(true);
