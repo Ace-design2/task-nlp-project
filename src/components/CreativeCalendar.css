@@ -56,23 +56,26 @@
 @media (max-width: 900px) {
   .creative-calendar-container {
     flex-direction: column; /* Stack on mobile/tablet */
-    overflow-y: auto; /* Back to global scroll */
+    overflow: hidden; /* FIX: Prevent global scroll */
+    height: 100%;
   }
 
   .creative-calendar-fixed-section {
     height: auto;
-    overflow-y: visible;
-    padding: 12px 12px 0px 12px; /* Reduced padding on mobile */
-    flex: none;
+    overflow: visible;
+    padding: 12px 12px 12px 12px; /* Pad bottom for shadow/separation */
+    flex: 0 0 auto; /* Don't shrink/grow */
+    z-index: 20; /* Ensure on top */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05); /* Visual separation */
   }
 
   .selected-date-section {
     width: 100%;
     border-left: none;
-    height: auto;
-    overflow-y: visible;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 12px 12px 0px 12px;
+    /* height: auto;  -- Removed, let flex handle it */
+    flex: 1; /* Take remaining height */
+    overflow-y: auto; /* SCROLL HERE */
+    padding: 20px 12px 100px 12px; /* Extra bottom padding for scroll space */
   }
 }
 
