@@ -118,12 +118,10 @@ function App() {
     }
     
     if (activeTab === "Chat") {
-        // 'black-translucent' causes the content to flow UNDER the status bar.
-        // This allows the Red Header to provide the background color.
-        // Note: The Header must have sufficient top padding!
-        metaAppleStatus.setAttribute("content", "black-translucent");
+        // [MODIFIED] Revert to 'default' to allow theme-color to take precedence comfortably
+        // 'black-translucent' was causing issues or not working as expected.
+        metaAppleStatus.setAttribute("content", "default");
     } else {
-        // Default behavior (white/black bar)
         metaAppleStatus.setAttribute("content", "default");
     }
 
@@ -2173,8 +2171,10 @@ function App() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   
+                  
                   padding: "24px",
-                
+                  paddingTop: "calc(env(safe-area-inset-top) + 24px)", // Ensure safe area spacing
+                  
                   backgroundColor: "#c1121f", // Red background
                   borderRadius: "0 0 32px 32px", // Top corners square, bottom rounded
                   color: "#fff"
