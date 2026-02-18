@@ -19,8 +19,18 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
   const [listening, setListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [interimTranscript, setInterimTranscript] = useState("");
+  // Visualization State: 5 bars, values 0-100
+  const [visualData, setVisualData] = useState([20, 20, 20, 20, 20]); 
+  
   const recognitionRef = useRef(null);
   const finalTranscriptRef = useRef("");
+  
+  // Audio API Refs
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const sourceRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -40,6 +50,7 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
       setListening(true);
       setInterimTranscript("");
       finalTranscriptRef.current = "";
+      startVisualizer(); // Start the bars
     };
 
     recognition.onresult = (event) => {
@@ -53,19 +64,20 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
         }
       }
       setInterimTranscript(interim);
-      console.log("Interim:", interim);
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       
-      // Handle "no-speech" gracefully (just stop listening)
       if (event.error === "no-speech") {
+        stopVisualizer();
         setListening(false);
         return;
       }
 
+      stopVisualizer();
       setListening(false);
+      
       if (event.error === "network") {
         alert("Network error. Check internet connection.");
       } else if (event.error === "not-allowed") {
@@ -75,9 +87,9 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
 
     recognition.onend = () => {
       console.log("Speech recognition ended");
+      stopVisualizer(); // Stop bars
       setListening(false);
       
-      // Auto-send if we have a final transcript or lingering interim
       const fullText = (finalTranscriptRef.current + " " + interimTranscript).trim();
       
       if (fullText) {
@@ -92,11 +104,70 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     recognitionRef.current = recognition;
 
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort();
-      }
+      if (recognitionRef.current) recognitionRef.current.abort();
+      stopVisualizer();
     };
-  }, [onTextReady, interimTranscript]); // Added interimTranscript to deps to ensure latest state is captured if needed, mostly redundant due to ref but safe
+  }, [onTextReady, interimTranscript]);
+
+  const startVisualizer = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+      audioContextRef.current = audioCtx;
+
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64; // Small size for fewer bars (32 bins)
+      analyserRef.current = analyser;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+      sourceRef.current = source;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const update = () => {
+        analyser.getByteFrequencyData(dataArray);
+        
+        // We want 5 nice bars. Let's pick 5 representative indices from the 32 bins.
+        // Low freqs are at the start.
+        // Indices: 2, 6, 10, 14, 18 (Arbitrary spread)
+        const indices = [1, 3, 5, 7, 9]; 
+        const newVisuals = indices.map(i => {
+             // Scale 0-255 to roughly 10-100% height, but keep a minimum
+             let val = dataArray[i];
+             // Simple noise gate
+             if (val < 10) val = 10; 
+             return Math.min(100, (val / 255) * 120 + 10); // Scale up a bit
+        });
+
+        setVisualData(newVisuals);
+        animationFrameRef.current = requestAnimationFrame(update);
+      };
+
+      update();
+
+    } catch (err) {
+      console.error("Error starting visualizer:", err);
+    }
+  };
+
+  const stopVisualizer = () => {
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    if (audioContextRef.current) audioContextRef.current.close();
+    if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    // usage cleanup
+    audioContextRef.current = null;
+    sourceRef.current = null;
+    analyserRef.current = null;
+    streamRef.current = null;
+    setVisualData([20, 20, 20, 20, 20]); // Reset
+  };
 
   const toggleListening = (e) => {
     if (e) {
@@ -130,17 +201,24 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
             name="close-circle"
             variant="Linear"
             size={32}
-            darkMode={darkMode} // Use passed darkMode prop for icon color
+            darkMode={darkMode}
             color={darkMode ? "#ffffff" : "#333333"}
           />
         </button>
 
-        <div className="mic-animation-container">
-          <div className="mic-pulse-ring"></div>
-          <div className="mic-pulse-ring"></div>
-          <div className="mic-circle">
-            <VuesaxIcon name="microphone" variant="Bold" color="#ffffff" size={40} />
-          </div>
+        {/* Music Pulse Visualization */}
+        <div className="voice-visualizer">
+           {visualData.map((height, i) => (
+             <div 
+                key={i} 
+                className="voice-bar" 
+                style={{ 
+                    height: `${height}px`,
+                    // Optional: Make middle bar tallest if data doesn't naturally do it, 
+                    // but real frequency data is better.
+                }} 
+             />
+           ))}
         </div>
 
         <div className="speech-status-text">Listening...</div>

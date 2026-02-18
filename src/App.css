@@ -1118,6 +1118,7 @@ p.user-detail {
   }
 }
 /* --- SPEECH MODE OVERLAY --- */
+/* --- SPEECH MODE OVERLAY --- */
 .speech-mode-overlay {
   position: fixed;
   top: 0;
@@ -1140,61 +1141,29 @@ body.dark-mode .speech-mode-overlay {
   background-color: #000000;
 }
 
-.mic-animation-container {
-  position: relative;
-  width: 120px;
-  height: 120px;
+/* Visualization Container */
+.voice-visualizer {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 8px; /* Space between bars */
+  height: 120px; /* Fixed container height */
   margin-bottom: 40px;
+  width: 200px;
 }
 
-.mic-circle {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+/* Individual Bar */
+.voice-bar {
+  width: 12px;
   background-color: #c1121f;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-  box-shadow: 0 10px 30px rgba(193, 18, 31, 0.4);
-  transition: box-shadow 0.3s ease;
+  border-radius: 99px;
+  transition: height 0.05s ease; /* Fast transition for responsiveness */
+  min-height: 10px;
 }
 
 /* Optional: Glow more in dark mode */
-body.dark-mode .mic-circle {
-  box-shadow: 0 0 40px rgba(193, 18, 31, 0.6);
-}
-
-.mic-pulse-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 2px solid #c1121f;
-  opacity: 0;
-  animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
-.mic-pulse-ring:nth-child(2) {
-  animation-delay: 0.5s;
-}
-
-.mic-pulse-ring:nth-child(3) {
-  animation-delay: 1s;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(2.5);
-    opacity: 0;
-  }
+body.dark-mode .voice-bar {
+  box-shadow: 0 0 10px rgba(193, 18, 31, 0.4);
 }
 
 .speech-status-text {
