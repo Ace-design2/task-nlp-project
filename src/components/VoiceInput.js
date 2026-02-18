@@ -23,14 +23,11 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
   const [visualData, setVisualData] = useState([20, 20, 20, 20, 20]); 
   
   const recognitionRef = useRef(null);
-  const finalTranscriptRef = useRef("");
-  
-  // Audio API Refs
-  const audioContextRef = useRef(null);
-  const analyserRef = useRef(null);
-  const sourceRef = useRef(null);
+  const finalTranscriptRef = useRef(""); // Stores confirmed text
+  const interimTranscriptRef = useRef(""); // Stores latest interim text for onend access
   const animationFrameRef = useRef(null);
-  const streamRef = useRef(null);
+  const isSpeakingRef = useRef(false);
+  const silenceTimerRef = useRef(null);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -41,43 +38,70 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false; // Stop on silence (auto-send)
-    recognition.interimResults = true; // Show text while speaking
+    recognition.continuous = true; // CHANGED: Keep listening even if user pauses
+    recognition.interimResults = true;
     recognition.lang = "en-US";
 
     recognition.onstart = () => {
       console.log("Speech recognition started");
       setListening(true);
       setInterimTranscript("");
+      interimTranscriptRef.current = "";
       finalTranscriptRef.current = "";
-      startVisualizer(); // Start the bars
+      startFakeVisualizer(); 
     };
 
+    // Trigger animation when sound/speech is detected
+    recognition.onsoundstart = () => { isSpeakingRef.current = true; };
+    recognition.onspeechstart = () => { isSpeakingRef.current = true; };
+    recognition.onspeechend = () => { isSpeakingRef.current = false; };
+
     recognition.onresult = (event) => {
-      let interim = "";
+      isSpeakingRef.current = true;
+      
+      // Clear any existing silence timer since we got new input
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+
+      let newFinal = "";
+      let newInterim = "";
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscriptRef.current += transcript;
+          newFinal += transcript;
         } else {
-          interim += transcript;
+          newInterim += transcript;
         }
       }
-      setInterimTranscript(interim);
+      
+      if (newFinal) {
+        finalTranscriptRef.current += newFinal + " "; 
+      }
+      
+      setInterimTranscript(newInterim);
+      interimTranscriptRef.current = newInterim; // Sync ref
+      
+      // Debounce the stop of speaking visual
+      if (window.speechTimer) clearTimeout(window.speechTimer);
+      window.speechTimer = setTimeout(() => {
+          isSpeakingRef.current = false;
+      }, 500);
+
+      // Set new silence timer to auto-send after 2.5 seconds of no new results
+      silenceTimerRef.current = setTimeout(() => {
+          console.log("Silence detected, stopping...");
+          stopRecognition();
+      }, 2500);
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
-      
       if (event.error === "no-speech") {
-        stopVisualizer();
-        setListening(false);
+        // Just stop quietly if no speech detected
+        stopRecognition();
         return;
       }
-
-      stopVisualizer();
-      setListening(false);
-      
+      stopRecognition();
       if (event.error === "network") {
         alert("Network error. Check internet connection.");
       } else if (event.error === "not-allowed") {
@@ -87,18 +111,22 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
 
     recognition.onend = () => {
       console.log("Speech recognition ended");
-      stopVisualizer(); // Stop bars
       setListening(false);
+      stopVisualizer();
       
-      const fullText = (finalTranscriptRef.current + " " + interimTranscript).trim();
+      // Process final text using the REF, so no dependency needed
+      const fullText = (finalTranscriptRef.current + " " + interimTranscriptRef.current).trim();
       
       if (fullText) {
         console.log("Auto-sending:", fullText);
         onTextReady(fullText);
       }
       
+      // Reset state for next time
       setInterimTranscript("");
+      interimTranscriptRef.current = "";
       finalTranscriptRef.current = "";
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
 
     recognitionRef.current = recognition;
@@ -106,67 +134,40 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     return () => {
       if (recognitionRef.current) recognitionRef.current.abort();
       stopVisualizer();
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
-  }, [onTextReady, interimTranscript]);
+  }, [onTextReady]); 
 
-  const startVisualizer = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const audioCtx = new AudioContext();
-      audioContextRef.current = audioCtx;
-
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 64; // Small size for fewer bars (32 bins)
-      analyserRef.current = analyser;
-
-      const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
-      sourceRef.current = source;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      const update = () => {
-        analyser.getByteFrequencyData(dataArray);
-        
-        // We want 5 nice bars. Let's pick 5 representative indices from the 32 bins.
-        // Low freqs are at the start.
-        // Indices: 2, 6, 10, 14, 18 (Arbitrary spread)
-        const indices = [1, 3, 5, 7, 9]; 
-        const newVisuals = indices.map(i => {
-             // Scale 0-255 to roughly 10-100% height, but keep a minimum
-             let val = dataArray[i];
-             // Simple noise gate
-             if (val < 10) val = 10; 
-             return Math.min(100, (val / 255) * 120 + 10); // Scale up a bit
-        });
-
-        setVisualData(newVisuals);
-        animationFrameRef.current = requestAnimationFrame(update);
-      };
-
-      update();
-
-    } catch (err) {
-      console.error("Error starting visualizer:", err);
-    }
+  const startFakeVisualizer = () => {
+    const update = () => {
+      setVisualData(prev => {
+          return prev.map(val => {
+              if (isSpeakingRef.current) {
+                  // Active: deeply fluctuating between 40 and 100
+                  const target = Math.random() * 60 + 40;
+                  return val + (target - val) * 0.3; // Faster response
+              } else {
+                  // Idle: gently breathing between 10 and 30
+                  const target = Math.random() * 20 + 10;
+                  return val + (target - val) * 0.05; // Slow breathing
+              }
+          });
+      });
+      animationFrameRef.current = requestAnimationFrame(update);
+    };
+    update();
   };
 
   const stopVisualizer = () => {
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    if (audioContextRef.current) audioContextRef.current.close();
-    if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-    }
-    // usage cleanup
-    audioContextRef.current = null;
-    sourceRef.current = null;
-    analyserRef.current = null;
-    streamRef.current = null;
-    setVisualData([20, 20, 20, 20, 20]); // Reset
+    setVisualData([20, 20, 20, 20, 20]); 
+    isSpeakingRef.current = false;
+  };
+
+  const stopRecognition = () => {
+      if (recognitionRef.current) {
+          recognitionRef.current.stop();
+      }
   };
 
   const toggleListening = (e) => {
@@ -177,7 +178,7 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     if (!recognitionRef.current) return;
 
     if (listening) {
-      recognitionRef.current.stop();
+      stopRecognition();
     } else {
       setInterimTranscript("");
       finalTranscriptRef.current = "";
@@ -206,17 +207,12 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
           />
         </button>
 
-        {/* Music Pulse Visualization */}
         <div className="voice-visualizer">
            {visualData.map((height, i) => (
              <div 
                 key={i} 
                 className="voice-bar" 
-                style={{ 
-                    height: `${height}px`,
-                    // Optional: Make middle bar tallest if data doesn't naturally do it, 
-                    // but real frequency data is better.
-                }} 
+                style={{ height: `${height}px` }} 
              />
            ))}
         </div>
@@ -224,7 +220,7 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
         <div className="speech-status-text">Listening...</div>
 
         <div className="live-transcript">
-          {interimTranscript || finalTranscriptRef.current || "Start speaking..."}
+          {(finalTranscriptRef.current + " " + interimTranscript).trim() || "Start speaking..."}
         </div>
       </div>,
       document.body

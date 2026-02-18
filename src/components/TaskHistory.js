@@ -4,6 +4,7 @@ import AstraAvatar from "./AstraAvatar";
 import "./TaskHistory.css";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import TypewriterText from "./TypewriterText";
 
 export default function TaskHistory({
   history,
@@ -30,7 +31,7 @@ export default function TaskHistory({
         darkMode ? "dark-mode-history" : ""
       }`}
     >
-      {history.map((item) => (
+      {history.map((item, index) => (
         <div
           key={item.id}
           className={`chat-message-wrapper ${
@@ -95,9 +96,13 @@ export default function TaskHistory({
               style={{ cursor: item.sender === "ai" ? "default" : "pointer" }}
             >
               <div className="markdown-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {item.text}
-                </ReactMarkdown>
+                {item.sender === "ai" && index === history.length - 1 ? (
+                   <TypewriterText text={item.text} />
+                ) : (
+                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {item.text}
+                   </ReactMarkdown>
+                )}
               </div>
             </div>
 

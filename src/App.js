@@ -2446,7 +2446,7 @@ function App() {
                       />
 
                     <VoiceInput
-                      onTextReady={setText}
+                      onTextReady={(val) => handleProcessTask(val)}
                       darkMode={darkMode}
                       className="astra-input-icon-btn"
                     />
