@@ -1103,3 +1103,17 @@ p.user-detail {
 .dark-mode .glass-back-btn:active {
     background: rgba(50, 50, 50, 0.8);
 }
+
+.chat-header {
+  border-radius: 32px;
+  margin-top: 12px;
+  margin-right: 10px;
+}
+
+@media (max-width: 480px) {
+  .chat-header {
+    margin-top: 0px;
+    margin-right: 0px;
+    border-radius: 0px 0px 32px 32px;
+  }
+}

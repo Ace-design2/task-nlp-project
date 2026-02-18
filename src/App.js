@@ -2158,6 +2158,7 @@ function App() {
               style={{ width: isMobile ? "100%" : sidebarWidth }}
             >
               <div
+                className={"chat-header"}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -2168,7 +2169,7 @@ function App() {
                   paddingTop: "calc(env(safe-area-inset-top) + 24px)", // Ensure safe area spacing
                   
                   backgroundColor: "#c1121f", // Red background
-                  borderRadius: "0 0 32px 32px", // Top corners square, bottom rounded
+                   // Top corners square, bottom rounded
                   color: "#fff"
                 }}
               >
