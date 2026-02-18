@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import VuesaxIcon from "./VuesaxIcon";
 import ReactDOM from "react-dom";
-import TaskHistory from "./TaskHistory"; // Import TaskHistory
+import TaskHistory from "./TaskHistory"; 
 
 const styles = {
   container: { position: "relative", display: "flex", alignItems: "center" },
@@ -39,6 +39,7 @@ export default function VoiceInput({
   const silenceTimerRef = useRef(null);
 
   const [sessionStartIndex, setSessionStartIndex] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false); // TTS State
 
   // Sync refs with props/state for access inside closures
   const isTypingRef = useRef(isTyping);
@@ -47,7 +48,89 @@ export default function VoiceInput({
   const onTextReadyRef = useRef(onTextReady);
   useEffect(() => { onTextReadyRef.current = onTextReady; }, [onTextReady]);
 
-  // --- 1. SETUP RECOGNITION ---
+  // Sync history ref
+  const historyRef = useRef(history);
+  useEffect(() => { historyRef.current = history; }, [history]);
+
+  // --- HELPER FUNCTIONS ---
+
+  const stopVisualizer = useCallback(() => {
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    setVisualData([20, 20, 20, 20, 20]); 
+    isSpeakingRef.current = false;
+  }, []);
+
+  const startFakeVisualizer = useCallback((isAi = false) => {
+    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    
+    const update = () => {
+      setVisualData(prev => {
+          return prev.map(val => {
+              // Activity Trigger: User speaking (ref) OR AI speaking (arg)
+              const active = isSpeakingRef.current || isAi; 
+
+              if (active) {
+                  const target = Math.random() * 60 + 40;
+                  return val + (target - val) * 0.3; 
+              } else {
+                  const target = Math.random() * 20 + 10;
+                  return val + (target - val) * 0.05; 
+              }
+          });
+      });
+      animationFrameRef.current = requestAnimationFrame(update);
+    };
+    update();
+  }, []);
+
+  const submitText = useCallback(() => {
+      const fullText = (finalTranscriptRef.current + " " + interimTranscriptRef.current).trim();
+      if (fullText) {
+          console.log("Submitting:", fullText);
+          if (onTextReadyRef.current) onTextReadyRef.current(fullText);
+          
+          // Clear buffers
+          finalTranscriptRef.current = "";
+          interimTranscriptRef.current = "";
+          setInterimTranscript("");
+      }
+  }, []);
+
+  const speak = useCallback((text) => {
+      // cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      utterance.onstart = () => {
+          setIsSpeaking(true);
+          startFakeVisualizer(true); // true = ai speaking
+      };
+      utterance.onend = () => {
+          setIsSpeaking(false);
+          // Mic will auto-restart via the control loop effect
+      };
+      utterance.onerror = () => {
+          setIsSpeaking(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+  }, [startFakeVisualizer]);
+
+  // --- EFFECT: TTS (Watch History) ---
+  const lastHistoryLengthRef = useRef(history.length);
+  useEffect(() => {
+     if (history.length > lastHistoryLengthRef.current) {
+         const lastMsg = history[history.length - 1];
+         if (lastMsg.sender === 'ai') {
+             speak(lastMsg.text);
+         }
+     }
+     lastHistoryLengthRef.current = history.length;
+  }, [history, speak]);
+
+
+  // --- EFFECT: SETUP RECOGNITION ---
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -62,11 +145,10 @@ export default function VoiceInput({
 
     recognition.onstart = () => {
       console.log("Speech recognition started");
-      startFakeVisualizer(); 
+      startFakeVisualizer(false); 
     };
 
     recognition.onresult = (event) => {
-      // Use ref to check current typing state without restarting effect
       if (isTypingRef.current) return;
 
       isSpeakingRef.current = true;
@@ -91,11 +173,9 @@ export default function VoiceInput({
       setInterimTranscript(newInterim);
       interimTranscriptRef.current = newInterim; 
       
-      // Debounce speaking visual
       if (window.speechTimer) clearTimeout(window.speechTimer);
       window.speechTimer = setTimeout(() => { isSpeakingRef.current = false; }, 500);
 
-      // Auto-send silence timer
       silenceTimerRef.current = setTimeout(() => {
           submitText();
       }, 2500);
@@ -108,13 +188,6 @@ export default function VoiceInput({
     recognition.onend = () => {
       console.log("Speech recognition ended");
       stopVisualizer();
-      
-      // Attempt to restart if we should be listening and not typing
-      if (listeningRef.current && !isTypingRef.current) {
-          try {
-            recognition.start();
-          } catch(e) { /* ignore */ }
-      }
     };
 
     recognitionRef.current = recognition;
@@ -124,94 +197,58 @@ export default function VoiceInput({
       stopVisualizer();
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Intentional: Only run once
+  }, [startFakeVisualizer, stopVisualizer, submitText]); 
 
-  // Sync history ref
-  const historyRef = useRef(history);
-  useEffect(() => { historyRef.current = history; }, [history]);
 
+  // --- EFFECT: CONTROL LOOP (Listening vs Typing vs Speaking) ---
   const listeningRef = useRef(listening);
   useEffect(() => { 
       listeningRef.current = listening; 
-      
       if (listening) {
-          // START SESSION
-          setSessionStartIndex(historyRef.current.length); // Start showing history from now
-          try {
-              recognitionRef.current?.start();
-          } catch(e) {}
+          setSessionStartIndex(historyRef.current.length);
+          try { recognitionRef.current?.start(); } catch(e) {}
       } else {
-          // STOP SESSION
           recognitionRef.current?.stop();
+          window.speechSynthesis.cancel();
+          setIsSpeaking(false);
       }
   }, [listening]);
 
-  // Handle Pause/Resume for AI Typing
   useEffect(() => {
       if (!listening) return;
 
-      if (isTyping) {
-          recognitionRef.current?.stop();
-          stopVisualizer();
-      } else {
-          try {
-              recognitionRef.current?.start();
-          } catch (e) {}
-      }
-  }, [isTyping, listening]);
-
-
-  const submitText = () => {
-      const fullText = (finalTranscriptRef.current + " " + interimTranscriptRef.current).trim();
-      if (fullText) {
-          console.log("Submitting:", fullText);
-          if (onTextReadyRef.current) onTextReadyRef.current(fullText);
+      // If AI is Thinking OR Speaking -> Stop Mic
+      if (isTyping || isSpeaking) {
+          try { recognitionRef.current?.stop(); } catch(e) {}
           
-          // Clear buffers
-          finalTranscriptRef.current = "";
-          interimTranscriptRef.current = "";
-          setInterimTranscript("");
+          if (!isSpeaking) {
+             stopVisualizer(); 
+          }
+      } else {
+          // AI finished Interactions -> Start Mic
+          console.log("Ready for input, starting mic...");
+          stopVisualizer(); // Reset to idle visual
+
+          const timer = setTimeout(() => {
+              try {
+                  recognitionRef.current?.start();
+              } catch(e) { /* ignore */ }
+          }, 500);
+          return () => clearTimeout(timer);
       }
-  };
+  }, [listening, isTyping, isSpeaking, stopVisualizer]);
 
-  const startFakeVisualizer = () => {
-    const update = () => {
-      setVisualData(prev => {
-          return prev.map(val => {
-              if (isSpeakingRef.current) {
-                  const target = Math.random() * 60 + 40;
-                  return val + (target - val) * 0.3; 
-              } else {
-                  const target = Math.random() * 20 + 10;
-                  return val + (target - val) * 0.05; 
-              }
-          });
-      });
-      animationFrameRef.current = requestAnimationFrame(update);
-    };
-    update();
-  };
-
-  const stopVisualizer = () => {
-    if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    setVisualData([20, 20, 20, 20, 20]); 
-    isSpeakingRef.current = false;
-  };
 
   const toggleListening = (e) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     setListening(!listening);
   };
 
-  // --- 3. RENDER ---
+  // --- RENDER ---
   const renderOverlay = () => {
     if (!listening) return null;
 
-    // Filter history to show only current session
-    // If sessionStartIndex is 5, slice(5) gives 5, 6, 7...
     const sessionHistory = history.slice(sessionStartIndex);
-
     const bg = darkMode ? '#000000' : '#ffffff';
     const fg = darkMode ? '#ffffff' : '#000000';
 
@@ -222,14 +259,14 @@ export default function VoiceInput({
         <div className="speech-history-container" style={{ 
             flex: 1, 
             width: '100%',
-            maxWidth: '600px', // constrain width on large screens
-            margin: '0 auto', // center it
+            maxWidth: '600px',
+            margin: '0 auto',
             overflowY: 'auto', 
-            overflowX: 'hidden', // Prevent horizontal scroll
-            padding: '10px', // Reduced from 20px
+            overflowX: 'hidden',
+            padding: '10px',
             boxSizing: 'border-box',
-            paddingBottom: '220px', // More space for controls + transcript
-            maskImage: `linear-gradient(to bottom, transparent, ${bg} 10%, ${bg} 90%, transparent)`, // Mask to fade edges
+            paddingBottom: '220px', 
+            maskImage: `linear-gradient(to bottom, transparent, ${bg} 10%, ${bg} 90%, transparent)`,
             WebkitMaskImage: `linear-gradient(to bottom, transparent, ${bg} 10%, ${bg} 90%, transparent)`
         }}>
             <TaskHistory 
@@ -256,7 +293,7 @@ export default function VoiceInput({
             gap: '20px'
         }}>
              
-            {/* Live Transcript (Displayed on screen as requested) */}
+            {/* Live Transcript */}
             <div style={{ 
                 minHeight: '24px', 
                 padding: '0 20px', 
