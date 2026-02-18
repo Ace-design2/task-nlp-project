@@ -2447,6 +2447,11 @@ function App() {
 
                     <VoiceInput
                       onTextReady={(val) => handleProcessTask(val)}
+                      history={history}
+                      isTyping={isTyping}
+                      userProfile={userProfile}
+                      onRestore={handleRestoreHistory}
+                      onDelete={handleDeleteHistory}
                       darkMode={darkMode}
                       className="astra-input-icon-btn"
                     />

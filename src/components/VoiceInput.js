@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import VuesaxIcon from "./VuesaxIcon";
-import ReactDOM from "react-dom"; // Import ReactDOM for Portal
+import ReactDOM from "react-dom";
+import TaskHistory from "./TaskHistory"; // Import TaskHistory
 
 const styles = {
   container: { position: "relative", display: "flex", alignItems: "center" },
@@ -15,51 +16,60 @@ const styles = {
   },
 };
 
-export default function VoiceInput({ onTextReady, darkMode, className }) {
+export default function VoiceInput({ 
+  onTextReady, 
+  darkMode, 
+  className,
+  history = [],
+  isTyping = false,
+  userProfile,
+  onRestore,
+  onDelete
+}) {
   const [listening, setListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [interimTranscript, setInterimTranscript] = useState("");
-  // Visualization State: 5 bars, values 0-100
   const [visualData, setVisualData] = useState([20, 20, 20, 20, 20]); 
   
   const recognitionRef = useRef(null);
-  const finalTranscriptRef = useRef(""); // Stores confirmed text
-  const interimTranscriptRef = useRef(""); // Stores latest interim text for onend access
+  const finalTranscriptRef = useRef(""); 
+  const interimTranscriptRef = useRef(""); 
   const animationFrameRef = useRef(null);
   const isSpeakingRef = useRef(false);
   const silenceTimerRef = useRef(null);
 
+  const [sessionStartIndex, setSessionStartIndex] = useState(0);
+
+  // Sync refs with props/state for access inside closures
+  const isTypingRef = useRef(isTyping);
+  useEffect(() => { isTypingRef.current = isTyping; }, [isTyping]);
+
+  const onTextReadyRef = useRef(onTextReady);
+  useEffect(() => { onTextReadyRef.current = onTextReady; }, [onTextReady]);
+
+  // --- 1. SETUP RECOGNITION ---
   useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsSupported(false);
       return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true; // CHANGED: Keep listening even if user pauses
+    recognition.continuous = true; 
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
     recognition.onstart = () => {
       console.log("Speech recognition started");
-      setListening(true);
-      setInterimTranscript("");
-      interimTranscriptRef.current = "";
-      finalTranscriptRef.current = "";
       startFakeVisualizer(); 
     };
 
-    // Trigger animation when sound/speech is detected
-    recognition.onsoundstart = () => { isSpeakingRef.current = true; };
-    recognition.onspeechstart = () => { isSpeakingRef.current = true; };
-    recognition.onspeechend = () => { isSpeakingRef.current = false; };
-
     recognition.onresult = (event) => {
+      // Use ref to check current typing state without restarting effect
+      if (isTypingRef.current) return;
+
       isSpeakingRef.current = true;
-      
-      // Clear any existing silence timer since we got new input
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
 
       let newFinal = "";
@@ -79,54 +89,32 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
       }
       
       setInterimTranscript(newInterim);
-      interimTranscriptRef.current = newInterim; // Sync ref
+      interimTranscriptRef.current = newInterim; 
       
-      // Debounce the stop of speaking visual
+      // Debounce speaking visual
       if (window.speechTimer) clearTimeout(window.speechTimer);
-      window.speechTimer = setTimeout(() => {
-          isSpeakingRef.current = false;
-      }, 500);
+      window.speechTimer = setTimeout(() => { isSpeakingRef.current = false; }, 500);
 
-      // Set new silence timer to auto-send after 2.5 seconds of no new results
+      // Auto-send silence timer
       silenceTimerRef.current = setTimeout(() => {
-          console.log("Silence detected, stopping...");
-          stopRecognition();
+          submitText();
       }, 2500);
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      if (event.error === "no-speech") {
-        // Just stop quietly if no speech detected
-        stopRecognition();
-        return;
-      }
-      stopRecognition();
-      if (event.error === "network") {
-        alert("Network error. Check internet connection.");
-      } else if (event.error === "not-allowed") {
-        alert("Microphone access denied.");
-      }
+      console.error("Speech error:", event.error);
     };
 
     recognition.onend = () => {
       console.log("Speech recognition ended");
-      setListening(false);
       stopVisualizer();
       
-      // Process final text using the REF, so no dependency needed
-      const fullText = (finalTranscriptRef.current + " " + interimTranscriptRef.current).trim();
-      
-      if (fullText) {
-        console.log("Auto-sending:", fullText);
-        onTextReady(fullText);
+      // Attempt to restart if we should be listening and not typing
+      if (listeningRef.current && !isTypingRef.current) {
+          try {
+            recognition.start();
+          } catch(e) { /* ignore */ }
       }
-      
-      // Reset state for next time
-      setInterimTranscript("");
-      interimTranscriptRef.current = "";
-      finalTranscriptRef.current = "";
-      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
 
     recognitionRef.current = recognition;
@@ -136,20 +124,67 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
       stopVisualizer();
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     };
-  }, [onTextReady]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentional: Only run once
+
+  // Sync history ref
+  const historyRef = useRef(history);
+  useEffect(() => { historyRef.current = history; }, [history]);
+
+  const listeningRef = useRef(listening);
+  useEffect(() => { 
+      listeningRef.current = listening; 
+      
+      if (listening) {
+          // START SESSION
+          setSessionStartIndex(historyRef.current.length); // Start showing history from now
+          try {
+              recognitionRef.current?.start();
+          } catch(e) {}
+      } else {
+          // STOP SESSION
+          recognitionRef.current?.stop();
+      }
+  }, [listening]);
+
+  // Handle Pause/Resume for AI Typing
+  useEffect(() => {
+      if (!listening) return;
+
+      if (isTyping) {
+          recognitionRef.current?.stop();
+          stopVisualizer();
+      } else {
+          try {
+              recognitionRef.current?.start();
+          } catch (e) {}
+      }
+  }, [isTyping, listening]);
+
+
+  const submitText = () => {
+      const fullText = (finalTranscriptRef.current + " " + interimTranscriptRef.current).trim();
+      if (fullText) {
+          console.log("Submitting:", fullText);
+          if (onTextReadyRef.current) onTextReadyRef.current(fullText);
+          
+          // Clear buffers
+          finalTranscriptRef.current = "";
+          interimTranscriptRef.current = "";
+          setInterimTranscript("");
+      }
+  };
 
   const startFakeVisualizer = () => {
     const update = () => {
       setVisualData(prev => {
           return prev.map(val => {
               if (isSpeakingRef.current) {
-                  // Active: deeply fluctuating between 40 and 100
                   const target = Math.random() * 60 + 40;
-                  return val + (target - val) * 0.3; // Faster response
+                  return val + (target - val) * 0.3; 
               } else {
-                  // Idle: gently breathing between 10 and 30
                   const target = Math.random() * 20 + 10;
-                  return val + (target - val) * 0.05; // Slow breathing
+                  return val + (target - val) * 0.05; 
               }
           });
       });
@@ -164,101 +199,118 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     isSpeakingRef.current = false;
   };
 
-  const stopRecognition = () => {
-      if (recognitionRef.current) {
-          recognitionRef.current.stop();
-      }
-  };
-
   const toggleListening = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    if (!recognitionRef.current) return;
-
-    if (listening) {
-      stopRecognition();
-    } else {
-      setInterimTranscript("");
-      finalTranscriptRef.current = "";
-      try {
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error("Error starting recognition:", error);
-        setListening(false);
-      }
-    }
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    setListening(!listening);
   };
 
-  // Portal for Speech Mode Overlay
+  // --- 3. RENDER ---
   const renderOverlay = () => {
     if (!listening) return null;
 
-    return ReactDOM.createPortal(
-      <div className="speech-mode-overlay">
-        <button className="close-speech-btn" onClick={toggleListening}>
-          <VuesaxIcon
-            name="close-circle"
-            variant="Linear"
-            size={32}
-            darkMode={darkMode}
-            color={darkMode ? "#ffffff" : "#333333"}
-          />
-        </button>
+    // Filter history to show only current session
+    // If sessionStartIndex is 5, slice(5) gives 5, 6, 7...
+    const sessionHistory = history.slice(sessionStartIndex);
 
-        <div className="voice-visualizer">
-           {visualData.map((height, i) => (
-             <div 
-                key={i} 
-                className="voice-bar" 
-                style={{ height: `${height}px` }} 
-             />
-           ))}
+    const bg = darkMode ? '#000000' : '#ffffff';
+    const fg = darkMode ? '#ffffff' : '#000000';
+
+    return ReactDOM.createPortal(
+      <div className="speech-mode-overlay" style={{ background: bg, color: fg }}>
+        
+        {/* Chat History Area */}
+        <div className="speech-history-container" style={{ 
+            flex: 1, 
+            width: '100%',
+            maxWidth: '600px', // constrain width on large screens
+            margin: '0 auto', // center it
+            overflowY: 'auto', 
+            overflowX: 'hidden', // Prevent horizontal scroll
+            padding: '10px', // Reduced from 20px
+            boxSizing: 'border-box',
+            paddingBottom: '220px', // More space for controls + transcript
+            maskImage: `linear-gradient(to bottom, transparent, ${bg} 10%, ${bg} 90%, transparent)`, // Mask to fade edges
+            WebkitMaskImage: `linear-gradient(to bottom, transparent, ${bg} 10%, ${bg} 90%, transparent)`
+        }}>
+            <TaskHistory 
+                history={sessionHistory} 
+                onRestore={onRestore} 
+                onDelete={onDelete} 
+                darkMode={darkMode}
+                isTyping={isTyping}
+                userProfile={userProfile}
+            />
         </div>
 
-        <div className="speech-status-text">Listening...</div>
+        {/* Bottom Controls */}
+        <div className="speech-bottom-controls" style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingBottom: '40px',
+            background: `linear-gradient(to top, ${bg} 80%, transparent)`,
+            gap: '20px'
+        }}>
+             
+            {/* Live Transcript (Displayed on screen as requested) */}
+            <div style={{ 
+                minHeight: '24px', 
+                padding: '0 20px', 
+                textAlign: 'center', 
+                opacity: 0.7, 
+                fontSize: '16px',
+                color: fg 
+            }}>
+                {(finalTranscriptRef.current + " " + interimTranscript).trim()}
+            </div>
 
-        <div className="live-transcript">
-          {(finalTranscriptRef.current + " " + interimTranscript).trim() || "Start speaking..."}
+            {/* Visualizer */}
+            {!isTyping && (
+                <div className="voice-visualizer" style={{ marginBottom: 0 }}>
+                {visualData.map((height, i) => (
+                    <div key={i} className="voice-bar" style={{ height: `${height}px`, background: '#c1121f' }} />
+                ))}
+                </div>
+            )}
+
+            {/* Status Text */}
+            <div className="speech-status-text" style={{ fontSize: '18px', fontWeight: 600, color: fg, opacity: 0.8 }}>
+                {isTyping ? "Astra is replying..." : "Listening..."}
+            </div>
+
+            {/* Stop Voice Button */}
+            <button 
+                onClick={toggleListening}
+                style={{
+                    background: '#c1121f',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '30px',
+                    padding: '12px 32px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(193, 18, 31, 0.4)'
+                }}
+            >
+                Stop voice
+            </button>
         </div>
       </div>,
       document.body
     );
   };
 
-  if (!isSupported) {
-    return (
-        <button
-          type="button"
-          style={{ ...styles.btn, opacity: 0.5, cursor: "not-allowed" }}
-          disabled
-          title="Speech recognition is not supported in your browser."
-          className={className}
-        >
-          <VuesaxIcon
-            name="microphone-slash"
-            variant="Linear"
-            darkMode={darkMode}
-          />
-        </button>
-    );
-  }
+  if (!isSupported) return null;
 
   return (
     <>
-      <button
-        type="button"
-        onClick={toggleListening}
-        style={styles.btn}
-        className={className}
-      >
-        <VuesaxIcon
-          name="microphone"
-          variant="Linear"
-          darkMode={darkMode}
-          color={darkMode ? "#ffffff" : "#c1121f"}
-        />
+      <button type="button" onClick={toggleListening} style={styles.btn} className={className}>
+        <VuesaxIcon name="microphone" variant="Linear" darkMode={darkMode} color={darkMode ? "#ffffff" : "#c1121f"} />
       </button>
       {renderOverlay()}
     </>
