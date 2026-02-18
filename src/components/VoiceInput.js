@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import VuesaxIcon from "./VuesaxIcon";
+import ReactDOM from "react-dom"; // Import ReactDOM for Portal
 
 const styles = {
   container: { position: "relative", display: "flex", alignItems: "center" },
@@ -8,36 +9,18 @@ const styles = {
     border: "none",
     cursor: "pointer",
     padding: 0,
-  },
-  overlay: {
-    position: "absolute",
-    bottom: "80px", // Position above the form
-    left: 0,
-    right: 0,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 10,
-  },
-  listeningAlert: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#333",
-    color: "white",
-    padding: "10px 20px",
-    borderRadius: "20px",
-    fontSize: "14px",
-    whiteSpace: "nowrap",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
   },
 };
 
 export default function VoiceInput({ onTextReady, darkMode, className }) {
   const [listening, setListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
+  const [interimTranscript, setInterimTranscript] = useState("");
   const recognitionRef = useRef(null);
-  const transcriptRef = useRef("");
+  const finalTranscriptRef = useRef("");
 
   useEffect(() => {
     const SpeechRecognition =
@@ -48,52 +31,62 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = true;
+    recognition.continuous = false; // Stop on silence (auto-send)
+    recognition.interimResults = true; // Show text while speaking
     recognition.lang = "en-US";
 
     recognition.onstart = () => {
       console.log("Speech recognition started");
       setListening(true);
+      setInterimTranscript("");
+      finalTranscriptRef.current = "";
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = "";
+      let interim = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        interimTranscript += transcript;
+        if (event.results[i].isFinal) {
+          finalTranscriptRef.current += transcript;
+        } else {
+          interim += transcript;
+        }
       }
-      console.log("Transcript:", interimTranscript);
-      transcriptRef.current = interimTranscript;
+      setInterimTranscript(interim);
+      console.log("Interim:", interim);
     };
 
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
-      setListening(false);
+      
+      // Handle "no-speech" gracefully (just stop listening)
+      if (event.error === "no-speech") {
+        setListening(false);
+        return;
+      }
 
+      setListening(false);
       if (event.error === "network") {
-        alert(
-          "Network error. Make sure you have internet connection and microphone is allowed.",
-        );
-      } else if (event.error === "no-speech") {
-        // Ignore no-speech error, just stop listening
-      } else if (event.error !== "aborted") {
-        alert("Error: " + event.error);
+        alert("Network error. Check internet connection.");
+      } else if (event.error === "not-allowed") {
+        alert("Microphone access denied.");
       }
     };
 
     recognition.onend = () => {
-      console.log(
-        "Speech recognition ended, transcript:",
-        transcriptRef.current,
-      );
+      console.log("Speech recognition ended");
       setListening(false);
-
-      if (transcriptRef.current && transcriptRef.current.trim()) {
-        console.log("Auto-sending:", transcriptRef.current);
-        onTextReady(transcriptRef.current);
-        transcriptRef.current = "";
+      
+      // Auto-send if we have a final transcript or lingering interim
+      const fullText = (finalTranscriptRef.current + " " + interimTranscript).trim();
+      
+      if (fullText) {
+        console.log("Auto-sending:", fullText);
+        onTextReady(fullText);
       }
+      
+      setInterimTranscript("");
+      finalTranscriptRef.current = "";
     };
 
     recognitionRef.current = recognition;
@@ -103,7 +96,7 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
         recognitionRef.current.abort();
       }
     };
-  }, [onTextReady]);
+  }, [onTextReady, interimTranscript]); // Added interimTranscript to deps to ensure latest state is captured if needed, mostly redundant due to ref but safe
 
   const toggleListening = (e) => {
     if (e) {
@@ -115,9 +108,9 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     if (listening) {
       recognitionRef.current.stop();
     } else {
-      transcriptRef.current = "";
+      setInterimTranscript("");
+      finalTranscriptRef.current = "";
       try {
-        console.log("Starting speech recognition...");
         recognitionRef.current.start();
       } catch (error) {
         console.error("Error starting recognition:", error);
@@ -126,9 +119,42 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
     }
   };
 
-  return (
-    <div style={styles.container}>
-      {!isSupported ? (
+  // Portal for Speech Mode Overlay
+  const renderOverlay = () => {
+    if (!listening) return null;
+
+    return ReactDOM.createPortal(
+      <div className="speech-mode-overlay">
+        <button className="close-speech-btn" onClick={toggleListening}>
+          <VuesaxIcon
+            name="close-circle"
+            variant="Linear"
+            size={32}
+            darkMode={darkMode} // Use passed darkMode prop for icon color
+            color={darkMode ? "#ffffff" : "#333333"}
+          />
+        </button>
+
+        <div className="mic-animation-container">
+          <div className="mic-pulse-ring"></div>
+          <div className="mic-pulse-ring"></div>
+          <div className="mic-circle">
+            <VuesaxIcon name="microphone" variant="Bold" color="#ffffff" size={40} />
+          </div>
+        </div>
+
+        <div className="speech-status-text">Listening...</div>
+
+        <div className="live-transcript">
+          {interimTranscript || finalTranscriptRef.current || "Start speaking..."}
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
+  if (!isSupported) {
+    return (
         <button
           type="button"
           style={{ ...styles.btn, opacity: 0.5, cursor: "not-allowed" }}
@@ -142,29 +168,25 @@ export default function VoiceInput({ onTextReady, darkMode, className }) {
             darkMode={darkMode}
           />
         </button>
-      ) : (
-        <button
-          type="button"
-          onClick={toggleListening}
-          style={styles.btn}
-          className={className}
-        >
-          <VuesaxIcon
-            name="microphone"
-            variant="Linear"
-            darkMode={darkMode}
-            color={darkMode ? "#ffffff" : "#c1121f"}
-          />
-        </button>
-      )}
-      {listening && (
-        <div style={styles.overlay}>
-          <div style={styles.listeningAlert}>
-            <VuesaxIcon name="microphone" variant="Bold" darkMode={true} />
-            <span style={{ marginLeft: "10px" }}>Listening...</span>
-          </div>
-        </div>
-      )}
-    </div>
+    );
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={toggleListening}
+        style={styles.btn}
+        className={className}
+      >
+        <VuesaxIcon
+          name="microphone"
+          variant="Linear"
+          darkMode={darkMode}
+          color={darkMode ? "#ffffff" : "#c1121f"}
+        />
+      </button>
+      {renderOverlay()}
+    </>
   );
 }
