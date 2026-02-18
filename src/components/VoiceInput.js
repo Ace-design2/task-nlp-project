@@ -52,6 +52,9 @@ export default function VoiceInput({
   const historyRef = useRef(history);
   useEffect(() => { historyRef.current = history; }, [history]);
 
+  const listeningRef = useRef(listening);
+  useEffect(() => { listeningRef.current = listening; }, [listening]);
+
   // --- HELPER FUNCTIONS ---
 
   const stopVisualizer = useCallback(() => {
@@ -122,7 +125,8 @@ export default function VoiceInput({
   useEffect(() => {
      if (history.length > lastHistoryLengthRef.current) {
          const lastMsg = history[history.length - 1];
-         if (lastMsg.sender === 'ai') {
+         // If it's AI, speak it -- BUT ONLY IF LISTENING (Voice Mode Active)
+         if (lastMsg.sender === 'ai' && listeningRef.current) {
              speak(lastMsg.text);
          }
      }
@@ -146,6 +150,20 @@ export default function VoiceInput({
     recognition.onstart = () => {
       console.log("Speech recognition started");
       startFakeVisualizer(false); 
+    };
+
+    // Enhanced triggers for visualizer
+    recognition.onsoundstart = () => {
+        isSpeakingRef.current = true;
+    };
+    recognition.onspeechstart = () => {
+        isSpeakingRef.current = true;
+    };
+    recognition.onsoundend = () => {
+        // Don't immediately stop, let debounce handle it
+    };
+    recognition.onspeechend = () => {
+         // Don't immediately stop
     };
 
     recognition.onresult = (event) => {
@@ -173,6 +191,7 @@ export default function VoiceInput({
       setInterimTranscript(newInterim);
       interimTranscriptRef.current = newInterim; 
       
+      // Debounce speaking visual
       if (window.speechTimer) clearTimeout(window.speechTimer);
       window.speechTimer = setTimeout(() => { isSpeakingRef.current = false; }, 500);
 
@@ -201,9 +220,10 @@ export default function VoiceInput({
 
 
   // --- EFFECT: CONTROL LOOP (Listening vs Typing vs Speaking) ---
-  const listeningRef = useRef(listening);
+  // listeningRef is defined at top
   useEffect(() => { 
-      listeningRef.current = listening; 
+      // listeningRef.current is updated at top, but we can update it here too or just rely on top
+      // The logic below relies on 'listening' prop/state change
       if (listening) {
           setSessionStartIndex(historyRef.current.length);
           try { recognitionRef.current?.start(); } catch(e) {}

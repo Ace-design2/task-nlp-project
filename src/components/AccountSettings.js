@@ -275,7 +275,7 @@ const AccountSettings = ({
                       <div className="menu-icon">
                           <VuesaxIcon name="moon" variant="Linear" color={darkMode? "#fff":"#333"} />
                       </div>
-                      <span className="menu-label">Dark Mode</span>
+                      <span className="menu-label">App Theme</span>
                   </div>
                   
                   {/* Selector */}
