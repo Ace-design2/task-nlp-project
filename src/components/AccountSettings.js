@@ -4,6 +4,7 @@ import VuesaxIcon from "./VuesaxIcon";
 import { db } from "../firebase"; // Removed storage imports
 import { updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AccountSettings = ({
   user,
@@ -170,9 +171,12 @@ const AccountSettings = ({
                 </div>
 
                  {/* Edit Icon Button (Chat Style) */}
-                 <button 
+                 <motion.button 
                     className="header-edit-btn-chat-style" 
                     onClick={() => setIsEditing(!isEditing)}
+                    whileHover={{ scale: 1.1, rotate: 15 }}
+                    whileTap={{ scale: 0.9, rotate: -15 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
                  >
                     <VuesaxIcon 
                       name={isEditing ? "close-circle" : "edit"} 
@@ -180,34 +184,49 @@ const AccountSettings = ({
                       color="#ffffff" 
                       size={24} 
                     />
-                 </button>
+                 </motion.button>
              </div>
 
              {/* Bottom Row: Info Group */}
-             <div className="header-info-group">
-                {!isEditing ? (
-                    <>
-                        <h2 className="header-name">{name || "User Name"}</h2>
-                        <p className="header-email">{user?.email}</p>
-                        <p className="header-phone">{phone || "+234 00 0000 0000"}</p>
-                    </>
-                ) : (
-                     /* Edit Mode Inputs (Header) */
-                    <div className="header-edit-fields">
-                        <input 
-                            className="header-input" 
-                            value={name} 
-                            onChange={(e) => setName(e.target.value)} 
-                            placeholder="Name"
-                        />
-                         <input 
-                            className="header-input" 
-                            value={phone} 
-                            onChange={(e) => setPhone(e.target.value)} 
-                            placeholder="Phone"
-                        />
-                    </div>
-                )}
+             <div className="header-info-group" style={{ position: "relative", minHeight: "80px" }}>
+                <AnimatePresence mode="wait">
+                  {!isEditing ? (
+                      <motion.div
+                          key="view-info"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                      >
+                          <h2 className="header-name">{name || "User Name"}</h2>
+                          <p className="header-email">{user?.email}</p>
+                          <p className="header-phone">{phone || "+234 00 0000 0000"}</p>
+                      </motion.div>
+                  ) : (
+                       /* Edit Mode Inputs (Header) */
+                      <motion.div
+                          key="edit-info"
+                          className="header-edit-fields"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                      >
+                          <input 
+                              className="header-input" 
+                              value={name} 
+                              onChange={(e) => setName(e.target.value)} 
+                              placeholder="Name"
+                          />
+                           <input 
+                              className="header-input" 
+                              value={phone} 
+                              onChange={(e) => setPhone(e.target.value)} 
+                              placeholder="Phone"
+                          />
+                      </motion.div>
+                  )}
+                </AnimatePresence>
              </div>
           </div>
 
@@ -217,31 +236,46 @@ const AccountSettings = ({
                   <div className="card-icon-box">
                       <VuesaxIcon name="book" variant="Linear" color={darkMode ? "#fff" : "#333"} />
                   </div>
-                  <div className="card-col">
-                      {!isEditing ? (
-                           <>
-                             <h3 className="card-title">{department || userProfile?.department || "No Department"}</h3>
-                             <p className="card-subtitle">{level || userProfile?.level ? `Currently in ${level || userProfile?.level}` : "No Level Selected"}</p>
-                           </>
-                      ) : (
-                           <div className="edit-row-inputs">
-                                <select className="card-input" value={department} onChange={(e) => setDepartment(e.target.value)}>
-                                    <option value="" disabled>Select Dept</option>
-                                    <option value="Computer Science">Computer Science</option>
-                                    <option value="Chemistry">Chemistry</option>
-                                    <option value="Physics">Physics</option>
-                                    <option value="Mathematics">Mathematics</option>
-                                    <option value="Statistics">Statistics</option>
-                                </select>
-                                <select className="card-input" value={level} onChange={(e) => setLevel(e.target.value)}>
-                                    <option value="" disabled>Select Level</option>
-                                    <option value="100 Level">100 Level</option>
-                                    <option value="200 Level">200 Level</option>
-                                    <option value="300 Level">300 Level</option>
-                                    <option value="400 Level">400 Level</option>
-                                </select>
-                           </div>
-                      )}
+                  <div className="card-col" style={{ position: "relative" }}>
+                      <AnimatePresence mode="wait">
+                        {!isEditing ? (
+                             <motion.div
+                                key="view-dept"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ duration: 0.2 }}
+                             >
+                               <h3 className="card-title">{department || userProfile?.department || "No Department"}</h3>
+                               <p className="card-subtitle">{level || userProfile?.level ? `Currently in ${level || userProfile?.level}` : "No Level Selected"}</p>
+                             </motion.div>
+                        ) : (
+                             <motion.div
+                                key="edit-dept"
+                                className="edit-row-inputs"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.2 }}
+                             >
+                                  <select className="card-input" value={department} onChange={(e) => setDepartment(e.target.value)}>
+                                      <option value="" disabled>Select Dept</option>
+                                      <option value="Computer Science">Computer Science</option>
+                                      <option value="Chemistry">Chemistry</option>
+                                      <option value="Physics">Physics</option>
+                                      <option value="Mathematics">Mathematics</option>
+                                      <option value="Statistics">Statistics</option>
+                                  </select>
+                                  <select className="card-input" value={level} onChange={(e) => setLevel(e.target.value)}>
+                                      <option value="" disabled>Select Level</option>
+                                      <option value="100 Level">100 Level</option>
+                                      <option value="200 Level">200 Level</option>
+                                      <option value="300 Level">300 Level</option>
+                                      <option value="400 Level">400 Level</option>
+                                  </select>
+                             </motion.div>
+                        )}
+                      </AnimatePresence>
                   </div>
                   
                   {/* Save Button if Editing */}
