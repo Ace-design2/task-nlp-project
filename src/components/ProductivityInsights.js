@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import "./ProductivityInsights.css";
 import VuesaxIcon from "./VuesaxIcon";
 import ContributionGraph from "./ContributionGraph";
+import { motion } from "framer-motion";
 
 const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
   const [timeRange, setTimeRange] = React.useState("weekly"); // 'weekly', 'monthly', 'yearly'
@@ -197,24 +198,25 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
 
       {/* Timeframe Toggle */}
       <div className="timeframe-toggle">
-        <button
-          className={`toggle-item ${timeRange === "weekly" ? "active" : ""}`}
-          onClick={() => setTimeRange("weekly")}
-        >
-          Weekly
-        </button>
-        <button
-          className={`toggle-item ${timeRange === "monthly" ? "active" : ""}`}
-          onClick={() => setTimeRange("monthly")}
-        >
-          Monthly
-        </button>
-        <button
-          className={`toggle-item ${timeRange === "yearly" ? "active" : ""}`}
-          onClick={() => setTimeRange("yearly")}
-        >
-          Yearly
-        </button>
+        {["weekly", "monthly", "yearly"].map((range) => (
+          <button
+            key={range}
+            className={`toggle-item ${timeRange === range ? "active" : ""}`}
+            onClick={() => setTimeRange(range)}
+            style={{ position: "relative" }}
+          >
+            {timeRange === range && (
+              <motion.div
+                layoutId="timeframe-active-pill"
+                className="timeframe-active-pill"
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            )}
+            <span style={{ position: "relative", zIndex: 2 }}>
+              {range.charAt(0).toUpperCase() + range.slice(1)}
+            </span>
+          </button>
+        ))}
       </div>
 
       {/* Contribution Graph - Adapts to timeRange */}

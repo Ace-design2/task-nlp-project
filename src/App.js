@@ -2151,10 +2151,10 @@ function App() {
 
         {/* Content Body */}
         {activeTab === "Chat" ? (
-          <div className="chat-desktop-layout" style={{ padding: "0px", boxSizing: "border-box" }}>
+          <div className="chat-desktop-layout" style={{ padding: "0px", boxSizing: "border-box", position: "relative" }}>
             {/* Left Pane: Chat List */}
             <div
-              className={`chat-list-pane ${activeChatId ? "mobile-hidden" : ""}`}
+              className={`chat-list-pane`}
               style={{ width: isMobile ? "100%" : sidebarWidth }}
             >
               <div
@@ -2267,9 +2267,17 @@ function App() {
             )}
 
             {/* Right Pane: Active Chat Content */}
-            <div
-              className={`chat-view-pane ${!activeChatId ? "mobile-hidden" : ""}`}
-            >
+            <AnimatePresence>
+            {(!isMobile || activeChatId) && (
+              <motion.div
+                key="chat-view"
+                className={`chat-view-pane`}
+                initial={isMobile ? { x: "100%", opacity: 1 } : false}
+                animate={isMobile ? { x: 0, opacity: 1 } : false}
+                exit={isMobile ? { x: "100%", opacity: 1 } : false}
+                transition={{ type: "spring", damping: 28, stiffness: 250 }}
+                style={isMobile ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, background: darkMode ? "#000000" : "#ffffff", overflow: "hidden" } : {}}
+              >
               {/* Desktop Close/Cancel Button */}
               {activeChatId && !isMobile && (
                 <button
@@ -2471,7 +2479,9 @@ function App() {
                   </div>
                 </form>
               )}
-            </div>
+              </motion.div>
+            )}
+            </AnimatePresence>
           </div>
         ) : activeTab === "Calendar" ? (
           <div className="tasks-view-container" style={{ padding: "0 0" }}>
