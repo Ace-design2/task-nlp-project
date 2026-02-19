@@ -367,7 +367,10 @@ export default function VoiceInput({
   return (
     <>
       <button type="button" onClick={toggleListening} style={styles.btn} className={className}>
-        <VuesaxIcon name="microphone" variant="Linear" darkMode={darkMode} color={darkMode ? "#ffffff" : "#c1121f"} />
+        <div className="voice-mode-pill">
+            <span className="voice-mode-text">Voice Mode</span>
+            <VuesaxIcon name="microphone" variant="Bold" color="#ffffff" size={16} />
+        </div>
       </button>
       {renderOverlay()}
     </>

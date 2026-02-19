@@ -2352,76 +2352,89 @@ function App() {
                   onSubmit={handleSubmit}
                 >
                   <div className="astra-input-group">
-                    <button
-                      type="button"
-                      className="study-schedule-btn"
-                      onClick={async () => {
-                        if (!user) {
-                          alert("Please log in to use this feature.");
-                          return;
-                        }
-                        
-                        // Ensure we have an active chat or create one
-                        let chatId = activeChatId;
-                        if (!chatId || chatId === "new") {
-                           try {
-                             const newChatRef = await addDoc(
-                               collection(db, "users", user.uid, "chats"),
-                               {
-                                 firstPrompt: "Study Schedule",
-                                 createdAt: new Date().toISOString(),
-                                 lastMessageTime: new Date().toISOString(),
-                               }
-                             );
-                             chatId = newChatRef.id;
-                             setActiveChatId(chatId);
-                           } catch(e) { console.error(e); return; }
-                        }
-                        
-                        // 1. Add USER Message "Build a Study Schedule" (Manually, bypassing NLP)
-                        try {
+                    <div className="astra-actions-row">
+                      <button
+                        type="button"
+                        className="study-schedule-btn"
+                        onClick={async () => {
+                          if (!user) {
+                            alert("Please log in to use this feature.");
+                            return;
+                          }
+                          
+                          // Ensure we have an active chat or create one
+                          let chatId = activeChatId;
+                          if (!chatId || chatId === "new") {
+                             try {
+                               const newChatRef = await addDoc(
+                                 collection(db, "users", user.uid, "chats"),
+                                 {
+                                   firstPrompt: "Study Schedule",
+                                   createdAt: new Date().toISOString(),
+                                   lastMessageTime: new Date().toISOString(),
+                                 }
+                               );
+                               chatId = newChatRef.id;
+                               setActiveChatId(chatId);
+                             } catch(e) { console.error(e); return; }
+                          }
+                          
+                          // 1. Add USER Message "Build a Study Schedule" (Manually, bypassing NLP)
+                          try {
+                            await addDoc(
+                              collection(db, "users", user.uid, "chats", chatId, "messages"),
+                              {
+                                text: "Build a Study Schedule",
+                                sender: "user",
+                                timestamp: new Date().toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }),
+                                createdAt: new Date().toISOString(),
+                              }
+                            );
+                          } catch(e) { console.error("Error adding user msg", e); }
+  
+                          // 2. Set State
+                          setStudyPlannerState("AWAITING_TOPIC");
+                          
+                          // 3. Add AI Message asking for topic
                           await addDoc(
-                            collection(db, "users", user.uid, "chats", chatId, "messages"),
-                            {
-                              text: "Build a Study Schedule",
-                              sender: "user",
-                              timestamp: new Date().toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }),
-                              createdAt: new Date().toISOString(),
-                            }
-                          );
-                        } catch(e) { console.error("Error adding user msg", e); }
-
-                        // 2. Set State
-                        setStudyPlannerState("AWAITING_TOPIC");
-                        
-                        // 3. Add AI Message asking for topic
-                        try {
-                           await addDoc(
                              collection(db, "users", user.uid, "chats", chatId, "messages"),
                              {
-                               text: "I can help you build a study schedule! What subject or course code are you studying? (e.g. CSC416)",
+                               text: "I can help you build a study schedule! What topic or course (e.g., CSC411) do you want to study?",
                                sender: "ai",
-                               timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                               timestamp: new Date().toLocaleTimeString([], {
+                                 hour: "2-digit",
+                                 minute: "2-digit",
+                               }),
                                createdAt: new Date().toISOString(),
-                               isAstra: true
                              }
                            );
-                        } catch(e) {}
-                      }}
-                    >
-                      <span>Build a Study Schedule</span>
-                      <div className="study-schedule-icon">
-                        <VuesaxIcon
-                          name="arrow-up"
-                          variant="Linear"
-                          size={16}
-                          color="currentColor"
-                        />
-                      </div>
-                    </button>
+                        }}
+                      >
+                        <span>Build a Study Schedule</span>
+                        <div className="study-schedule-icon">
+                          <VuesaxIcon
+                            name="arrow-up"
+                            variant="Linear"
+                            size={16}
+                            color="currentColor"
+                          />
+                        </div>
+                      </button>
+
+                      <VoiceInput
+                        onTextReady={(val) => handleProcessTask(val)}
+                        history={history}
+                        isTyping={isTyping}
+                        userProfile={userProfile}
+                        onRestore={handleRestoreHistory}
+                        onDelete={handleDeleteHistory}
+                        darkMode={darkMode}
+                        className="astra-voice-btn"
+                      />
+                    </div>
 
                     <div className="astra-input-pill">
                       <textarea
@@ -2445,16 +2458,7 @@ function App() {
                         autoFocus
                       />
 
-                    <VoiceInput
-                      onTextReady={(val) => handleProcessTask(val)}
-                      history={history}
-                      isTyping={isTyping}
-                      userProfile={userProfile}
-                      onRestore={handleRestoreHistory}
-                      onDelete={handleDeleteHistory}
-                      darkMode={darkMode}
-                      className="astra-input-icon-btn"
-                    />
+
 
                     <button type="submit" className="astra-send-btn">
                       <VuesaxIcon

@@ -238,10 +238,9 @@ body.dark-mode {
 }
 
 .results-container {
+  padding-top: 12px;
   flex-grow: 1;
   overflow-y: auto;
-  /* margin-bottom: 20px;
-  padding-bottom: 100px; */
 }
 
 .tasks-view-container {
@@ -689,12 +688,22 @@ body.dark-mode {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
+/* Actions Row for Top Buttons */
+.astra-actions-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  width: 100%;
+  justify-content: flex-start; /* Align left or center depending on preference, usually start for these pills */
+  align-items: center;
+}
+
 .study-schedule-btn {
   background-color: #c1121f;
   color: #fff;
   border: none;
   border-radius: 999px; /* Pill shape */
-  padding: 10px 20px;
+  padding: 8px 12px;
   font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -830,6 +839,23 @@ body.dark-mode {
 .app-container.dark-mode .astra-input-icon-btn {
   background: #333;
   color: #ffffff;
+}
+
+
+/* Voice Button Specific */
+.astra-voice-btn {
+  height: 40px; /* Match input height */
+  /* Remove width constraint to let pill expand */
+  width: auto;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .astra-send-btn {
@@ -1229,4 +1255,38 @@ body.dark-mode .close-speech-btn {
 
 body.dark-mode .close-speech-btn:hover {
   background-color: rgba(255, 255, 255, 0.2);
+}
+.voice-mode-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background-color: #c1121f;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .voice-mode-pill {
+    font-size: 12px;
+  }
+  
+  .study-schedule-btn {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 350px) {
+  .voice-mode-pill {
+    font-size: 10px;
+    font-weight: bold;
+  }
+  
+  .study-schedule-btn {
+    font-size: 10px;
+    font-weight: bold;
+  }
 }
