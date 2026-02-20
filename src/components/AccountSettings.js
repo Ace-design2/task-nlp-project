@@ -189,14 +189,14 @@ const AccountSettings = ({
 
              {/* Bottom Row: Info Group */}
              <div className="header-info-group" style={{ position: "relative", minHeight: "80px" }}>
-                <AnimatePresence mode="wait">
+                <AnimatePresence mode="popLayout">
                   {!isEditing ? (
                       <motion.div
                           key="view-info"
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 15 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.2 }}
+                          exit={{ opacity: 0, y: -15 }}
+                          transition={{ type: "spring", stiffness: 350, damping: 25 }}
                       >
                           <h2 className="header-name">{name || "User Name"}</h2>
                           <p className="header-email">{user?.email}</p>
@@ -207,10 +207,10 @@ const AccountSettings = ({
                       <motion.div
                           key="edit-info"
                           className="header-edit-fields"
-                          initial={{ opacity: 0, y: -10 }}
+                          initial={{ opacity: 0, y: -15 }}
                           animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.2 }}
+                          exit={{ opacity: 0, y: 15 }}
+                          transition={{ type: "spring", stiffness: 350, damping: 25 }}
                       >
                           <input 
                               className="header-input" 
@@ -237,14 +237,14 @@ const AccountSettings = ({
                       <VuesaxIcon name="book" variant="Linear" color={darkMode ? "#fff" : "#333"} />
                   </div>
                   <div className="card-col" style={{ position: "relative" }}>
-                      <AnimatePresence mode="wait">
+                      <AnimatePresence mode="popLayout">
                         {!isEditing ? (
                              <motion.div
                                 key="view-dept"
-                                initial={{ opacity: 0, x: -10 }}
+                                initial={{ opacity: 0, x: -15 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 10 }}
-                                transition={{ duration: 0.2 }}
+                                exit={{ opacity: 0, x: 15 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 25 }}
                              >
                                <h3 className="card-title">{department || userProfile?.department || "No Department"}</h3>
                                <p className="card-subtitle">{level || userProfile?.level ? `Currently in ${level || userProfile?.level}` : "No Level Selected"}</p>
@@ -253,10 +253,10 @@ const AccountSettings = ({
                              <motion.div
                                 key="edit-dept"
                                 className="edit-row-inputs"
-                                initial={{ opacity: 0, x: 10 }}
+                                initial={{ opacity: 0, x: 15 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                transition={{ duration: 0.2 }}
+                                exit={{ opacity: 0, x: -15 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 25 }}
                              >
                                   <select className="card-input" value={department} onChange={(e) => setDepartment(e.target.value)}>
                                       <option value="" disabled>Select Dept</option>
