@@ -123,6 +123,32 @@
   margin: 0;
 }
 
+.header-social-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.header-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0.9;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.header-social-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.x-header-icon svg,
+.github-header-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
 .header-edit-fields {
   display: flex;
   flex-direction: column;
