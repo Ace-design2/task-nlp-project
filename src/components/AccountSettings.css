@@ -365,3 +365,192 @@
     padding-bottom: 20px;
   }
 }
+
+/* --- Connected Apps Modal --- */
+.connected-apps-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .connected-apps-overlay {
+    align-items: center;
+  }
+}
+
+.connected-apps-modal {
+  width: 100%;
+  max-width: 500px;
+  background-color: #ffffff;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px;
+  padding-bottom: 100px; /* Safe padding for bottom nav on mobile */
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .connected-apps-modal {
+    border-radius: 24px;
+    padding-bottom: 24px; /* Reset padding for desktop where there's no bottom nav covering it */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.connected-apps-modal.dark {
+  background-color: #1e1e1e;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+}
+
+.connected-apps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.connected-apps-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connected-apps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.connected-app-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background-color: #f9f9f9;
+  border: 1px solid #eeeeee;
+}
+
+.connected-apps-modal.dark .connected-app-item {
+  background-color: #2c2c2c;
+  border-color: #3d3d3d;
+}
+
+.app-info-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.twitter-icon {
+  background-color: #000000;
+}
+
+.connected-apps-modal.dark .twitter-icon {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.github-icon {
+  background-color: #24292e;
+}
+
+.connected-apps-modal.dark .github-icon {
+  background-color: #ffffff;
+  color: #24292e;
+}
+
+.app-details {
+  flex: 1;
+}
+
+.app-details h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.app-details p {
+  font-size: 13px;
+  color: #666666;
+  margin: 0;
+}
+
+.connected-apps-modal.dark .app-details p {
+  color: #aaaaaa;
+}
+
+.app-username-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  background-color: #ffffff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.connected-apps-modal.dark .app-username-input {
+  background-color: #1a1a1a;
+  border-color: #444444;
+  color: #ffffff;
+}
+
+.app-connect-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background-color: #c1121f;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.app-connect-btn:hover {
+  opacity: 0.9;
+}
+
+.app-connect-btn.disconnect {
+  background-color: transparent;
+  border: 1px solid #c1121f;
+  color: #c1121f;
+}
+
+.connected-apps-modal.dark .app-connect-btn.disconnect {
+  border-color: #ff4d4d;
+  color: #ff4d4d;
+}
+
