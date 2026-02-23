@@ -168,6 +168,36 @@ const ChatList = ({
         </div>
       )}
 
+      {/* New Chat Button at the top */}
+      {!isSearching && !isFiltered && (
+        <div className="chat-category-group" style={{ width: "100%" }}>
+          <div
+            className="chat-item-wrapper"
+            onClick={() => onSelectChat("new")}
+          >
+            <div className="chat-item-content">
+              <div
+                className={`chat-item-card ${darkMode ? "dark" : ""} ${activeChatId === "new" ? "active" : ""}`}
+              >
+                <div
+                  className="chat-item-title"
+                  style={{ color: darkMode ? "#fff" : "black", fontWeight: 600 }}
+                >
+                  New Chat
+                </div>
+                <div className="chat-item-meta">
+                  <div
+                    className="chat-item-time"
+                    style={{ color: darkMode ? "#aaa" : "black" }}
+                  >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {!isSearching &&
         sortedCategories.map((category) => (
           <div

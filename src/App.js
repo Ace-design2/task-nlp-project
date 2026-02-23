@@ -2101,23 +2101,6 @@ function App() {
                     />
                   </button>
                 </div>
-
-                <button
-                  onClick={() => setActiveChatId("new")}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 8,
-                    display: "flex",
-                  }}
-                >
-                  <VuesaxIcon
-                    name="edit"
-                    variant="Linear"
-                    color="#ffffff" // White
-                  />
-                </button>
               </div>
             </div>
           ) : (
@@ -2199,22 +2182,6 @@ function App() {
                       color="#ffffff"
                     />
                   </button>
-                  <button
-                    onClick={() => setActiveChatId("new")}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      padding: 8,
-                      display: "flex",
-                    }}
-                  >
-                    <VuesaxIcon
-                      name="edit"
-                      variant="Linear"
-                      color="#ffffff"
-                    />
-                  </button>
                 </div>
               </div>
 
@@ -2292,9 +2259,40 @@ function App() {
                   />
                 </button>
               )}
+              
+              {/* Desktop New Chat/Edit Button */}
+              {activeChatId && activeChatId !== "new" && !isMobile && (
+                <button
+                  className="desktop-chat-edit-btn"
+                  onClick={() => setActiveChatId("new")}
+                  style={{
+                    position: "absolute",
+                    top: "16px",
+                    right: "60px", 
+                    zIndex: 10,
+                    background: darkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "40px",
+                    height: "40px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                  title="New Chat"
+                >
+                  <VuesaxIcon
+                    name="edit"
+                    variant="Linear"
+                    size={20}
+                    darkMode={darkMode}
+                  />
+                </button>
+              )}
 
               {/* Mobile Back Button Header */}
-              <div className="chat-mobile-header desktop-hidden">
+              <div className="chat-mobile-header desktop-hidden" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", boxSizing: "border-box" }}>
                 <button
                   onClick={() => setActiveChatId(null)}
                   className="glass-back-btn" 
@@ -2308,16 +2306,23 @@ function App() {
                     variant="Bold"
                     darkMode={darkMode}
                   />
-                  {/* Removed 'Back' text if we want icon-only glass button, 
-                      User asked for "icon", usually meaning the round button style.
-                      If they want text "Back" inside the glass pill, we can keep it.
-                      iOS 26 style implies a clean glass circle or pill. 
-                      Let's keep text but make it look good or remove it?
-                      "use the ios26 glass morphism style on the back icons" -> Icons suggests circle.
-                      Let's try removing the text for a pure icon look or keeping it if it fits. 
-                      I'll remove the text to match the "icon" request and the circle style in CSS.
-                  */}
                 </button>
+                
+                {activeChatId !== "new" && (
+                  <button
+                    onClick={() => setActiveChatId("new")}
+                    className="glass-back-btn"
+                    style={{
+                      border: "none",
+                    }}
+                  >
+                    <VuesaxIcon
+                      name="edit"
+                      variant="Linear"
+                      darkMode={darkMode}
+                    />
+                  </button>
+                )}
               </div>
 
               {!activeChatId ? (
