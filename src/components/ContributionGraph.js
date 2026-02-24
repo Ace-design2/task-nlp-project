@@ -3,7 +3,7 @@ import './ContributionGraph.css';
 import VuesaxIcon from './VuesaxIcon';
 import html2canvas from 'html2canvas';
 
-const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, userProfile }) => {
+const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, userProfile, stats }) => {
   const scrollerRef = useRef(null);
   const shareRef = useRef(null);
   const [isSharing, setIsSharing] = useState(false);
@@ -15,7 +15,8 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
          if (!url) return;
          try {
              // Append a query param to bypass cache, often needed for CORS
-             const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'not-from-cache=1', { method: 'GET', mode: 'cors' });
+             const urlWithBust = `${url}${url.includes('?') ? '&' : '?'}t=${new Date().getTime()}`;
+             const res = await fetch(urlWithBust, { method: 'GET', mode: 'cors' });
              const blob = await res.blob();
              const reader = new FileReader();
              reader.onloadend = () => {
@@ -154,14 +155,9 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
     if (!shareRef.current) return;
     setIsSharing(true);
     try {
-      // Un-hide the container temporarily for html2canvas. Keep it off-screen.
-      shareRef.current.style.display = 'block';
-      shareRef.current.style.position = 'fixed';
-      shareRef.current.style.left = '200vw'; // Very far off screen
-      shareRef.current.style.top = '200vh';
-      shareRef.current.style.zIndex = '-9999';
+      // Container is now permanently rendered off-screen so the image loads natively before we capture
       
-      // Give the browser a tiny moment to render the display:block
+      // Give the browser a tiny moment to render the tree layout
       await new Promise(resolve => setTimeout(resolve, 50));
       
       const canvas = await html2canvas(shareRef.current, {
@@ -171,8 +167,6 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
         // DO NOT use allowTaint: true here because it prevents canvas.toBlob / toDataURL 
         // leading to DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement'
       });
-      
-      shareRef.current.style.display = 'none';
 
       // Fallback implementation to try blob first, then DataUrl
       try {
@@ -211,7 +205,6 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
     } catch (error) {
       console.error('Error generating share image:', error);
       alert('Failed to generate share image.');
-      if (shareRef.current) shareRef.current.style.display = 'none';
     } finally {
       setIsSharing(false);
     }
@@ -331,15 +324,15 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
         <span className="legend-text">More</span>
       </div>
 
-      {/* Hidden Container for Export */}
+      {/* Hidden Container for Export - permanently rendered off-screen to ensure fonts and images are loaded */}
       <div 
         ref={shareRef} 
         style={{ 
-            display: 'none', 
-            position: 'absolute', 
-            left: '-9999px',
-            top: '-9999px',
-            width: '800px', 
+            position: 'fixed', 
+            left: '200vw',
+            top: '200vh',
+            width: 'max-content', 
+            minWidth: '800px',
             padding: '40px', 
             background: '#1E1E1E', 
             color: '#fff', 
@@ -405,7 +398,7 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
                     })}
                 </div>
             ) : (
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: timeRange === 'weekly' ? '24px' : '12px', width: '100%', justifyContent: 'space-between' }}>
                     {graphData.map((day) => {
                         const level = getLevel(day.count);
                         const dayLabel = day.date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
@@ -414,16 +407,35 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
                         if (level === 2) bgColor = '#7A1C20';
                         if (level === 3) bgColor = '#A5181F';
                         if (level === 4) bgColor = '#C1121F';
+                        
+                        const isWeekly = timeRange === 'weekly';
                         return (
-                            <div key={`share-day-${day.dateStr}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: bgColor }}></div>
-                                <span style={{ fontSize: '12px', color: '#888' }}>{dayLabel}</span>
+                            <div key={`share-day-${day.dateStr}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isWeekly ? '16px' : '8px', flex: 1 }}>
+                                <div style={{ width: '100%', maxWidth: isWeekly ? '80px' : '24px', aspectRatio: '1/1', borderRadius: isWeekly ? '16px' : '6px', background: bgColor }}></div>
+                                <span style={{ fontSize: isWeekly ? '20px' : '12px', color: '#888' }}>{isWeekly ? day.date.toLocaleDateString('en-US', { weekday: 'short' }) : dayLabel}</span>
                             </div>
                         );
                     })}
                 </div>
             )}
         </div>
+        
+        {stats && (
+            <div style={{ display: 'flex', gap: '24px', marginBottom: '40px' }}>
+                <div style={{ flex: 1, background: '#121212', padding: '24px', borderRadius: '16px' }}>
+                    <div style={{ fontSize: '14px', color: '#888', marginBottom: '8px' }}>Tasks ({stats.periodLabel || 'Total'})</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.total || 0}</div>
+                </div>
+                <div style={{ flex: 1, background: '#121212', padding: '24px', borderRadius: '16px' }}>
+                    <div style={{ fontSize: '14px', color: '#888', marginBottom: '8px' }}>Completion Rate</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.rate || 0}%</div>
+                </div>
+                <div style={{ flex: 1, background: '#121212', padding: '24px', borderRadius: '16px' }}>
+                    <div style={{ fontSize: '14px', color: '#888', marginBottom: '8px' }}>Tasks Today</div>
+                    <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.tasksTodayCount || 0}</div>
+                </div>
+            </div>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
              <div>

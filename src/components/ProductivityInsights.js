@@ -226,6 +226,7 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse, user, user
         timeRange={timeRange}
         user={user}
         userProfile={userProfile}
+        stats={stats}
       />
 
       {/* Stats Grid */}
