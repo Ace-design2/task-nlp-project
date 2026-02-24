@@ -11,12 +11,20 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
 
   useEffect(() => {
      const fetchPhoto = async () => {
-         const url = userProfile?.photoURL || user?.photoURL;
+         const url = userProfile?.photoBase64 || userProfile?.photoURL || user?.photoURL;
          if (!url) return;
+         
+         // If it's already a base64 string, use it directly
+         if (url.startsWith('data:image/')) {
+             setBase64Photo(url);
+             return;
+         }
+
          try {
-             // Append a query param to bypass cache, often needed for CORS
+             // Attempt to fetch the image natively and convert it to a local Base64 blob
+             // This can bypass rendering issues since the final img src becomes a local data URI
              const urlWithBust = `${url}${url.includes('?') ? '&' : '?'}t=${new Date().getTime()}`;
-             const res = await fetch(urlWithBust, { method: 'GET', mode: 'cors' });
+             const res = await fetch(urlWithBust, { mode: 'cors' });
              const blob = await res.blob();
              const reader = new FileReader();
              reader.onloadend = () => {
@@ -24,10 +32,16 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
              };
              reader.readAsDataURL(blob);
          } catch (e) {
-             console.warn("Failed to fetch profile image for export", e);
+             console.warn("Failed to fetch external profile image, falling back to raw URL", e);
+             // If fetch fails (usually strict CORS), fallback to just the raw URL
+             // html2canvas might still fail to proxy it, but it preserves regular render
+             setBase64Photo(url);
          }
      };
-     fetchPhoto();
+     
+     if (userProfile?.photoBase64 || userProfile?.photoURL || user?.photoURL) {
+         fetchPhoto();
+     }
   }, [userProfile, user]);
 
   // 1. Generate Data based on timeRange
@@ -157,15 +171,35 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
     try {
       // Container is now permanently rendered off-screen so the image loads natively before we capture
       
-      // Give the browser a tiny moment to render the tree layout
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Ensure all images within the container are fully loaded before capturing
+      const images = Array.from(shareRef.current.querySelectorAll('img'));
+      await Promise.all(images.map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = resolve; // Resolve on error too, so we don't block the share entirely
+          });
+      }));
+      
+      // Give the browser time to render local SVGs and the final tree layout
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       const canvas = await html2canvas(shareRef.current, {
         backgroundColor: '#1E1E1E', // Dark mode background
         scale: 2, // Higher quality
         useCORS: true, // Attempt to load cross-origin images
-        // DO NOT use allowTaint: true here because it prevents canvas.toBlob / toDataURL 
-        // leading to DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement'
+        logging: true, // Enable logging to see what fails
+        onclone: (clonedDoc) => {
+            const clonedShareNode = clonedDoc.getElementById('astra-share-container');
+            if (clonedShareNode) {
+                // Reset the off-screen positioning inside the cloning environment
+                clonedShareNode.style.position = 'static';
+                clonedShareNode.style.left = 'auto';
+                clonedShareNode.style.top = 'auto';
+                clonedShareNode.style.zIndex = '1';
+                clonedShareNode.style.opacity = '1';
+            }
+        }
       });
 
       // Fallback implementation to try blob first, then DataUrl
@@ -326,11 +360,15 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
 
       {/* Hidden Container for Export - permanently rendered off-screen to ensure fonts and images are loaded */}
       <div 
+        id="astra-share-container"
         ref={shareRef} 
         style={{ 
-            position: 'fixed', 
-            left: '200vw',
-            top: '200vh',
+            position: 'absolute', 
+            left: '0',
+            top: '0',
+            zIndex: '-100',
+            opacity: '0.001',
+            pointerEvents: 'none',
             width: 'max-content', 
             minWidth: '800px',
             padding: '40px', 
@@ -356,9 +394,9 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
                         <div style={{ fontSize: '14px', color: '#888' }}>Astra to-do</div>
                     </div>
                     <img 
-                        src={base64Photo || userProfile?.photoURL || user?.photoURL} 
+                        src={base64Photo || userProfile?.photoBase64 || userProfile?.photoURL || user?.photoURL} 
                         alt="Profile" 
-                        crossOrigin={base64Photo ? undefined : "anonymous"}
+                        crossOrigin="anonymous"
                         style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} 
                     />
                 </div>
@@ -445,9 +483,7 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
                 </div>
              </div>
              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #FF4B4B 0%, #C1121F 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <VuesaxIcon name="tick-square" variant="Bold" color="#fff" size={16} />
-                </div>
+                <img src="/logo.svg" alt="Astra Logo" crossOrigin="anonymous" style={{ width: '32px', height: '32px' }} />
                 <span style={{ fontSize: '18px', fontWeight: 'bold' }}>Astra to-do</span>
              </div>
         </div>
