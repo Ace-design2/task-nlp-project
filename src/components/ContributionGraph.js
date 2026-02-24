@@ -135,31 +135,58 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
     try {
       // Un-hide the container temporarily for html2canvas
       shareRef.current.style.display = 'block';
+      shareRef.current.style.position = 'absolute';
+      shareRef.current.style.left = '0px';
+      shareRef.current.style.top = '0px';
+      shareRef.current.style.zIndex = '-9999';
+      
+      // Give the browser a tiny moment to render the display:block
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       const canvas = await html2canvas(shareRef.current, {
         backgroundColor: '#1E1E1E', // Dark mode background
         scale: 2, // Higher quality
+        useCORS: true, // Attempt to load cross-origin images
+        // DO NOT use allowTaint: true here because it prevents canvas.toBlob / toDataURL 
+        // leading to DOMException: Failed to execute 'toDataURL' on 'HTMLCanvasElement'
       });
       
       shareRef.current.style.display = 'none';
 
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-      
-      if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'streak.png', { type: 'image/png' })] })) {
-          const file = new File([blob], 'streak.png', { type: 'image/png' });
-          await navigator.share({
-            title: 'My Consistency Streak',
-            text: 'Check out my consistency streak on Astra to-do!',
-            files: [file]
+      // Fallback implementation to try blob first, then DataUrl
+      try {
+          const blob = await new Promise((resolve, reject) => {
+              canvas.toBlob((b) => {
+                  if (b) resolve(b);
+                  else reject(new Error("Canvas toBlob failed"));
+              }, 'image/png');
           });
-      } else {
-        // Fallback: download
-        const url = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = 'consistency-streak.png';
-        link.href = url;
-        link.click();
+          
+          if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'streak.png', { type: 'image/png' })] })) {
+              const file = new File([blob], 'streak.png', { type: 'image/png' });
+              await navigator.share({
+                title: 'My Consistency Streak',
+                text: 'Check out my consistency streak on Astra to-do!',
+                files: [file]
+              });
+          } else {
+            // Fallback: download
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = 'consistency-streak.png';
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+          }
+      } catch (err) {
+         console.warn("Blob share failed, falling back to data URL download", err);
+         const url = canvas.toDataURL('image/png');
+         const link = document.createElement('a');
+         link.download = 'consistency-streak.png';
+         link.href = url;
+         link.click();
       }
+
     } catch (error) {
       console.error('Error generating share image:', error);
       alert('Failed to generate share image.');
