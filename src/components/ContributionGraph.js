@@ -7,6 +7,27 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
   const scrollerRef = useRef(null);
   const shareRef = useRef(null);
   const [isSharing, setIsSharing] = useState(false);
+  const [base64Photo, setBase64Photo] = useState(null);
+
+  useEffect(() => {
+     const fetchPhoto = async () => {
+         const url = userProfile?.photoURL || user?.photoURL;
+         if (!url) return;
+         try {
+             // Append a query param to bypass cache, often needed for CORS
+             const res = await fetch(url + (url.includes('?') ? '&' : '?') + 'not-from-cache=1', { method: 'GET', mode: 'cors' });
+             const blob = await res.blob();
+             const reader = new FileReader();
+             reader.onloadend = () => {
+                 setBase64Photo(reader.result);
+             };
+             reader.readAsDataURL(blob);
+         } catch (e) {
+             console.warn("Failed to fetch profile image for export", e);
+         }
+     };
+     fetchPhoto();
+  }, [userProfile, user]);
 
   // 1. Generate Data based on timeRange
   const calendarData = useMemo(() => {
@@ -133,11 +154,11 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
     if (!shareRef.current) return;
     setIsSharing(true);
     try {
-      // Un-hide the container temporarily for html2canvas
+      // Un-hide the container temporarily for html2canvas. Keep it off-screen.
       shareRef.current.style.display = 'block';
-      shareRef.current.style.position = 'absolute';
-      shareRef.current.style.left = '0px';
-      shareRef.current.style.top = '0px';
+      shareRef.current.style.position = 'fixed';
+      shareRef.current.style.left = '200vw'; // Very far off screen
+      shareRef.current.style.top = '200vh';
       shareRef.current.style.zIndex = '-9999';
       
       // Give the browser a tiny moment to render the display:block
@@ -342,9 +363,9 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, u
                         <div style={{ fontSize: '14px', color: '#888' }}>Astra to-do</div>
                     </div>
                     <img 
-                        src={userProfile?.photoURL || user?.photoURL} 
+                        src={base64Photo || userProfile?.photoURL || user?.photoURL} 
                         alt="Profile" 
-                        crossOrigin="anonymous"
+                        crossOrigin={base64Photo ? undefined : "anonymous"}
                         style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} 
                     />
                 </div>
