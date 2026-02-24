@@ -2497,7 +2497,9 @@ function App() {
             <ProductivityInsights 
                 tasks={tasks} 
                 darkMode={darkMode} 
-                onDeleteCourse={handleDeleteCourse} 
+                onDeleteCourse={handleDeleteCourse}
+                user={user}
+                userProfile={userProfile}
             />
           </div>
         ) : activeTab === "My Day" ? (

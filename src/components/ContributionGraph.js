@@ -1,8 +1,12 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import './ContributionGraph.css';
+import VuesaxIcon from './VuesaxIcon';
+import html2canvas from 'html2canvas';
 
-const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly' }) => {
+const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly', user, userProfile }) => {
   const scrollerRef = useRef(null);
+  const shareRef = useRef(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   // 1. Generate Data based on timeRange
   const calendarData = useMemo(() => {
@@ -120,6 +124,51 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly' }) => {
 
   const totalContributions = graphData.reduce((acc, curr) => acc + curr.count, 0);
 
+  const mostProductiveDay = useMemo(() => {
+    if (!graphData || graphData.length === 0) return null;
+    return graphData.reduce((max, current) => (current.count > max.count ? current : max), graphData[0]);
+  }, [graphData]);
+
+  const handleShare = async () => {
+    if (!shareRef.current) return;
+    setIsSharing(true);
+    try {
+      // Un-hide the container temporarily for html2canvas
+      shareRef.current.style.display = 'block';
+      
+      const canvas = await html2canvas(shareRef.current, {
+        backgroundColor: '#1E1E1E', // Dark mode background
+        scale: 2, // Higher quality
+      });
+      
+      shareRef.current.style.display = 'none';
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      
+      if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'streak.png', { type: 'image/png' })] })) {
+          const file = new File([blob], 'streak.png', { type: 'image/png' });
+          await navigator.share({
+            title: 'My Consistency Streak',
+            text: 'Check out my consistency streak on Astra to-do!',
+            files: [file]
+          });
+      } else {
+        // Fallback: download
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'consistency-streak.png';
+        link.href = url;
+        link.click();
+      }
+    } catch (error) {
+      console.error('Error generating share image:', error);
+      alert('Failed to generate share image.');
+      if (shareRef.current) shareRef.current.style.display = 'none';
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   // Auto-scroll to end on mount/update (for Yearly view on mobile)
   useEffect(() => {
     if (timeRange === 'yearly' && scrollerRef.current) {
@@ -133,12 +182,35 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly' }) => {
 
   return (
     <div className={`contribution-graph-card ${darkMode ? 'dark-mode' : ''}`}>
-      <div className="contribution-header">
-        <span className="contribution-title">Consistency Streak</span>
-        <span className="contribution-subtitle">
-            {totalContributions} tasks in {timeRange === 'weekly' ? 'the last 7 days' : 
-                                          timeRange === 'monthly' ? 'the last 30 days' : 'the last year'}
-        </span>
+      <div className="contribution-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <span className="contribution-title">Consistency Streak</span>
+            <span className="contribution-subtitle">
+                {totalContributions} tasks in {timeRange === 'weekly' ? 'the last 7 days' : 
+                                              timeRange === 'monthly' ? 'the last 30 days' : 'the last year'}
+            </span>
+        </div>
+        <button 
+            onClick={handleShare} 
+            disabled={isSharing}
+            style={{ 
+                background: 'transparent', 
+                border: darkMode ? '1px solid #333' : '1px solid #ddd', 
+                borderRadius: '12px', 
+                padding: '8px', 
+                cursor: isSharing ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: isSharing ? 0.5 : 1,
+                color: darkMode ? '#fff' : '#000',
+                flexShrink: 0,
+                marginLeft: '12px'
+            }}
+            title="Share Streak"
+        >
+            <VuesaxIcon name={isSharing ? "clock" : "export"} variant="Linear" size={20} color="currentColor" />
+        </button>
       </div>
       
       <div className="graph-scroller" ref={scrollerRef}>
@@ -209,6 +281,116 @@ const ContributionGraph = ({ tasks = [], darkMode, timeRange = 'yearly' }) => {
             <div className="graph-cell level-4"></div>
         </div>
         <span className="legend-text">More</span>
+      </div>
+
+      {/* Hidden Container for Export */}
+      <div 
+        ref={shareRef} 
+        style={{ 
+            display: 'none', 
+            position: 'absolute', 
+            left: '-9999px',
+            top: '-9999px',
+            width: '800px', 
+            padding: '40px', 
+            background: '#1E1E1E', 
+            color: '#fff', 
+            borderRadius: '24px',
+            fontFamily: 'Inter, sans-serif',
+            boxSizing: 'border-box'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+            <div>
+                <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 600 }}>Consistency Streak</h1>
+                <p style={{ margin: '8px 0 0 0', fontSize: '18px', color: '#888' }}>
+                    {totalContributions} tasks in {timeRange === 'weekly' ? 'the last 7 days' : 
+                                                  timeRange === 'monthly' ? 'the last 30 days' : 'the last year'}
+                </p>
+            </div>
+            {(userProfile?.photoURL || user?.photoURL) ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 600 }}>{userProfile?.displayName || user?.displayName || 'Astra User'}</div>
+                        <div style={{ fontSize: '14px', color: '#888' }}>Astra to-do</div>
+                    </div>
+                    <img 
+                        src={userProfile?.photoURL || user?.photoURL} 
+                        alt="Profile" 
+                        crossOrigin="anonymous"
+                        style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                </div>
+            ) : (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 600 }}>{userProfile?.displayName || user?.displayName || 'Astra User'}</div>
+                        <div style={{ fontSize: '14px', color: '#888' }}>Astra to-do</div>
+                    </div>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold' }}>
+                        {(userProfile?.displayName || user?.displayName || 'A')?.charAt(0)?.toUpperCase()}
+                    </div>
+                </div>
+            )}
+        </div>
+
+        <div style={{ marginBottom: '40px', background: '#121212', padding: '24px', borderRadius: '16px' }}>
+            {isGrid ? (
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    {weeks.map((week, wIdx) => {
+                        return (
+                        <div key={`share-${wIdx}`} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            {week.map((day, dIdx) => {
+                                if (!day) {
+                                    return <div key={`share-empty-${dIdx}`} style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'transparent' }}></div>;
+                                }
+                                const level = getLevel(day.count);
+                                let bgColor = '#222';
+                                if (level === 1) bgColor = '#4A1D20';
+                                if (level === 2) bgColor = '#7A1C20';
+                                if (level === 3) bgColor = '#A5181F';
+                                if (level === 4) bgColor = '#C1121F';
+                                return <div key={`share-day-${day.dateStr}`} style={{ width: '12px', height: '12px', borderRadius: '3px', background: bgColor }}></div>;
+                            })}
+                        </div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {graphData.map((day) => {
+                        const level = getLevel(day.count);
+                        const dayLabel = day.date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
+                        let bgColor = '#222';
+                        if (level === 1) bgColor = '#4A1D20';
+                        if (level === 2) bgColor = '#7A1C20';
+                        if (level === 3) bgColor = '#A5181F';
+                        if (level === 4) bgColor = '#C1121F';
+                        return (
+                            <div key={`share-day-${day.dateStr}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: bgColor }}></div>
+                                <span style={{ fontSize: '12px', color: '#888' }}>{dayLabel}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+             <div>
+                <div style={{ fontSize: '14px', color: '#888', marginBottom: '4px' }}>Most Productive Day</div>
+                <div style={{ fontSize: '20px', fontWeight: 600 }}>
+                    {mostProductiveDay ? `${mostProductiveDay.count} tasks on ${mostProductiveDay.date.toLocaleDateString()}` : 'N/A'}
+                </div>
+             </div>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #FF4B4B 0%, #C1121F 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <VuesaxIcon name="tick-square" variant="Bold" color="#fff" size={16} />
+                </div>
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>Astra to-do</span>
+             </div>
+        </div>
       </div>
     </div>
   );

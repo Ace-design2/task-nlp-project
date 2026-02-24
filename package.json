@@ -11,6 +11,7 @@
     "firebase": "^12.7.0",
     "firebase-admin": "^13.0.0",
     "framer-motion": "^12.23.26",
+    "html2canvas": "^1.4.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-markdown": "^10.1.0",

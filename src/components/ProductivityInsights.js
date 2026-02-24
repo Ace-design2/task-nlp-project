@@ -4,7 +4,7 @@ import VuesaxIcon from "./VuesaxIcon";
 import ContributionGraph from "./ContributionGraph";
 import { motion } from "framer-motion";
 
-const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
+const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse, user, userProfile }) => {
   const [timeRange, setTimeRange] = React.useState("weekly"); // 'weekly', 'monthly', 'yearly'
 
   // Statistics Calculations
@@ -224,6 +224,8 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse }) => {
         tasks={tasks}
         darkMode={darkMode}
         timeRange={timeRange}
+        user={user}
+        userProfile={userProfile}
       />
 
       {/* Stats Grid */}
