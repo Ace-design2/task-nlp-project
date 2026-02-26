@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import './LandingPage.css';
 import VuesaxIcon from './VuesaxIcon';
+import ParticleSwarm from './ParticleSwarm';
 
 function LandingPage({ onLoginClick, darkMode }) {
   const [email, setEmail] = useState('');
@@ -16,10 +17,20 @@ function LandingPage({ onLoginClick, darkMode }) {
       setEmail('');
     }
   };
+  const particlesColors = useMemo(() => {
+    return darkMode
+      ? ["#ffffff", "#aaaaaa", "#4facfe"]
+      : ["#FFD700", "#FF6B00", "#FF0055", "#764ba2", "#2E91E5"];
+  }, [darkMode]);
 
   return (
     <div className={`lp-container ${darkMode ? 'dark-mode' : ''}`}>
-      {/* Header */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
+        <ParticleSwarm count={50} colors={particlesColors} />
+      </div>
+      
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Header */}
       <header className="lp-header">
         <button 
           className="lp-logo" 
@@ -56,7 +67,7 @@ function LandingPage({ onLoginClick, darkMode }) {
       </section>
 
       {/* How it Works / Core Features */}
-      <section className="lp-section lp-features-section" style={{ background: darkMode ? '#0a0a0a' : '#fff' }}>
+      <section className="lp-section lp-features-section" style={{ background: darkMode ? 'rgba(10, 10, 10, 0.7)' : 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(20px)' }}>
         <h2 className="lp-section-title">Work Smarter. Not Harder.</h2>
         <p className="lp-subtitle" style={{ textAlign: 'center' }}>
           Managing tasks shouldn’t feel like a chore. Astra To-Do helps you organize your life using simple language and natural conversation — just like talking to a personal assistant.
@@ -188,6 +199,7 @@ function LandingPage({ onLoginClick, darkMode }) {
       <footer className="lp-footer">
         <p>© {new Date().getFullYear()} Astra To-Do. All rights reserved.</p>
       </footer>
+      </div>
     </div>
   );
 }
