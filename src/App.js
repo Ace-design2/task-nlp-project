@@ -141,23 +141,40 @@ function App() {
     const cached = localStorage.getItem("cachedTasks");
     return cached ? JSON.parse(cached) : [];
   });
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState(() => {
+    const cached = localStorage.getItem("cachedChats");
+    return cached ? JSON.parse(cached) : [];
+  });
   const [activeChatId, setActiveChatId] = useState(null);
 
   const [searchResults, setSearchResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [text, setText] = useState("");
+  const [textStates, setTextStates] = useState({});
+  const text = textStates[activeChatId] || "";
+  const setText = (newText) => {
+    if (activeChatId) {
+      setTextStates(prev => ({ ...prev, [activeChatId]: newText }));
+    }
+  };
   /* Removed isSidebarOpen state */
   /* Removed isSidebarOpen state */
   /* [MOVED activeTab definition UP] */
   const [notifications, setNotifications] = useState([]); // [NEW]
   const [showNotifications, setShowNotifications] = useState(false); // [NEW]
 
-  const [pendingTask, setPendingTask] = useState(null);
-  const [isWaitingForTime, setIsWaitingForTime] = useState(false);
-  const [isWaitingForAmPm, setIsWaitingForAmPm] = useState(false);
+  const [pendingTasks, setPendingTasks] = useState({});
+  const pendingTask = pendingTasks[activeChatId] || null;
+  const setPendingTask = (task) => setPendingTasks(prev => ({ ...prev, [activeChatId]: task }));
+
+  const [isWaitingForTimes, setIsWaitingForTimes] = useState({});
+  const isWaitingForTime = isWaitingForTimes[activeChatId] || false;
+  const setIsWaitingForTime = (val) => setIsWaitingForTimes(prev => ({ ...prev, [activeChatId]: val }));
+
+  const [isWaitingForAmPms, setIsWaitingForAmPms] = useState({});
+  const isWaitingForAmPm = isWaitingForAmPms[activeChatId] || false;
+  const setIsWaitingForAmPm = (val) => setIsWaitingForAmPms(prev => ({ ...prev, [activeChatId]: val }));
   const [isTyping, setIsTyping] = useState(false);
   const [courseLibrary, setCourseLibrary] = useState([]); // [NEW] Firestore Data
   const [showLogin, setShowLogin] = useState(false); // [NEW] Landing Page vs Login toggle
@@ -180,9 +197,23 @@ function App() {
   }, []);
   
   // --- STUDY PLANNER STATE ---
-  const [studyPlannerState, setStudyPlannerState] = useState("IDLE"); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
-  const [studyPlannerData, setStudyPlannerData] = useState({ topic: null, days: null, dailyHours: null });
-  const [tempGeneratedSchedule, setTempGeneratedSchedule] = useState(null); // [NEW] Store schedule for confirmation
+  const [studyPlannerStates, setStudyPlannerStates] = useState({}); // IDLE, AWAITING_TOPIC, AWAITING_DAYS
+  const studyPlannerState = studyPlannerStates[activeChatId] || "IDLE";
+  const setStudyPlannerState = (state) => setStudyPlannerStates(prev => ({ ...prev, [activeChatId]: state }));
+
+  const [studyPlannerDatas, setStudyPlannerDatas] = useState({});
+  const studyPlannerData = studyPlannerDatas[activeChatId] || { topic: null, days: null, dailyHours: null };
+  const setStudyPlannerData = (dataOrFn) => {
+    setStudyPlannerDatas(prev => {
+      const prevData = prev[activeChatId] || { topic: null, days: null, dailyHours: null };
+      const newData = typeof dataOrFn === "function" ? dataOrFn(prevData) : dataOrFn;
+      return { ...prev, [activeChatId]: newData };
+    });
+  };
+
+  const [tempGeneratedSchedules, setTempGeneratedSchedules] = useState({}); // [NEW] Store schedule for confirmation
+  const tempGeneratedSchedule = tempGeneratedSchedules[activeChatId] || null;
+  const setTempGeneratedSchedule = (schedule) => setTempGeneratedSchedules(prev => ({ ...prev, [activeChatId]: schedule }));
 
   // --- RESIZABLE SIDEBAR STATE ---
   const [sidebarWidth, setSidebarWidth] = useState(250);
@@ -282,6 +313,19 @@ function App() {
         setHistory([]);
         setChats([]);
         setActiveChatId(null);
+        
+        // Clear caches
+        localStorage.removeItem("cachedTasks");
+        localStorage.removeItem("cachedUserProfile");
+        localStorage.removeItem("cachedChats");
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith("cachedHistory_")) {
+            localStorage.removeItem(key);
+            // reset index because we removed an item
+            i--; 
+          }
+        }
       }
       setIsLoading(false);
     });
@@ -389,6 +433,7 @@ function App() {
         id: doc.id,
       }));
       setChats(loadedChats);
+      localStorage.setItem("cachedChats", JSON.stringify(loadedChats));
     });
 
     // 3. Subscribe to Notifications
@@ -416,6 +461,15 @@ function App() {
       return;
     }
 
+    // Try loading from cache immediately for snappy UI
+    const cacheKey = `cachedHistory_${activeChatId}`;
+    const cachedHistory = localStorage.getItem(cacheKey);
+    if (cachedHistory) {
+      setHistory(JSON.parse(cachedHistory));
+    } else {
+      setHistory([]);
+    }
+
     const historyRef = collection(
       db,
       "users",
@@ -431,6 +485,7 @@ function App() {
         id: doc.id,
       }));
       setHistory(loadedHistory);
+      localStorage.setItem(cacheKey, JSON.stringify(loadedHistory));
     });
 
     return () => unsubHistory();
@@ -527,6 +582,17 @@ function App() {
             console.error("Error deleting notification:", e);
         }
     };
+
+  const handleSelectChat = (id) => {
+    setActiveChatId(id);
+    setHistory([]);
+    // Do not reset the states here anymore. 
+    // They are correctly persisted in their respective objects keyed by ID!
+  };
+
+  const handleNewChat = () => {
+    handleSelectChat("new");
+  };
 
   const handleProcessTask = async (text) => {
     if (!text.trim()) return;
@@ -633,6 +699,40 @@ function App() {
     };
     
 
+
+    // --- CANCELLATION CHECK ---
+    const cancelPhrases = [
+      "stop", "cancel", "abort", "end", "quit", "terminate", "halt", "exit",
+      "never mind", "forget it", "forget that", "don't worry about it", "leave it",
+      "ignore that", "drop it", "scrap that", "skip it", "cancel that", "stop that",
+      "stop this", "don't do that", "don't continue", "no need", "no thanks",
+      "it's okay", "that's fine, stop", "i changed my mind", "wait", "hold on",
+      "hang on", "pause", "stop for a moment", "give me a second", "one second",
+      "just a second", "no, cancel that", "wait, never mind", "hold on, stop",
+      "sorry, cancel", "actually, stop", "let's stop here", "forget everything",
+      "ignore my last message", "stop now", "nevermind"
+    ];
+
+    const isCancelIntent = cancelPhrases.includes(text.toLowerCase().trim().replace(/[.,!?;:]/g, ''));
+
+    const hasActiveContext = 
+      studyPlannerState !== "IDLE" || 
+      tempGeneratedSchedule !== null || 
+      isWaitingForTime || 
+      isWaitingForAmPm ||
+      pendingTask !== null;
+
+    if (isCancelIntent && hasActiveContext) {
+      setStudyPlannerState("IDLE");
+      setStudyPlannerData({ topic: null, days: null, dailyHours: null });
+      setTempGeneratedSchedule(null);
+      setPendingTask(null);
+      setIsWaitingForTime(false);
+      setIsWaitingForAmPm(false);
+
+      await addAiMessage("Okay, I've stopped that. Let me know if you need anything else.");
+      return;
+    }
 
     // --- CASE -1: STUDY PLANNER FLOW ---
     console.log("DEBUG: handleProcessTask", { text, studyPlannerState, studyPlannerData });
@@ -1897,7 +1997,7 @@ function App() {
               className={`sidebar-item ${activeTab === "Chat" ? "active" : ""}`}
               onClick={() => {
                 setActiveTab("Chat");
-                setActiveChatId("new");
+                handleNewChat();
               }}
             >
               {activeTab === "Chat" && (
@@ -2226,7 +2326,10 @@ function App() {
                 chats={chats}
                 searchResults={searchResults}
                 isSearching={isSearching}
-                onSelectChat={(id) => setActiveChatId(id)}
+                onSelectChat={(id) => {
+                  if (id === "new") handleNewChat();
+                  else handleSelectChat(id);
+                }}
                 onDeleteChat={handleDeleteChat}
                 darkMode={darkMode}
                 activeChatId={activeChatId}
@@ -2272,7 +2375,7 @@ function App() {
               {activeChatId && activeChatId !== "new" && !isMobile && (
                 <button
                   className="desktop-chat-edit-btn"
-                  onClick={() => setActiveChatId("new")}
+                  onClick={handleNewChat}
                   style={{
                     position: "absolute",
                     top: "16px",
@@ -2318,7 +2421,7 @@ function App() {
                 
                 {activeChatId !== "new" && (
                   <button
-                    onClick={() => setActiveChatId("new")}
+                    onClick={handleNewChat}
                     className="glass-back-btn"
                     style={{
                       border: "none",
@@ -2557,7 +2660,7 @@ function App() {
           <BottomNavigation
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            onNewChat={() => setActiveChatId("new")}
+            onNewChat={handleNewChat}
             darkMode={darkMode}
           />
         )}

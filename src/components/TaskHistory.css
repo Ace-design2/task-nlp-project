@@ -37,6 +37,7 @@
   position: relative;
   transition: transform 0.1s;
   cursor: pointer;
+  margin-top: 8px;
 }
 
 .chat-message-wrapper.ai .chat-bubble {

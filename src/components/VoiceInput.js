@@ -308,7 +308,7 @@ export default function VoiceInput({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingBottom: '40px',
+            paddingBottom: '80px',
             background: `linear-gradient(to top, ${bg} 80%, transparent)`,
             gap: '20px'
         }}>
