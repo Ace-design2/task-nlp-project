@@ -117,7 +117,7 @@ function LandingPage({ onLoginClick, darkMode }) {
 
       {/* Why Astra List */}
       <section className="lp-why-section">
-        <h2 className="lp-title" style={{ color: '#fff', fontSize: '40px' }}>Why Astra To-Do?</h2>
+        <h2 className="lp-title lp-why-title" style={{ fontSize: '40px' }}>Why Astra To-Do?</h2>
         <ul className="lp-check-list">
           <li className="lp-check-item">Simple & intuitive</li>
           <li className="lp-check-item">AI-powered planning</li>
@@ -129,7 +129,7 @@ function LandingPage({ onLoginClick, darkMode }) {
         
         <div style={{ marginTop: '80px' }}>
           <h3 style={{ fontSize: '24px', marginBottom: '20px' }}>Built For People Who Want More From Their Time</h3>
-          <p style={{ color: '#aaa', fontSize: '18px', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
+          <p className="lp-why-subtitle" style={{ fontSize: '18px', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
             Students • Professionals • Entrepreneurs • Creatives • Teams<br/>
             <strong>Anyone tired of messy to-do lists</strong>
           </p>

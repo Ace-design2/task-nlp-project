@@ -297,14 +297,23 @@ body.dark-mode .lp-card-example {
 
 /* Why Astra Section */
 .lp-why-section {
-  background: #111;
-  color: #fff;
+  background: #f0f0f0;
+  color: #333;
   padding: 100px 20px;
   text-align: center;
 }
 
 body.dark-mode .lp-why-section {
-  background: #1a1a1a;
+  background: #111;
+  color: #fff;
+}
+
+.lp-why-title {
+  color: #c1121f !important;
+}
+
+body.dark-mode .lp-why-title {
+  color: #fff !important;
 }
 
 .lp-check-list {
@@ -324,14 +333,28 @@ body.dark-mode .lp-why-section {
   gap: 10px;
   font-size: 18px;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
   padding: 12px 24px;
   border-radius: 30px;
+}
+
+body.dark-mode .lp-check-item {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .lp-check-icon {
   color: #c1121f;
   font-weight: bold;
+}
+
+.lp-why-subtitle {
+  color: #666;
+}
+
+body.dark-mode .lp-why-subtitle {
+  color: #aaa;
 }
 
 /* Waitlist Form */
