@@ -2116,7 +2116,7 @@ function App() {
         {/* Header */}
         <div
           className={`header ${isSearchOpen ? "search-active" : ""}`}
-          style={{ display: activeTab === "Chat" ? "none" : undefined }}
+          style={{ display: (activeTab === "Chat" || activeTab === "Insights") ? "none" : undefined }}
         >
           {activeTab === "Chat" && !activeChatId ? (
             <div

@@ -187,7 +187,7 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse, user, user
   return (
     <div
       className={`insights-container ${darkMode ? "dark-mode" : ""}`}
-      style={{ padding: "12px 12px 112px 12px", boxSizing: "border-box" }}
+      style={{ boxSizing: "border-box" }}
     >
       <div className="insights-header">
         <h1 className="insights-title">Usage & Insights</h1>
@@ -196,6 +196,7 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse, user, user
         </p>
       </div>
 
+      <div className="insights-scroll-content">
       {/* Timeframe Toggle */}
       <div className="timeframe-toggle">
         {["weekly", "monthly", "yearly"].map((range) => (
@@ -371,6 +372,7 @@ const ProductivityInsights = ({ tasks = [], darkMode, onDeleteCourse, user, user
 
       {/* Study Section */}
       <StudySection tasks={tasks} onDeleteCourse={onDeleteCourse} darkMode={darkMode} />
+      </div>
     </div>
   );
 };
