@@ -109,6 +109,14 @@ function LandingPage({ onLoginClick, darkMode }) {
             <p className="lp-card-text">
               Create, manage, and review tasks hands-free using voice input — perfect when you’re busy or on the move.
             </p>
+            <div className="lp-context-mockup">
+               <img 
+                 src={darkMode ? '/images/voicemode-dark.png' : '/images/voicemode-light.png'} 
+                 alt="Voice Mode Mockup" 
+                 className="lp-mockup-img"
+                 style={{ maxWidth: '240px' }}
+               />
+            </div>
           </div>
 
           {/* Feature 3 */}
