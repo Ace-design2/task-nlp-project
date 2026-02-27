@@ -6,6 +6,7 @@
   font-family: "Inter", sans-serif;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   background-color: #c1121f;
@@ -24,6 +25,8 @@
   margin-top: -48px; /* slides under header */
   background-color: #fafafa;
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .insights-container.dark-mode .insights-scroll-content {
@@ -445,10 +448,11 @@
   }
 
   .timeframe-toggle {
-    width: 97%;
+    width: 100%;
     margin-bottom: 0px;
     justify-content: space-between;
     margin-top: 16px;
+    box-sizing: border-box;
   }
 
   .toggle-item {

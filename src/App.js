@@ -95,8 +95,8 @@ function App() {
             document.head.appendChild(metaThemeColor);
         }
 
-        // [Logic for Chat Tab: Red Theme]
-        if (activeTab === "Chat") {
+        // [Logic for Chat & Insights Tab: Red Theme]
+        if (activeTab === "Chat" || activeTab === "Insights") {
             metaThemeColor.setAttribute("content", "#c1121f");
             document.body.style.backgroundColor = "#c1121f"; // Force Body Red
         } else {
