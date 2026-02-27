@@ -64,6 +64,15 @@ function LandingPage({ onLoginClick, darkMode }) {
             Join the Waitlist
           </a>
         </div>
+        
+        {/* Mockup Image added below the text */}
+        <div className="lp-hero-mockup-wrapper">
+          <img 
+            src={darkMode ? '/images/myday-dark.png' : '/images/myday-light.png'} 
+            alt="My Day Dashboard Mockup" 
+            className="lp-mockup-img"
+          />
+        </div>
       </section>
 
       {/* How it Works / Core Features */}
@@ -111,6 +120,14 @@ function LandingPage({ onLoginClick, darkMode }) {
             <p className="lp-card-text">
               Ask Astra about your day, task stats, upcoming deadlines, or simply say hello. Your productivity companion, always available.
             </p>
+            <div className="lp-context-mockup">
+               <img 
+                 src={darkMode ? '/images/chat-dark.png' : '/images/chat-light.png'} 
+                 alt="Chat Assistant Mockup" 
+                 className="lp-mockup-img"
+                 style={{ maxWidth: '240px' }}
+               />
+            </div>
           </div>
 
           {/* Feature 4 */}
