@@ -17,6 +17,14 @@ function LandingPage({ onLoginClick, darkMode }) {
       setEmail('');
     }
   };
+
+  const scrollToWaitlist = (e) => {
+    e.preventDefault();
+    const waitlistSection = document.getElementById('waitlist');
+    if (waitlistSection) {
+      waitlistSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   const particlesColors = useMemo(() => {
     return darkMode
       ? ["#ffffff", "#aaaaaa", "#4facfe"]
@@ -44,7 +52,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           <button className="lp-btn lp-btn-login" onClick={onLoginClick}>
             Login
           </button>
-          <a href="#waitlist" className="lp-btn lp-btn-primary">
+          <a href="#waitlist" onClick={scrollToWaitlist} className="lp-btn lp-btn-primary">
             Get Early Access
           </a>
         </div>
@@ -60,7 +68,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           <p className="lp-subtitle">
             Astra To-Do is an intelligent task manager powered by conversational AI and voice commands. Plan your day, create tasks naturally, and stay focused with a smart dashboard designed to keep you productive — without the stress.
           </p>
-          <a href="#waitlist" className="lp-btn lp-btn-primary lp-btn-hero">
+          <a href="#waitlist" onClick={scrollToWaitlist} className="lp-btn lp-btn-primary lp-btn-hero">
             Join the Waitlist
           </a>
         </div>
@@ -86,7 +94,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 1 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="message-text" variant="Bold" size={24} />
+              <VuesaxIcon name="message-text" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
             </div>
             <h3 className="lp-card-title">Natural Language Task Creation</h3>
             <p className="lp-card-text">
@@ -103,7 +111,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 2 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="microphone-2" variant="Bold" size={24} />
+              <VuesaxIcon name="microphone-2" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
             </div>
             <h3 className="lp-card-title">Voice Commands</h3>
             <p className="lp-card-text">
@@ -122,7 +130,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 3 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="magic-star" variant="Bold" size={24} />
+              <VuesaxIcon name="magic-star" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
             </div>
             <h3 className="lp-card-title">Conversational AI</h3>
             <p className="lp-card-text">
@@ -141,7 +149,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 4 */}
           <div className="lp-card">
              <div className="lp-icon-wrapper">
-              <VuesaxIcon name="category" variant="Bold" size={24} />
+              <VuesaxIcon name="category" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
             </div>
             <h3 className="lp-card-title">Smart Dashboard</h3>
             <p className="lp-card-text">
@@ -152,18 +160,28 @@ function LandingPage({ onLoginClick, darkMode }) {
       </section>
 
       {/* Why Astra List */}
-      <section className="lp-why-section">
-        <h2 className="lp-title lp-why-title" style={{ fontSize: '40px' }}>Why Astra To-Do?</h2>
-        <ul className="lp-check-list">
-          <li className="lp-check-item">Simple & intuitive</li>
-          <li className="lp-check-item">AI-powered planning</li>
-          <li className="lp-check-item">Lightning-fast task creation</li>
-          <li className="lp-check-item">Designed for focus</li>
-          <li className="lp-check-item">Clean, modern interface</li>
-          <li className="lp-check-item">Works across all devices</li>
-        </ul>
+      <section className="lp-section lp-features-section lp-why-section" style={{ background: darkMode ? 'rgba(10, 10, 10, 0.7)' : 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(20px)' }}>
+        <h2 className="lp-section-title">Why Astra To-Do?</h2>
         
-        <div style={{ marginTop: '80px' }}>
+        <div className="lp-check-grid">
+          {[
+            'Simple & intuitive',
+            'AI-powered planning',
+            'Lightning-fast task creation',
+            'Designed for focus',
+            'Clean, modern interface',
+            'Works across all devices'
+          ].map((item, index) => (
+             <div key={index} className="lp-check-card">
+                <div className="lp-check-icon-wrapper">
+                  <VuesaxIcon name="tick-circle" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+                </div>
+                <span className="lp-check-text">{item}</span>
+             </div>
+          ))}
+        </div>
+        
+        <div style={{ marginTop: '80px', textAlign: 'center' }}>
           <h3 style={{ fontSize: '24px', marginBottom: '20px' }}>Built For People Who Want More From Their Time</h3>
           <p className="lp-why-subtitle" style={{ fontSize: '18px', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
             Students • Professionals • Entrepreneurs • Creatives • Teams<br/>

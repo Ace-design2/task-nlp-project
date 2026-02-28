@@ -294,6 +294,7 @@ body.dark-mode .lp-card:hover {
 
 body.dark-mode .lp-icon-wrapper {
   background: rgba(193, 18, 31, 0.2);
+  color: #c1121f;
 }
 
 .lp-card-title {
@@ -332,57 +333,71 @@ body.dark-mode .lp-card-example {
 
 /* Why Astra Section */
 .lp-why-section {
-  background: rgba(240, 240, 240, 0.7);
-  backdrop-filter: blur(20px);
-  color: #333;
-  padding: 100px 20px;
   text-align: center;
 }
 
-body.dark-mode .lp-why-section {
-  background: rgba(17, 17, 17, 0.7);
-  color: #fff;
-}
-
-.lp-why-title {
-  color: #c1121f !important;
-}
-
-body.dark-mode .lp-why-title {
-  color: #fff !important;
-}
-
-.lp-check-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.lp-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 20px;
-  max-width: 800px;
-  margin: 40px auto;
-  list-style: none;
-  padding: 0;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.lp-check-item {
+.lp-check-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 500;
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
-  padding: 12px 24px;
-  border-radius: 30px;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  text-align: left;
 }
 
-body.dark-mode .lp-check-item {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+body.dark-mode .lp-check-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.lp-check-icon {
+.lp-check-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(193, 18, 31, 0.08);
+  border-color: rgba(193, 18, 31, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body.dark-mode .lp-check-card:hover {
+  box-shadow: 0 10px 30px rgba(193, 18, 31, 0.15);
+  border-color: rgba(193, 18, 31, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lp-check-icon-wrapper {
   color: #c1121f;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(193, 18, 31, 0.1);
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+body.dark-mode .lp-check-icon-wrapper {
+  color: #c1121f;
+}
+
+.lp-check-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+body.dark-mode .lp-check-text {
+  color: #e0e0e0;
 }
 
 .lp-why-subtitle {
@@ -512,13 +527,12 @@ body.dark-mode .lp-footer {
     padding: 12px 24px;
     width: 100%;
   }
-  .lp-why-section {
-    padding: 60px 20px;
+  .lp-check-card {
+    padding: 20px;
   }
   
-  .lp-check-item {
-    font-size: 15px;
-    padding: 10px 16px;
+  .lp-check-text {
+    font-size: 16px;
   }
 }
 
