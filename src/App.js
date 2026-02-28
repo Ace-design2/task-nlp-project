@@ -188,7 +188,6 @@ function App() {
         await uploadCoursesToFirestore();
       } else {
         const courses = snapshot.docs.map(doc => doc.data());
-        console.log("Loaded courses from Firestore:", courses.length);
         setCourseLibrary(courses);
       }
     });
@@ -350,10 +349,6 @@ function App() {
             registration = await navigator.serviceWorker.register(
               "/firebase-messaging-sw.js",
             );
-            console.log(
-              "Service Worker registered with scope:",
-              registration.scope,
-            );
           } catch (err) {
             console.error("Service Worker registration failed:", err);
             // Fallback to letting getToken try, but logging the error
@@ -365,7 +360,6 @@ function App() {
           });
 
           if (token) {
-            console.log("FCM Token:", token);
             setFcmToken(token);
           }
         }
