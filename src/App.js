@@ -2178,7 +2178,6 @@ function App() {
                           padding: "8px 16px",
                           fontSize: "14px",
                         }}
-                        autoFocus
                       />
                     )}
                   </AnimatePresence>
@@ -2315,7 +2314,6 @@ function App() {
                           if (e.key === "Enter") handleDeepSearch(searchQuery);
                         }}
                         className="chat-search-input"
-                        autoFocus
                       />
                     </div>
                   </motion.div>
@@ -2579,7 +2577,6 @@ function App() {
                             e.target.style.height = "auto";
                           }
                         }}
-                        autoFocus
                       />
 
 
