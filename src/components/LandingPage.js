@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 import './LandingPage.css';
 import VuesaxIcon from './VuesaxIcon';
 import ParticleSwarm from './ParticleSwarm';
@@ -6,15 +8,28 @@ import ParticleSwarm from './ParticleSwarm';
 function LandingPage({ onLoginClick, darkMode }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleJoinWaitlist = (e) => {
+  const handleJoinWaitlist = async (e) => {
     e.preventDefault();
-    if (email) {
-      // In a real app, send to backend here
-      console.log("Joined waitlist with:", email);
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-      setEmail('');
+    if (email && !loading) {
+      setLoading(true);
+      setError(null);
+      try {
+        await addDoc(collection(db, 'waitlist'), {
+          email: email,
+          createdAt: serverTimestamp()
+        });
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 3000);
+        setEmail('');
+      } catch (err) {
+        console.error("Error adding to waitlist:", err);
+        setError("Failed to join waitlist. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -22,7 +37,31 @@ function LandingPage({ onLoginClick, darkMode }) {
     e.preventDefault();
     const waitlistSection = document.getElementById('waitlist');
     if (waitlistSection) {
-      waitlistSection.scrollIntoView({ behavior: 'smooth' });
+      const targetPosition = waitlistSection.getBoundingClientRect().top + window.scrollY;
+      const startPosition = window.scrollY;
+      const distance = targetPosition - startPosition;
+      const duration = 1500; // 1.5 second duration
+      let start = null;
+
+      // Premium ease-out easing function (quintic) for a much softer landing
+      const easeOutQuint = (t) => {
+        return 1 - Math.pow(1 - t, 5);
+      };
+
+      const animation = (currentTime) => {
+        if (start === null) start = currentTime;
+        const timeElapsed = currentTime - start;
+        const progress = Math.min(timeElapsed / duration, 1);
+        const ease = easeOutQuint(progress);
+
+        window.scrollTo(0, startPosition + distance * ease);
+
+        if (timeElapsed < duration) {
+          window.requestAnimationFrame(animation);
+        }
+      };
+
+      window.requestAnimationFrame(animation);
     }
   };
   const particlesColors = useMemo(() => {
@@ -211,10 +250,11 @@ function LandingPage({ onLoginClick, darkMode }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <button type="submit" className="lp-btn lp-btn-primary lp-btn-submit">
-                {submitted ? 'Joined!' : 'Join Waitlist'}
+              <button type="submit" className="lp-btn lp-btn-primary lp-btn-submit" disabled={loading}>
+                {loading ? 'Joining...' : submitted ? 'Joined!' : 'Join Waitlist'}
               </button>
             </div>
+            {error && <p className="lp-input-hint" style={{ color: '#c1121f', marginTop: '8px' }}>{error}</p>}
             <p className="lp-input-hint">No spam. Unsubscribe anytime.</p>
           </form>
         </div>
