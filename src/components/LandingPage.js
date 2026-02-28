@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import './LandingPage.css';
@@ -11,6 +11,27 @@ function LandingPage({ onLoginClick, darkMode }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Hide if scrolling down and past 50px. Show if scrolling up.
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsHeaderVisible(false);
+      } else {
+        setIsHeaderVisible(true);
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleJoinWaitlist = async (e) => {
     e.preventDefault();
@@ -79,7 +100,7 @@ function LandingPage({ onLoginClick, darkMode }) {
       
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
-      <header className="lp-header">
+      <header className={`lp-header ${isHeaderVisible ? '' : 'hidden'}`}>
         <button 
           className="lp-logo" 
           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit' }}

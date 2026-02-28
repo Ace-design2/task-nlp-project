@@ -35,6 +35,11 @@ body.dark-mode .lp-container {
   width: 100%;
   z-index: 100;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s, border-color 0.3s;
+}
+
+.lp-header.hidden {
+  transform: translateY(-100%);
 }
 
 body.dark-mode .lp-header {
