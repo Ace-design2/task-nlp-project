@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { CreateTaskData, CreateTaskVariables, ListTasksForUserData, ListTasksForUserVariables, UpdateTaskStatusData, UpdateTaskStatusVariables, DeleteTaskData, DeleteTaskVariables } from '../';
 import { UseDataConnectQueryResult, useDataConnectQueryOptions, UseDataConnectMutationResult, useDataConnectMutationOptions} from '@tanstack-query-firebase/react/data-connect';
 import { UseQueryResult, UseMutationResult} from '@tanstack/react-query';

@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import './LandingPage.css';
 import VuesaxIcon from './VuesaxIcon';
 import ParticleSwarm from './ParticleSwarm';
+import TryItOutWidget from './TryItOutWidget';
 
 function LandingPage({ onLoginClick, darkMode }) {
   const [email, setEmail] = useState('');
@@ -283,6 +284,8 @@ function LandingPage({ onLoginClick, darkMode }) {
         <p>© {new Date().getFullYear()} Astra To-Do. All rights reserved.</p>
       </footer>
       </div>
+      
+      <TryItOutWidget darkMode={darkMode} />
     </div>
   );
 }
