@@ -110,9 +110,6 @@ function LandingPage({ onLoginClick, darkMode }) {
           Astra To-Do
         </button>
         <div className="lp-nav-actions">
-          <button className="lp-btn lp-btn-login" onClick={onLoginClick}>
-            Login
-          </button>
           <a href="#waitlist" onClick={scrollToWaitlist} className="lp-btn lp-btn-primary">
             Get Early Access
           </a>
