@@ -2071,12 +2071,26 @@ function App() {
               <motion.span layout className="nav-text">
                 Profile
               </motion.span>
-              <VuesaxIcon
-                name="user"
-                isActive={activeTab === "Account Settings"}
-                darkMode={darkMode}
-                style={{ zIndex: 2 }}
-              />
+              {(userProfile?.photoBase64 || user?.photoURL) ? (
+                <img
+                  src={userProfile?.photoBase64 || user?.photoURL}
+                  alt="Profile"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    zIndex: 2,
+                  }}
+                />
+              ) : (
+                <VuesaxIcon
+                  name="user"
+                  isActive={activeTab === "Account Settings"}
+                  darkMode={darkMode}
+                  style={{ zIndex: 2 }}
+                />
+              )}
             </button>
           </div>
 
@@ -2647,6 +2661,8 @@ function App() {
             setActiveTab={setActiveTab}
             onNewChat={handleNewChat}
             darkMode={darkMode}
+            userProfile={userProfile}
+            user={user}
           />
         )}
       </div>

@@ -3,7 +3,7 @@ import "./BottomNavigation.css";
 import VuesaxIcon from "./VuesaxIcon";
 import { motion } from "framer-motion";
 
-const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
+const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode, userProfile, user }) => {
   const navItems = [
     { id: "My Day", icon: "sun", label: "My Day" },
     { id: "Chat", icon: "message-text", label: "Chat" },
@@ -59,14 +59,28 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode }) => {
                 alignItems: "center",
               }}
             >
-              <VuesaxIcon
-                name={item.icon}
-                isActive={isActive}
-                variant={isActive ? "bold" : "linear"}
-                darkMode={darkMode}
-                color={isActive ? "#c1121f" : undefined}
-                style={{ width: 24, height: 24, marginBottom: 4 }}
-              />
+              {item.id === "Account Settings" && (userProfile?.photoBase64 || user?.photoURL) ? (
+                <img
+                  src={userProfile?.photoBase64 || user?.photoURL}
+                  alt="Profile"
+                  style={{
+                    width: 24,
+                    height: 24,
+                    marginBottom: 4,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <VuesaxIcon
+                  name={item.icon}
+                  isActive={isActive}
+                  variant={isActive ? "bold" : "linear"}
+                  darkMode={darkMode}
+                  color={isActive ? "#c1121f" : undefined}
+                  style={{ width: 24, height: 24, marginBottom: 4 }}
+                />
+              )}
               <span className="nav-label">{item.label}</span>
             </div>
           </button>
