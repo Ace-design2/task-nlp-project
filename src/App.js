@@ -18,7 +18,7 @@ import ChatList from "./components/ChatList";
 import VerificationPending from "./components/VerificationPending";
 import AstraStartPage from "./components/AstraStartPage"; // [NEW] relative import
 import NotificationsPage from "./components/NotificationsPage"; // [NEW]
-import LandingPage from "./components/LandingPage"; // [NEW] Landing Page
+// import LandingPage from "./components/LandingPage"; // [NEW] Landing Page
 import { getRandomTimePrompt } from "./constants/prompts";
 
 import { auth, db, messaging } from "./firebase";
@@ -177,7 +177,7 @@ function App() {
   const setIsWaitingForAmPm = (val) => setIsWaitingForAmPms(prev => ({ ...prev, [activeChatId]: val }));
   const [isTyping, setIsTyping] = useState(false);
   const [courseLibrary, setCourseLibrary] = useState([]); // [NEW] Firestore Data
-  const [showLogin, setShowLogin] = useState(false); // [NEW] Landing Page vs Login toggle
+  // const [showLogin, setShowLogin] = useState(false); // [NEW] Landing Page vs Login toggle
 
   // [NEW] Sync Courses from Firestore (and auto-upload if empty)
   useEffect(() => {
@@ -1910,17 +1910,11 @@ function App() {
     );
   }
 
-  // If not authenticated, show Landing Page or Login Page
+  // If not authenticated, show LoginPage immediately (LandingPage hidden for now)
   if (!isAuthenticated) {
-    if (showLogin) {
-      return (
-        <LoginPage onLogin={() => setIsAuthenticated(true)} darkMode={darkMode} />
-      );
-    } else {
-      return (
-        <LandingPage onLoginClick={() => setShowLogin(true)} darkMode={darkMode} />
-      );
-    }
+    return (
+      <LoginPage onLogin={() => setIsAuthenticated(true)} darkMode={darkMode} />
+    );
   }
 
   // [NEW] Delete Course Handler
