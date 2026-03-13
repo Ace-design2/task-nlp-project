@@ -461,13 +461,13 @@ const AccountSettings = ({
                              className={`theme-opt ${themePreference === 'blue-light' ? 'active' : ''}`}
                              onClick={() => setThemePreference('blue-light')}
                            >
-                             Blue Light
+                             Blue Light<sup>(Beta)</sup>
                            </button>
                            <button 
                              className={`theme-opt ${themePreference === 'blue-dark' ? 'active' : ''}`}
                              onClick={() => setThemePreference('blue-dark')}
                            >
-                             Blue Dark
+                             Blue Dark<sup>(Beta)</sup>
                            </button>
                        </div>
                    </div>
