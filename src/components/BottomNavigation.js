@@ -77,7 +77,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, onNewChat, darkMode, userPr
                   isActive={isActive}
                   variant={isActive ? "bold" : "linear"}
                   darkMode={darkMode}
-                  color={isActive ? "#c1121f" : undefined}
+                  color={isActive ? "var(--accent-color)" : undefined}
                   style={{ width: 24, height: 24, marginBottom: 4 }}
                 />
               )}

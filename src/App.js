@@ -53,9 +53,9 @@ function App() {
       const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       let isDark = false;
 
-      if (themePreference === "dark") {
+      if (themePreference === "dark" || themePreference === "red-dark" || themePreference === "blue-dark") {
         isDark = true;
-      } else if (themePreference === "light") {
+      } else if (themePreference === "light" || themePreference === "red-light" || themePreference === "blue-light") {
         isDark = false;
       } else {
         isDark = systemDark;
@@ -83,34 +83,56 @@ function App() {
 
   // Update theme-color meta tag for iOS/Android status bar & body background
   useEffect(() => {
-    // [MODIFIED] If we are on Account Settings, let that component handle it.
-    if (activeTab === "Account Settings") return;
-
     const updateTheme = () => {
         let metaThemeColor = document.querySelector("meta[name='theme-color']");
-        // Create if missing
         if (!metaThemeColor) {
             metaThemeColor = document.createElement('meta');
             metaThemeColor.name = "theme-color";
             document.head.appendChild(metaThemeColor);
         }
 
-        // [Logic for Chat & Insights Tab: Red Theme]
-        if (activeTab === "Chat" || activeTab === "Insights") {
-            metaThemeColor.setAttribute("content", "#c1121f");
-            document.body.style.backgroundColor = "#c1121f"; // Force Body Red
-        } else {
-            // [Default Theme: Dark/Light]
-            const color = darkMode ? "#000000" : "#ffffff";
-            metaThemeColor.setAttribute("content", color);
-            document.body.style.backgroundColor = color;
-        }
-
-        // Apply global dark-mode class (affects text color etc)
+        // Apply global dark-mode class
         if (darkMode) {
             document.body.classList.add("dark-mode");
         } else {
             document.body.classList.remove("dark-mode");
+        }
+
+        // Apply theme-specific accent classes
+        document.body.classList.remove("theme-red-light", "theme-red-dark", "theme-blue-light", "theme-blue-dark");
+        
+        let themeClass = "";
+        if (themePreference && themePreference.includes("-")) {
+            themeClass = `theme-${themePreference}`;
+        } else if (themePreference === "system") {
+            themeClass = darkMode ? "theme-red-dark" : "theme-red-light";
+        } else {
+            themeClass = darkMode ? "theme-red-dark" : "theme-red-light";
+        }
+        document.body.classList.add(themeClass);
+
+        // [Logic for status bar & background]
+        // If we are on Account Settings, let that component handle its specific background if needed, 
+        // but we still need the accent classes above for the whole app.
+        if (activeTab === "Account Settings") {
+             // Let internal component handle specific status bar if it wants, 
+             // but we'll set a default here based on current class
+             const accentColor = themeClass.includes("blue") ? "#007AFF" : "#c1121f";
+             metaThemeColor.setAttribute("content", accentColor);
+             document.body.style.backgroundColor = "var(--accent-color)";
+             return;
+        }
+
+        // For other tabs
+        const accentColor = themeClass.includes("blue") ? "#007AFF" : "#c1121f";
+        
+        if (activeTab === "Chat" || activeTab === "Insights") {
+            metaThemeColor.setAttribute("content", accentColor);
+            document.body.style.backgroundColor = "var(--accent-color)"; 
+        } else {
+            const bgColor = darkMode ? "#000000" : "#ffffff";
+            metaThemeColor.setAttribute("content", bgColor);
+            document.body.style.backgroundColor = bgColor;
         }
     };
 
@@ -126,7 +148,7 @@ function App() {
     
     // Always use default to respect theme-color
     metaAppleStatus.setAttribute("content", "default");
-  }, [darkMode, activeTab]); // Added activeTab dependency
+  }, [darkMode, activeTab, themePreference]); // Added themePreference dependency
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

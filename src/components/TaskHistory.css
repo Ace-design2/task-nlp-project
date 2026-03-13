@@ -27,7 +27,7 @@
 
 /* The Bubble Itself */
 .chat-bubble {
-  background-color: #c1121f; /* User: Red bubble */
+  background-color: var(--accent-color); /* User: Red bubble */
   color: #ffffff;
   padding: 10px 16px;
   border-radius: 18px 18px 4px 18px; /* User curve */
@@ -44,7 +44,7 @@
 }
 
 .chat-message-wrapper.ai .chat-bubble {
-  background-color: rgba(193, 18, 31, 0.1); /* AI: Light Red Tint */
+  background-color: rgba(var(--accent-rgb), 0.1); /* AI: Light Red Tint */
   color: #000000;
   border-radius: 18px 18px 18px 4px; /* AI curve */
 }
@@ -111,7 +111,7 @@
 
 /* Typing Indicator */
 .typing-indicator-bubble {
-  background-color: rgba(193, 18, 31, 0.1);
+  background-color: rgba(var(--accent-rgb), 0.1);
   padding: 12px 16px;
   border-radius: 18px 18px 18px 4px;
   display: inline-flex;
@@ -125,7 +125,7 @@
 .typing-dot {
   width: 6px;
   height: 6px;
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   border-radius: 50%;
   animation: typingBounce 1.4s infinite ease-in-out both;
 }
@@ -149,22 +149,22 @@
 
 /* Dark Mode Typing */
 .dark-mode-history .typing-indicator-bubble {
-  background-color: rgba(193, 18, 31, 0.2);
+  background-color: rgba(var(--accent-rgb), 0.2);
 }
 
 .dark-mode-history .typing-dot {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
 }
 
 /* Dark Mode Overrides */
 .dark-mode-history .chat-bubble {
-  background-color: #c1121f; /* User: Red bubble in dark mode too */
+  background-color: var(--accent-color); /* User: Red bubble in dark mode too */
   color: #ffffff; /* White text */
   box-shadow: none;
 }
 
 .dark-mode-history .chat-message-wrapper.ai .chat-bubble {
-  background-color: rgba(193, 18, 31, 0.2); /* AI: Slightly darker tint for dark mode */
+  background-color: rgba(var(--accent-rgb), 0.2); /* AI: Slightly darker tint for dark mode */
   color: #ffffff; /* White text */
 }
 

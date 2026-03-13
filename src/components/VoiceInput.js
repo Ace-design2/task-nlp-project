@@ -329,7 +329,7 @@ export default function VoiceInput({
             {!isTyping && (
                 <div className="voice-visualizer" style={{ marginBottom: 0 }}>
                 {visualData.map((height, i) => (
-                    <div key={i} className="voice-bar" style={{ height: `${height}px`, background: '#c1121f' }} />
+                    <div key={i} className="voice-bar" style={{ height: `${height}px`, background: 'var(--accent-color)' }} />
                 ))}
                 </div>
             )}
@@ -343,7 +343,7 @@ export default function VoiceInput({
             <button 
                 onClick={toggleListening}
                 style={{
-                    background: '#c1121f',
+                    background: 'var(--accent-color)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '30px',
@@ -351,7 +351,7 @@ export default function VoiceInput({
                     fontSize: '16px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(193, 18, 31, 0.4)'
+                    boxShadow: '0 4px 12px rgba(var(--accent-rgb), 0.4)'
                 }}
             >
                 Stop voice

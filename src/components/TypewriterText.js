@@ -54,7 +54,7 @@ const TypewriterText = ({ text, speed = 30 }) => {
             display: 'inline-block', 
             width: '8px', 
             height: '14px', 
-            backgroundColor: '#c1121f', 
+            backgroundColor: 'var(--accent-color)', 
             marginLeft: '4px',
             verticalAlign: 'middle',
             animation: 'blink 1s infinite' 

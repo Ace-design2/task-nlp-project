@@ -214,7 +214,7 @@ const ChatList = ({
                 opacity: 1 /* Increased opacity for visibility */,
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
-                color: "#c1121f" /* Red Accent */,
+                color: "var(--accent-color)" /* Red Accent */,
               }}
             >
               {category}

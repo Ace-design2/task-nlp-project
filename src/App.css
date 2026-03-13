@@ -134,12 +134,12 @@ body.dark-mode {
 }
 
 .sidebar-item.active {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   color: #fff;
 }
 
 .app-container.dark-mode .sidebar-item.active {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   color: #fff;
 }
 
@@ -398,27 +398,27 @@ body.dark-mode {
   display: flex;
   transition: all 0.2s ease;
   min-width: 0; /* Critical for text-overflow to work in flex child */
-  outline: 1px solid rgba(193, 18, 31, 0.3); /* Lighter red stroke */
+  outline: 1px solid rgba(var(--accent-rgb), 0.3); /* Lighter red stroke */
   background-color: transparent;
 }
 
 .chat-item-card.dark {
-  outline: 1px solid rgba(193, 18, 31, 0.3);
+  outline: 1px solid rgba(var(--accent-rgb), 0.3);
   background-color: #1e1e1e;
 }
 
 /* Hover Effect with Red Accent & Active State */
 .chat-item-card:hover,
 .chat-item-card.active {
-  outline-color: #c1121f;
-  background-color: rgba(193, 18, 31, 0.05);
+  outline-color: var(--accent-color);
+  background-color: rgba(var(--accent-rgb), 0.05);
   cursor: pointer;
 }
 
 .chat-item-card.dark:hover,
 .chat-item-card.dark.active {
-  outline-color: #c1121f;
-  background-color: rgba(193, 18, 31, 0.15);
+  outline-color: var(--accent-color);
+  background-color: rgba(var(--accent-rgb), 0.15);
 }
 
 .chat-item-title {
@@ -502,20 +502,20 @@ body.dark-mode {
 }
 
 .chat-search-input:focus {
-  border-color: #c1121f;
-  box-shadow: 0 0 0 4px rgba(193, 18, 31, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.1);
 }
 
 /* Dark Mode Search Input */
 .app-container.dark-mode .chat-search-input {
-  border-color: rgba(193, 18, 31, 0.3);
+  border-color: rgba(var(--accent-rgb), 0.3);
   background: #1a1a1a;
   color: #fff;
 }
 
 .app-container.dark-mode .chat-search-input:focus {
-  border-color: #c1121f;
-  box-shadow: 0 0 0 4px rgba(193, 18, 31, 0.2);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.2);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -699,7 +699,7 @@ body.dark-mode {
 }
 
 .study-schedule-btn {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   color: #fff;
   border: none;
   border-radius: 999px; /* Pill shape */
@@ -717,7 +717,7 @@ body.dark-mode {
 }
 
 .app-container.dark-mode .study-schedule-btn {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   color: #fff;
   border: none;
   box-shadow: none;
@@ -784,14 +784,14 @@ body.dark-mode {
   padding: 5px 10px 5px 20px;
   gap: 12px;
   pointer-events: auto;
-  border: 1px solid rgba(193, 18, 31, 0.3);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   transition: background 0.3s;
   box-sizing: border-box; /* Fix overflow */
 }
 
 .app-container.dark-mode .astra-input-pill {
   background: #363636;
-  border: 1px solid rgba(193, 18, 31);
+  border: 1px solid rgba(var(--accent-rgb));
   box-shadow: none;
 }
 
@@ -863,7 +863,7 @@ body.dark-mode {
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: #c1121f;
+  background: var(--accent-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -878,7 +878,7 @@ body.dark-mode {
 }
 
 .app-container.dark-mode .astra-send-btn {
-  background: #c1121f;
+  background: var(--accent-color);
   /* Icon inside should be inverted or black */
 }
 
@@ -1032,7 +1032,7 @@ body.dark-mode {
 
 .resizer-handle:hover,
 .resizer-handle.resizing {
-  background-color: rgba(193, 18, 31, 0.3); /* Visual feedback on hover/drag */
+  background-color: rgba(var(--accent-rgb), 0.3); /* Visual feedback on hover/drag */
 }
 
 /* Optional: Add a grabber line in the center purely for visual affordance */
@@ -1192,7 +1192,7 @@ body.dark-mode .speech-mode-overlay {
 /* Individual Bar */
 .voice-bar {
   width: 12px;
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   border-radius: 99px;
   transition: height 0.05s ease; /* Fast transition for responsiveness */
   min-height: 10px;
@@ -1200,7 +1200,7 @@ body.dark-mode .speech-mode-overlay {
 
 /* Optional: Glow more in dark mode */
 body.dark-mode .voice-bar {
-  box-shadow: 0 0 10px rgba(193, 18, 31, 0.4);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4);
 }
 
 .speech-status-text {
@@ -1263,7 +1263,7 @@ body.dark-mode .close-speech-btn:hover {
   gap: 8px;
   padding: 8px 12px;
   border-radius: 20px;
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   color: white;
   font-size: 14px;
   font-weight: 500;

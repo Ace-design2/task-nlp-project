@@ -1,8 +1,4 @@
 /* Glassmorphism Variables */
-:root {
-  --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
-  --accent-color: #c1121f;
-}
 
 .creative-container {
   width: 100%;

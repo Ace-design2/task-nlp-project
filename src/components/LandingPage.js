@@ -152,7 +152,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 1 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="message-text" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+              <VuesaxIcon name="message-text" variant="Bold" size={24} color={darkMode ? "var(--accent-color)" : undefined} />
             </div>
             <h3 className="lp-card-title">Natural Language Task Creation</h3>
             <p className="lp-card-text">
@@ -169,7 +169,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 2 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="microphone-2" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+              <VuesaxIcon name="microphone-2" variant="Bold" size={24} color={darkMode ? "var(--accent-color)" : undefined} />
             </div>
             <h3 className="lp-card-title">Voice Commands</h3>
             <p className="lp-card-text">
@@ -188,7 +188,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 3 */}
           <div className="lp-card">
             <div className="lp-icon-wrapper">
-              <VuesaxIcon name="magic-star" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+              <VuesaxIcon name="magic-star" variant="Bold" size={24} color={darkMode ? "var(--accent-color)" : undefined} />
             </div>
             <h3 className="lp-card-title">Conversational AI</h3>
             <p className="lp-card-text">
@@ -207,7 +207,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           {/* Feature 4 */}
           <div className="lp-card">
              <div className="lp-icon-wrapper">
-              <VuesaxIcon name="category" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+              <VuesaxIcon name="category" variant="Bold" size={24} color={darkMode ? "var(--accent-color)" : undefined} />
             </div>
             <h3 className="lp-card-title">Smart Dashboard</h3>
             <p className="lp-card-text">
@@ -232,7 +232,7 @@ function LandingPage({ onLoginClick, darkMode }) {
           ].map((item, index) => (
              <div key={index} className="lp-check-card">
                 <div className="lp-check-icon-wrapper">
-                  <VuesaxIcon name="tick-circle" variant="Bold" size={24} color={darkMode ? "#c1121f" : undefined} />
+                  <VuesaxIcon name="tick-circle" variant="Bold" size={24} color={darkMode ? "var(--accent-color)" : undefined} />
                 </div>
                 <span className="lp-check-text">{item}</span>
              </div>
@@ -251,7 +251,7 @@ function LandingPage({ onLoginClick, darkMode }) {
       {/* Waitlist Section */}
       <section id="waitlist" className="lp-cta-section">
         <div className="lp-waitlist-box">
-          <div className="lp-icon-wrapper" style={{ margin: '0 auto 20px auto', background: 'rgba(193, 18, 31, 0.1)', width: '64px', height: '64px', borderRadius: '20px' }}>
+          <div className="lp-icon-wrapper" style={{ margin: '0 auto 20px auto', background: 'rgba(var(--accent-rgb), 0.1)', width: '64px', height: '64px', borderRadius: '20px' }}>
             <span style={{ fontSize: '32px' }}>🚀</span>
           </div>
           <h2 className="lp-title" style={{ fontSize: '36px', marginBottom: '16px' }}>Early Access Is Coming Soon</h2>

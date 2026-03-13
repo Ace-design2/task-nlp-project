@@ -63,16 +63,17 @@ const AccountSettings = ({
     }
   }, [userProfile]);
 
-  // Force Red Status Bar
+  // Force Red Status Bar (Dynamic)
   useEffect(() => {
     const applyRedTheme = () => {
        const metaThemeColor = document.querySelector("meta[name='theme-color']");
-       if (metaThemeColor) metaThemeColor.setAttribute("content", "#c1121f");
-       document.body.style.backgroundColor = "#c1121f";
+       const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color').trim() || "#c1121f";
+       if (metaThemeColor) metaThemeColor.setAttribute("content", accentColor);
+       document.body.style.backgroundColor = "var(--accent-color)";
     };
     applyRedTheme();
     return () => {};
-  }, [darkMode]);
+  }, [darkMode, themePreference]);
 
   const processImage = (file) => {
     return new Promise((resolve, reject) => {
@@ -433,27 +434,39 @@ const AccountSettings = ({
                       <span className="menu-label">App Theme</span>
                   </div>
                   
-                  {/* Selector */}
-                  <div className="theme-selector">
-                      <button 
-                        className={`theme-opt ${themePreference === 'system' ? 'active' : ''}`}
-                        onClick={() => setThemePreference('system')}
-                      >
-                        System
-                      </button>
-                      <button 
-                        className={`theme-opt ${themePreference === 'dark' ? 'active' : ''}`}
-                        onClick={() => setThemePreference('dark')}
-                      >
-                        Dark
-                      </button>
-                      <button 
-                        className={`theme-opt ${themePreference === 'light' ? 'active' : ''}`}
-                        onClick={() => setThemePreference('light')}
-                      >
-                        Light
-                      </button>
-                  </div>
+                   {/* Selector */}
+                   <div className="theme-selector" style={{ flexWrap: "wrap", gap: "8px" }}>
+                       <button 
+                         className={`theme-opt ${themePreference === 'system' ? 'active' : ''}`}
+                         onClick={() => setThemePreference('system')}
+                       >
+                         System
+                       </button>
+                       <button 
+                         className={`theme-opt ${themePreference === 'light' ? 'active' : ''}`}
+                         onClick={() => setThemePreference('light')}
+                       >
+                         Red Light
+                       </button>
+                       <button 
+                         className={`theme-opt ${themePreference === 'dark' ? 'active' : ''}`}
+                         onClick={() => setThemePreference('dark')}
+                       >
+                         Red Dark
+                       </button>
+                       <button 
+                         className={`theme-opt ${themePreference === 'blue-light' ? 'active' : ''}`}
+                         onClick={() => setThemePreference('blue-light')}
+                       >
+                         Blue Light
+                       </button>
+                       <button 
+                         className={`theme-opt ${themePreference === 'blue-dark' ? 'active' : ''}`}
+                         onClick={() => setThemePreference('blue-dark')}
+                       >
+                         Blue Dark
+                       </button>
+                   </div>
               </div>
           </div>
 

@@ -50,7 +50,7 @@
 }
 
 .toggle-btn.active {
-  background-color: #c1121f; /* Red Accent */
+  background-color: var(--accent-color); /* Red Accent */
   color: white;
 }
 
@@ -77,7 +77,7 @@
 }
 
 .highlight-text {
-  color: #c1121f; /* Red Highlight */
+  color: var(--accent-color); /* Red Highlight */
   font-weight: 700;
 }
 
@@ -94,13 +94,13 @@
 }
 
 .input-group:focus-within {
-  border-color: #c1121f; /* Red focus border */
+  border-color: var(--accent-color); /* Red focus border */
 }
 
 .input-icon-placeholder {
   width: 16px;
   height: 16px;
-  background-color: #c1121f;
+  background-color: var(--accent-color);
   flex-shrink: 0;
 }
 
@@ -125,7 +125,7 @@
 }
 
 .subscribe-checkbox {
-  accent-color: #c1121f; /* Red accent */
+  accent-color: var(--accent-color); /* Red accent */
   width: 16px;
   height: 16px;
 }
@@ -133,7 +133,7 @@
 /* Buttons */
 .action-btn {
   padding: 14px;
-  border: 1px solid #c1121f; /* Red border default for primary? or keep black? Let's use Red for primary */
+  border: 1px solid var(--accent-color); /* Red border default for primary? or keep black? Let's use Red for primary */
   font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -144,9 +144,9 @@
 }
 
 .action-btn.primary {
-  background-color: #c1121f; /* Red background */
+  background-color: var(--accent-color); /* Red background */
   color: white;
-  border-color: #c1121f;
+  border-color: var(--accent-color);
 }
 
 .action-btn.google {
@@ -176,21 +176,21 @@
 
 .dark-mode .toggle-btn.active,
 .dark-mode .action-btn.primary {
-  background-color: #c1121f; /* Red in dark mode too */
+  background-color: var(--accent-color); /* Red in dark mode too */
   color: #fff;
-  border-color: #c1121f;
+  border-color: var(--accent-color);
 }
 
 .dark-mode .highlight-text {
-  color: #c1121f;
+  color: var(--accent-color);
 }
 
 .dark-mode .input-group:focus-within {
-  border-color: #c1121f;
+  border-color: var(--accent-color);
 }
 
 .dark-mode .input-icon-placeholder {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
 }
 
 /* Force Vuesax Icons to be white in dark mode inputs */
@@ -208,5 +208,5 @@
 }
 
 .dark-mode .subscribe-checkbox {
-  accent-color: #c1121f;
+  accent-color: var(--accent-color);
 }

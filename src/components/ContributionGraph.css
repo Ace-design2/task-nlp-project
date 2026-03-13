@@ -183,16 +183,16 @@
   background-color: rgba(255, 255, 255, 0.05);
 }
 .contribution-graph-card.dark-mode .graph-cell.level-1 {
-  background-color: rgba(193, 18, 31, 0.2);
+  background-color: rgba(var(--accent-rgb), 0.2);
 }
 .contribution-graph-card.dark-mode .graph-cell.level-2 {
-  background-color: rgba(193, 18, 31, 0.4);
+  background-color: rgba(var(--accent-rgb), 0.4);
 }
 .contribution-graph-card.dark-mode .graph-cell.level-3 {
-  background-color: rgba(193, 18, 31, 0.7);
+  background-color: rgba(var(--accent-rgb), 0.7);
 }
 .contribution-graph-card.dark-mode .graph-cell.level-4 {
-  background-color: #c1121f;
+  background-color: var(--accent-color);
 }
 
 /* Hover */
