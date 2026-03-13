@@ -95,10 +95,7 @@
   font-size: 24px;
   font-weight: 700;
   text-align: center;
-  background: var(
-    --accent-gradient,
-    linear-gradient(135deg, var(--accent-color) 0%, #ff4d4d 100%)
-  );
+  background: var(--accent-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -184,10 +181,7 @@
 }
 
 .calendar-day-cell.selected {
-  background: var(
-    --accent-color,
-    linear-gradient(135deg, var(--accent-color) 0%, #ff4d4d 100%)
-  );
+  background: var(--accent-gradient);
   color: white;
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
   transform: scale(1.05);

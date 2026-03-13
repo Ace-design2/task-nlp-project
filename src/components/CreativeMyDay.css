@@ -43,11 +43,6 @@
 }
 
 .creative-container.dark-mode {
-  --accent-gradient: linear-gradient(
-    135deg,
-    #ff4d4d 0%,
-    #ff8080 100%
-  ); /* Softer pastel for dark mode contrast */
   color: #fff;
 }
 

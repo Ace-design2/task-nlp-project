@@ -139,10 +139,7 @@
   right: 0;
   bottom: 0;
   border-radius: 8px;
-  background: var(
-    --accent-gradient,
-    linear-gradient(135deg, var(--accent-color) 0%, #ff4d4d 100%)
-  );
+  background: var(--accent-gradient);
   box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
   z-index: 1;
 }
@@ -288,10 +285,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: var(
-    --accent-gradient,
-    linear-gradient(135deg, var(--accent-color) 0%, #ff4d4d 100%)
-  );
+  background: var(--accent-gradient);
   transition: height 0.5s ease-out;
   border-radius: inherit;
 }
@@ -301,10 +295,7 @@
 }
 
 .insights-container.dark-mode .bar-fill {
-  background: var(
-    --accent-gradient,
-    linear-gradient(135deg, var(--accent-color) 0%, #ff4d4d 100%)
-  );
+  background: var(--accent-gradient);
 }
 
 .bar-label {

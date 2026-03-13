@@ -91,7 +91,7 @@ const CreativeMyDay = ({
             <VuesaxIcon 
                 name="notification" 
                 variant={hasUnread ? "Bold" : "Linear"} 
-                color={hasUnread ? "#FF4B4B" : (darkMode ? "#fff" : "#292D32")}
+                color={hasUnread ? "var(--accent-color)" : (darkMode ? "#fff" : "#292D32")}
                 size={22}
             />
             {hasUnread && (
@@ -101,7 +101,7 @@ const CreativeMyDay = ({
                     right: 8,
                     width: 8,
                     height: 8,
-                    background: '#FF4B4B',
+                    background: 'var(--accent-color)',
                     borderRadius: '50%',
                     border: `2px solid ${darkMode ? '#1E1E1E' : '#fff'}`
                 }} />

@@ -2282,7 +2282,7 @@ function App() {
                   padding: "24px",
                   paddingTop: "calc(env(safe-area-inset-top) + 24px)", // Ensure safe area spacing
                   
-                  backgroundColor: "#c1121f", // Red background
+                  backgroundColor: "var(--accent-color)", // Dynamic background
                    // Top corners square, bottom rounded
                   color: "#fff"
                 }}

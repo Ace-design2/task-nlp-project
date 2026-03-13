@@ -3,26 +3,31 @@
 :root {
   --accent-color: #c1121f;
   --accent-rgb: 193, 18, 31;
+  --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
 }
 
 .theme-red-light {
   --accent-color: #c1121f;
   --accent-rgb: 193, 18, 31;
+  --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
 }
 
 .theme-red-dark {
   --accent-color: #c1121f;
   --accent-rgb: 193, 18, 31;
+  --accent-gradient: linear-gradient(135deg, #c1121f 0%, #ff4d4d 100%);
 }
 
 .theme-blue-light {
   --accent-color: #007AFF;
   --accent-rgb: 0, 122, 255;
+  --accent-gradient: linear-gradient(135deg, #007AFF 0%, #00C6FF 100%);
 }
 
 .theme-blue-dark {
   --accent-color: #007AFF;
   --accent-rgb: 0, 122, 255;
+  --accent-gradient: linear-gradient(135deg, #007AFF 0%, #00C6FF 100%);
 }
 
 body {

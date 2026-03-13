@@ -434,38 +434,42 @@ const AccountSettings = ({
                       <span className="menu-label">App Theme</span>
                   </div>
                   
-                   {/* Selector */}
-                   <div className="theme-selector" style={{ flexWrap: "wrap", gap: "8px" }}>
-                       <button 
-                         className={`theme-opt ${themePreference === 'system' ? 'active' : ''}`}
-                         onClick={() => setThemePreference('system')}
-                       >
-                         System
-                       </button>
-                       <button 
-                         className={`theme-opt ${themePreference === 'light' ? 'active' : ''}`}
-                         onClick={() => setThemePreference('light')}
-                       >
-                         Red Light
-                       </button>
-                       <button 
-                         className={`theme-opt ${themePreference === 'dark' ? 'active' : ''}`}
-                         onClick={() => setThemePreference('dark')}
-                       >
-                         Red Dark
-                       </button>
-                       <button 
-                         className={`theme-opt ${themePreference === 'blue-light' ? 'active' : ''}`}
-                         onClick={() => setThemePreference('blue-light')}
-                       >
-                         Blue Light
-                       </button>
-                       <button 
-                         className={`theme-opt ${themePreference === 'blue-dark' ? 'active' : ''}`}
-                         onClick={() => setThemePreference('blue-dark')}
-                       >
-                         Blue Dark
-                       </button>
+                   {/* Multi-row Selector */}
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                       <div className="theme-selector">
+                           <button 
+                             className={`theme-opt ${themePreference === 'system' ? 'active' : ''}`}
+                             onClick={() => setThemePreference('system')}
+                           >
+                             System
+                           </button>
+                           <button 
+                             className={`theme-opt ${themePreference === 'light' ? 'active' : ''}`}
+                             onClick={() => setThemePreference('light')}
+                           >
+                             Light
+                           </button>
+                           <button 
+                             className={`theme-opt ${themePreference === 'dark' ? 'active' : ''}`}
+                             onClick={() => setThemePreference('dark')}
+                           >
+                             Dark
+                           </button>
+                       </div>
+                       <div className="theme-selector">
+                           <button 
+                             className={`theme-opt ${themePreference === 'blue-light' ? 'active' : ''}`}
+                             onClick={() => setThemePreference('blue-light')}
+                           >
+                             Blue Light
+                           </button>
+                           <button 
+                             className={`theme-opt ${themePreference === 'blue-dark' ? 'active' : ''}`}
+                             onClick={() => setThemePreference('blue-dark')}
+                           >
+                             Blue Dark
+                           </button>
+                       </div>
                    </div>
               </div>
           </div>
