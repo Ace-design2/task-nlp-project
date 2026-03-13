@@ -197,7 +197,7 @@ export default function VoiceInput({
 
       silenceTimerRef.current = setTimeout(() => {
           submitText();
-      }, 2500);
+      }, 1200);
     };
 
     recognition.onerror = (event) => {
