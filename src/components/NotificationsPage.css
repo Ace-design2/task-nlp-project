@@ -161,3 +161,51 @@
 .notifications-page.dark-mode .mark-read-btn:hover {
     background: rgba(255,255,255,0.1);
 }
+
+.read-notifications-section {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.toggle-read-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    padding: 8px 0;
+    margin: 0 auto;
+}
+
+.notifications-page.dark-mode .toggle-read-btn {
+    color: #aaa;
+}
+
+.toggle-read-btn:hover {
+    color: #333;
+}
+
+.notifications-page.dark-mode .toggle-read-btn:hover {
+    color: #fff;
+}
+
+.read-notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notification-item.read-item {
+    opacity: 0.7;
+    background: #f9f9f9;
+}
+
+.notifications-page.dark-mode .notification-item.read-item {
+    background: #181818;
+}

@@ -37,6 +37,7 @@ import {
   orderBy,
   getDocs,
   writeBatch,
+  updateDoc,
 } from "firebase/firestore";
 
 function App() {
@@ -578,24 +579,24 @@ function App() {
     const handleMarkAllRead = async () => {
         if (!user) return;
         const batch = writeBatch(db);
-        notifications.forEach(n => {
+        const unreadNotifications = notifications.filter(n => !n.read);
+        unreadNotifications.forEach(n => {
             const ref = doc(db, "users", user.uid, "notifications", n.id);
-            batch.delete(ref);
+            batch.update(ref, { read: true });
         });
         try {
             await batch.commit();
-            setNotifications([]); // Optimistic update
         } catch (e) {
-            console.error("Error clearing notifications:", e);
+            console.error("Error marking all notifications as read:", e);
         }
     };
 
     const handleMarkRead = async (id) => {
         if (!user) return;
         try {
-            await deleteDoc(doc(db, "users", user.uid, "notifications", id));
+            await updateDoc(doc(db, "users", user.uid, "notifications", id), { read: true });
         } catch (e) {
-            console.error("Error deleting notification:", e);
+            console.error("Error marking notification as read:", e);
         }
     };
 
@@ -2656,7 +2657,7 @@ function App() {
                       setShowNotifications(true);
                       // Auto-mark removed as per user request (manual delete only)
                     }}
-                    hasUnread={notifications.length > 0} 
+                    hasUnread={notifications.some(n => !n.read)} 
                   />
             )}
           </div>

@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import "./NotificationsPage.css";
 import VuesaxIcon from "./VuesaxIcon";
 
 const NotificationsPage = ({ notifications = [], onBack, darkMode, onMarkAllRead, onMarkRead }) => {
+  const [showRead, setShowRead] = useState(false);
+
+  const unreadNotifications = notifications.filter(n => !n.read);
+  const readNotifications = notifications.filter(n => n.read);
+
   return (
     <div className={`notifications-page ${darkMode ? "dark-mode" : ""}`}>
       {/* Header */}
@@ -13,18 +18,18 @@ const NotificationsPage = ({ notifications = [], onBack, darkMode, onMarkAllRead
         <h1 className="notifications-title">Notifications</h1>
         
         {/* Mark All Read Button */}
-        {notifications.length > 0 && (
+        {unreadNotifications.length > 0 && (
             <button className="mark-all-btn" onClick={onMarkAllRead}>
                 Mark all as read
             </button>
         )}
-        {notifications.length === 0 && <div style={{ width: 24 }}></div>}
+        {unreadNotifications.length === 0 && <div style={{ width: 24 }}></div>}
       </div>
 
       {/* List */}
       <div className="notifications-list">
-        {notifications.length > 0 ? (
-          notifications.map((notif) => (
+        {unreadNotifications.length > 0 ? (
+          unreadNotifications.map((notif) => (
             <div key={notif.id} className="notification-item">
               <div className="notif-icon-box">
                 <VuesaxIcon
@@ -72,7 +77,52 @@ const NotificationsPage = ({ notifications = [], onBack, darkMode, onMarkAllRead
               style={{ opacity: 0.3, marginBottom: 16 }}
               darkMode={darkMode}
             />
-            <div style={{ opacity: 0.6 }}>No notifications yet</div>
+            <div style={{ opacity: 0.6 }}>No unread notifications</div>
+          </div>
+        )}
+
+        {/* Read Notifications Toggle */}
+        {readNotifications.length > 0 && (
+          <div className="read-notifications-section">
+            <button 
+              className="toggle-read-btn" 
+              onClick={() => setShowRead(!showRead)}
+            >
+              {showRead ? "Hide read notifications" : "View read notifications"}
+              <VuesaxIcon 
+                name={showRead ? "arrow-up-2" : "arrow-down-1"} 
+                variant="Linear" 
+                size={16} 
+                darkMode={darkMode} 
+              />
+            </button>
+
+            {showRead && (
+              <div className="read-notifications-list">
+                {readNotifications.map((notif) => (
+                  <div key={notif.id} className="notification-item read-item">
+                    <div className="notif-icon-box">
+                      <VuesaxIcon
+                        name={
+                          notif.type === "task_due"
+                            ? "alarm"
+                            : notif.type === "task_created"
+                            ? "add-circle"
+                            : "notification"
+                        }
+                        variant="Bold"
+                        color={darkMode ? "#555" : "#aaa"}
+                        size={20}
+                      />
+                    </div>
+                    <div className="notif-content">
+                      <div className="notif-title" style={{ opacity: 0.7 }}>{notif.title}</div>
+                      <div className="notif-time" style={{ opacity: 0.5 }}>{notif.timestamp}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
