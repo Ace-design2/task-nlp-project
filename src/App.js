@@ -600,6 +600,35 @@ function App() {
         }
     };
 
+    const handleAddRecommendedTask = async (title) => {
+        if (!user) return;
+        const newTask = {
+            title,
+            completed: false,
+            date: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            priority: "Medium",
+            priorityColor: "#FFB020",
+        };
+        try {
+            await addDoc(collection(db, "users", user.uid, "tasks"), {
+                ...newTask,
+                pushToken: fcmToken || null,
+                sent: false,
+            });
+
+            await addDoc(collection(db, "users", user.uid, "notifications"), {
+                type: "task_created",
+                title: `Task Added: ${title}`,
+                timestamp: new Date().toLocaleString(),
+                createdAt: new Date().toISOString(),
+                read: false,
+            });
+        } catch (e) {
+            console.error("Error adding recommended task:", e);
+        }
+    };
+
   const handleSelectChat = (id) => {
     setActiveChatId(id);
     setHistory([]);
@@ -2658,6 +2687,7 @@ function App() {
                       // Auto-mark removed as per user request (manual delete only)
                     }}
                     hasUnread={notifications.some(n => !n.read)} 
+                    onAddRecommendedTask={handleAddRecommendedTask}
                   />
             )}
           </div>

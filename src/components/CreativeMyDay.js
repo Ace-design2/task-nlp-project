@@ -1,6 +1,8 @@
 import React, { useMemo } from "react";
 import "./CreativeMyDay.css";
 import VuesaxIcon from "./VuesaxIcon";
+import { useRecommendations } from "../hooks/useRecommendations";
+import RecommendedTasks from "./RecommendedTasks";
 
 const CreativeMyDay = ({
   tasks = [],
@@ -11,6 +13,7 @@ const CreativeMyDay = ({
   onShowNotifications,
   hasUnread,
   onProfileClick, // [NEW]
+  onAddRecommendedTask,
 }) => {
   // 1. Time-based Greeting
   const greeting = useMemo(() => {
@@ -19,6 +22,8 @@ const CreativeMyDay = ({
     if (hour < 18) return "Good Afternoon";
     return "Good Evening";
   }, []);
+
+  const { recommendations, dismissRecommendation } = useRecommendations(tasks);
 
   // 2. Filter Today's Tasks
   const isToday = (dateString) => {
@@ -131,6 +136,13 @@ const CreativeMyDay = ({
 
       {/* SCROLLABLE TASKS SECTION */}
       <div className="creative-tasks-section">
+        <RecommendedTasks 
+          recommendations={recommendations} 
+          onAdd={onAddRecommendedTask} 
+          onDismiss={dismissRecommendation} 
+          darkMode={darkMode} 
+        />
+
         <div className="section-label" style={{ marginBottom: 16 }}>
           Your Tasks
         </div>
