@@ -4,14 +4,27 @@ export const useRecommendations = (tasks) => {
   const [dismissed, setDismissed] = useState(() => {
     try {
       const saved = localStorage.getItem('dismissedRecommendations');
-      return saved ? JSON.parse(saved) : [];
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const newFormat = {};
+          parsed.forEach(item => {
+            if (typeof item === 'string') {
+              newFormat[item] = Date.now();
+            }
+          });
+          return newFormat;
+        }
+        return parsed || {};
+      }
+      return {};
     } catch (e) {
-      return [];
+      return {};
     }
   });
 
   const dismissRecommendation = (title) => {
-    const updated = [...dismissed, title.toLowerCase()];
+    const updated = { ...dismissed, [title.toLowerCase()]: Date.now() };
     setDismissed(updated);
     localStorage.setItem('dismissedRecommendations', JSON.stringify(updated));
   };
@@ -66,7 +79,15 @@ export const useRecommendations = (tasks) => {
     const suggestions = [];
 
     Object.values(stats).forEach(stat => {
-      if (dismissed.includes(stat.title.toLowerCase()) || stat.isCurrentlyActive) {
+      const dismissedTimestamp = dismissed[stat.title.toLowerCase()];
+      if (dismissedTimestamp) {
+        const hoursSinceDismissed = (now.getTime() - dismissedTimestamp) / (1000 * 60 * 60);
+        if (hoursSinceDismissed < 24) {
+          return;
+        }
+      }
+
+      if (stat.isCurrentlyActive) {
         return;
       }
 
