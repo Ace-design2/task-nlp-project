@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 export const useRecommendations = (tasks) => {
   const [dismissed, setDismissed] = useState(() => {
